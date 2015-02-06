@@ -50,9 +50,9 @@ time_vect = 0:1/obj.sr:(nsamples-1) * (1/obj.sr);
 if isfield(obj,'signal')    
     % Compute frequencies of interest
     pad_signal = [zeros(1,obj.pad), obj.signal, zeros(1,obj.pad)];
-    theta = eegfilt_silent(pad_signal,obj.sr,obj.lo_bounds(1),obj.lo_bounds(2));
+    theta = eegfilt_silent(pad_signal,obj.sr,obj.lo_bounds(1),obj.lo_bounds(2),0,[],0,'fir1');
     theta = theta(obj.pad:end-obj.pad-1);
-    gamma = eegfilt_silent(pad_signal,obj.sr,obj.hi_bounds(1),obj.hi_bounds(2));
+    gamma = eegfilt_silent(pad_signal,obj.sr,obj.hi_bounds(1),obj.hi_bounds(2),0,[],0,'fir1');
     gamma = gamma(obj.pad:end-obj.pad-1);
 else
     theta = obj.theta;
@@ -75,7 +75,7 @@ gamma_amp_phase = angle(hilbert(gamma_amp));
 % Compute theta-filtered gamma amplitude
 %if isfield(obj,'signal')
     pad_gamma = [zeros(1,obj.pad), gamma_amp, zeros(1,obj.pad)];
-    pad_gamma = eegfilt_silent(pad_gamma,obj.sr,obj.lo_bounds(1),obj.lo_bounds(2));
+    pad_gamma = eegfilt_silent(pad_gamma,obj.sr,obj.lo_bounds(1),obj.lo_bounds(2),0,[],0,'fir1');
     gamma_amp_theta = pad_gamma(obj.pad:end-obj.pad-1);
     %else
     % We cannot compute this for the two signal approach as we don't know
@@ -104,6 +104,7 @@ nwindows = floor ( (nsamples - window_size) / step);
 %% Compute the metrics
 
 results = [];
+results.nwindows = nwindows;
 
 ft_progress('init', 'textbar', 'Please wait...')
 
