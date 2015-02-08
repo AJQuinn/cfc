@@ -32,11 +32,11 @@ title('PLV');
 subplot(423)
 plot(pac_obj.results.time_vect,pac_obj.results.esc.^2);hold on;
 plot(pac_obj.results.time_vect,pac_obj.results.true_timecourse,'r')
-title('ESC');
+title('Envelope Signal Corr');
 subplot(424);
 plot(pac_obj.results.time_vect,pac_obj.results.nesc.^2);hold on;
 plot(pac_obj.results.time_vect,pac_obj.results.true_timecourse,'r')
-title('NESC');
+title('Normalised Envelope Signal Corr');
 subplot(425)
 plot(pac_obj.results.time_vect,pac_obj.results.mi);hold on;
 mmi = max(pac_obj.results.mi);
@@ -45,7 +45,8 @@ title('Modulation Index')
 subplot(426)
 plot(pac_obj.results.time_vect,pac_obj.results.voytek);hold on;
 plot(pac_obj.results.time_vect,pac_obj.results.true_timecourse,'r')
-title('AEC')
+title('Voytek')
 subplot(427)
 plot(pac_obj.results.time_vect,pac_obj.results.aec);hold on;
 plot(pac_obj.results.time_vect,pac_obj.results.true_timecourse,'r')
+title('Amplitude Envelope Corr')

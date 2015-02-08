@@ -7,20 +7,24 @@ if nargin < 3
     distr = 'normal';
 end
 
-% Create design matrix
-X = [ cos(modulating_signal); ...
-      sin(modulating_signal); 
-      ones(size(modulating_signal)) ]';
-  
-[beta,dev,stats] = glmfit(X,modulated_signal',distr,'constant','off');
+r2 = zeros(1,size(modulating_signal,2));
+for ep = 1:size(modulating_signal,2)
 
-glm = [];
-glm.beta = beta;
-glm.dev = dev;
-glm.stats = stats;
+    X = cat(2,cos(modulating_signal(:,ep)), ...
+              sin(modulating_signal(:,ep)), ...
+              ones(size(modulating_signal,1),1));
+     
+   [beta,dev,stats] = glmfit(X,modulated_signal(:,ep)',distr,'constant','off');
 
-ss_data = sum( modulated_signal .* modulated_signal);
-ss_resid = sum ( stats.resid .* stats.resid );
+   glm = [];
+   glm.beta = beta;
+   glm.dev = dev;
+   glm.stats = stats;
 
-r2 = (ss_data - ss_resid) / ss_data;
+   ss_data = sum( modulated_signal .* modulated_signal);
+   ss_resid = sum ( stats.resid .* stats.resid );
+
+   r2(ep) = (ss_data - ss_resid) / ss_data;
+
+end
 

@@ -39,11 +39,11 @@ end
 
 % Generate time vector
 if isfield(obj,'signal')
-    [~,nsamples] = size(obj.signal);
+    [nsamples,~] = size(obj.signal);
 else
-    [~,nsamples] = size(obj.theta);
+    [nsamples,~] = size(obj.theta);
 end
-time_vect = 0:1/obj.sr:(nsamples-1) * (1/obj.sr);
+time_vect = [0:1/obj.sr:(nsamples-1) * (1/obj.sr)]';
 
 % If we are passed one signal with frequency bands, perform filtering to
 % create the modulating and modulated signal
@@ -73,15 +73,9 @@ theta_phase = angle(hilbert(theta));
 gamma_amp_phase = angle(hilbert(gamma_amp));
 
 % Compute theta-filtered gamma amplitude
-%if isfield(obj,'signal')
-    pad_gamma = [zeros(1,obj.pad), gamma_amp, zeros(1,obj.pad)];
-    pad_gamma = eegfilt_silent(pad_gamma,obj.sr,obj.lo_bounds(1),obj.lo_bounds(2),0,[],0,'fir1');
-    gamma_amp_theta = pad_gamma(obj.pad:end-obj.pad-1);
-    %else
-    % We cannot compute this for the two signal approach as we don't know
-    % the exact epected theta bounds a priori
-%    gamma_amp_theta = nan;
-%end
+pad_gamma = [zeros(obj.pad,1); gamma_amp; zeros(obj.pad,1)];
+pad_gamma = eegfilt_silent(pad_gamma',obj.sr,obj.lo_bounds(1),obj.lo_bounds(2),0,[],0,'fir1');
+gamma_amp_theta = pad_gamma(obj.pad:end-obj.pad-1)';
 
 signals = struct('theta', theta, ...
                  'gamma', gamma, ...
@@ -91,6 +85,11 @@ signals = struct('theta', theta, ...
                  'gamma_amp_phase', gamma_amp_phase, ...
                  'gamma_amp_theta', gamma_amp_theta, ...
                  'time_vect', time_vect);
+if isfield(obj,'true_timecourse')
+    signals.true_timecourse = obj.true_timecourse;
+else
+    signals.true_timecourse = zeros(size(theta,1),size(theta,2));
+end
 
 %% Set up sliding window
 
@@ -101,54 +100,40 @@ step = floor( obj.step / ( 1 / obj.sr ) );
 % Find number of windows
 nwindows = floor ( (nsamples - window_size) / step);
 
-%% Compute the metrics
-
-results = [];
-results.nwindows = nwindows;
-
-ft_progress('init', 'textbar', 'Please wait...')
-
-for idx = 1:nwindows
-    
-    ft_progress(idx/nwindows, 'Processing event %d from %d', idx, nwindows)
-    
-    start_idx = (idx-1)*step + 1;
-    end_idx = (idx-1)*step + window_size + 1;
-    
-    results.time_vect(idx) = (time_vect(start_idx)+time_vect(end_idx)) / 2;
-    
-    if isfield(obj,'true_timecourse')
-        %results.true_timecourse(idx) = (obj.true_timecourse(start_idx)+obj.true_timecourse(end_idx)) / 2;
-        results.true_timecourse(idx) = (obj.true_timecourse(floor((start_idx+end_idx)/2)));
-    end
-    
-    glm = glm_estimator(theta_phase(start_idx:end_idx),gamma_amp(start_idx:end_idx));
-    results.glm(:,idx) = glm.r2;
-    results.plv(idx) = plv_estimator(theta_phase(start_idx:end_idx),gamma_amp_phase(start_idx:end_idx));
-    results.esc(idx) = esc_estimator(theta(start_idx:end_idx),gamma_amp(start_idx:end_idx));
-    results.aec(idx) = aec_estimator(theta_amp(start_idx:end_idx),gamma_amp(start_idx:end_idx));
-    results.nesc(idx) = nesc_estimator(theta_phase(start_idx:end_idx),gamma_amp(start_idx:end_idx));
-    results.mi(idx) = abs(est_canolty(theta_phase(start_idx:end_idx),gamma_amp(start_idx:end_idx),obj.sr));
-    results.psi(idx) = psi_estimator(theta_phase(start_idx:end_idx),gamma_amp_theta(start_idx:end_idx),mean(obj.lo_bounds));
-    
-    if isfield(obj,'signal')    
-        results.voytek(idx) = voytek_estimator(theta(start_idx:end_idx),gamma_amp_theta(start_idx:end_idx));
-    else
-        results.voytek(idx) = 0;
-    end
-
-    % metrics from mw
-    S = struct( 'data_high', gamma(start_idx:end_idx), ...
-                'data_low', theta(start_idx:end_idx), 'tres', 1/obj.sr,...
-                'high_band',obj.hi_bounds, 'low_band',obj.lo_bounds);
-    tmp = cross_freq_coupling(S);
-    results.mark.plv(idx) = tmp.plv;
-    results.mark.plv_cross(idx) = tmp.plv_cross;
-    results.mark.pac_plv(idx) = tmp.pac_plv;
-    results.mark.gs_plv(idx) = tmp.gs_plv;
-    results.mark.gs_pac_plv(idx) = tmp.gs_pac_plv;
-
-    
+% Make sliding window data
+fields = fieldnames(signals);
+for i = 1:numel(fields)
+    signals.(fields{i}) = make_sw_data(signals.(fields{i}),window_size,step);
 end
 
-out = struct('signals',signals,'results',results');
+%% Compute the metrics
+metrics = {'esc','nesc','aec','plv','voytek','mi','glm'};
+
+results = [];
+if sum(ismember(metrics,'esc')) == 1
+    results.esc = esc_estimator(signals.theta,signals.gamma_amp);
+end
+if sum(ismember(metrics,'nesc')) == 1
+    results.nesc = nesc_estimator(signals.theta,signals.gamma_amp);
+end
+if sum(ismember(metrics,'aec')) == 1
+    results.aec = aec_estimator(signals.theta,signals.gamma_amp);
+end
+if sum(ismember(metrics,'plv')) == 1
+    results.plv = plv_estimator(signals.theta_phase,signals.gamma_amp_phase);
+end
+if sum(ismember(metrics,'mi')) == 1
+    results.mi = mi_estimator(signals.theta_phase,signals.gamma_amp);
+end
+if sum(ismember(metrics,'glm')) == 1
+    results.glm = glm_estimator(signals.theta_phase,signals.gamma_amp);
+end
+if sum(ismember(metrics,'voytek')) == 1
+    results.voytek = voytek_estimator(signals.theta_phase,signals.gamma_amp);
+end
+
+results.nwindows = nwindows;
+out.signals = signals;
+out.results = results;
+out.results.time_vect = mean(out.signals.time_vect,1);
+out.results.true_timecourse = mean(out.signals.true_timecourse,1);
