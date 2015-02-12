@@ -43,17 +43,19 @@ if isfield(obj,'signal')
 else
     [nsamples,~] = size(obj.theta);
 end
-time_vect = [0:1/obj.sr:(nsamples-1) * (1/obj.sr)]';
+time_vect = (0:1/obj.sr:(nsamples-1) * (1/obj.sr))';
+
+disp('Computing Signals...');
 
 % If we are passed one signal with frequency bands, perform filtering to
 % create the modulating and modulated signal
 if isfield(obj,'signal')    
     % Compute frequencies of interest
-    pad_signal = [zeros(1,obj.pad), obj.signal, zeros(1,obj.pad)];
-    theta = eegfilt_silent(pad_signal,obj.sr,obj.lo_bounds(1),obj.lo_bounds(2),0,[],0,'fir1');
-    theta = theta(obj.pad:end-obj.pad-1);
-    gamma = eegfilt_silent(pad_signal,obj.sr,obj.hi_bounds(1),obj.hi_bounds(2),0,[],0,'fir1');
-    gamma = gamma(obj.pad:end-obj.pad-1);
+    pad_signal = [zeros(obj.pad,1); obj.signal; zeros(obj.pad,1)];
+    theta = eegfilt_silent(pad_signal',obj.sr,obj.lo_bounds(1),obj.lo_bounds(2),0,[],0,'fir1');
+    theta = theta(obj.pad:end-obj.pad-1)';
+    gamma = eegfilt_silent(pad_signal',obj.sr,obj.hi_bounds(1),obj.hi_bounds(2),0,[],0,'fir1');
+    gamma = gamma(obj.pad:end-obj.pad-1)';
 else
     theta = obj.theta;
     gamma = obj.gamma;
@@ -89,6 +91,10 @@ if isfield(obj,'true_timecourse')
     signals.true_timecourse = obj.true_timecourse;
 else
     signals.true_timecourse = zeros(size(theta,1),size(theta,2));
+end
+
+if isfield(obj,'signal')
+    signals.signal = obj.signal;
 end
 
 %% Set up sliding window
@@ -136,4 +142,4 @@ results.nwindows = nwindows;
 out.signals = signals;
 out.results = results;
 out.results.time_vect = mean(out.signals.time_vect,1);
-out.results.true_timecourse = mean(out.signals.true_timecourse,1);
+out.results.true_timecourse = out.signals.true_timecourse(floor(window_size/2),:);
