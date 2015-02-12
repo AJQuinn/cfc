@@ -99,6 +99,8 @@ end
 
 %% Set up sliding window
 
+disp('Creating sliding windows...');
+
 % Convert window and step to samples
 window_size = floor( obj.window_size / ( 1 / obj.sr ) );
 step = floor( obj.step / ( 1 / obj.sr ) );
@@ -117,24 +119,31 @@ metrics = {'esc','nesc','aec','plv','voytek','mi','glm'};
 
 results = [];
 if sum(ismember(metrics,'esc')) == 1
+    disp('Computing ESC...');
     results.esc = esc_estimator(signals.theta,signals.gamma_amp);
 end
 if sum(ismember(metrics,'nesc')) == 1
-    results.nesc = nesc_estimator(signals.theta,signals.gamma_amp);
+    disp('Computing NESC...');
+    results.nesc = nesc_estimator(signals.theta_phase,signals.gamma_amp);
 end
 if sum(ismember(metrics,'aec')) == 1
-    results.aec = aec_estimator(signals.theta,signals.gamma_amp);
+    disp('Computing AEC');
+    results.aec = aec_estimator(signals.theta_amp,signals.gamma_amp);
 end
 if sum(ismember(metrics,'plv')) == 1
+    disp('Computing PLV');
     results.plv = plv_estimator(signals.theta_phase,signals.gamma_amp_phase);
 end
 if sum(ismember(metrics,'mi')) == 1
+    disp('Computing MI...');
     results.mi = mi_estimator(signals.theta_phase,signals.gamma_amp);
 end
 if sum(ismember(metrics,'glm')) == 1
+    disp('Computing GLM...');
     results.glm = glm_estimator(signals.theta_phase,signals.gamma_amp);
 end
 if sum(ismember(metrics,'voytek')) == 1
+    disp('Computing voytek...');
     results.voytek = voytek_estimator(signals.theta_phase,signals.gamma_amp);
 end
 
