@@ -10,5 +10,4 @@ function [plv] = plv_estimator(modulating_signal,modulated_signal)
 
 phase_diff = modulating_signal - modulated_signal;
 
-plv = sum(exp(phase_diff)) ./ nsamples;
-
+plv =  abs(sum(exp(1i*phase_diff)) ./ nsamples);
