@@ -98,10 +98,17 @@ elseif S.method == 'ab'
 
 end
 
-obj.modulating_ts = modulating_ts' + randn(size(modulating_ts,1),...
-                                          size(modulating_ts,2))'*S.noise_ratio';
-obj.modulated_ts = modulated_ts'  + randn(size(modulated_ts,1),...
-                                          size(modulated_ts,2))'*S.noise_ratio';
+noise = scale_signal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
+                            S.noise_level,...
+                            modulating_ts);
+obj.modulating_ts = modulating_ts' + noise';
+noise = scale_signal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+                            S.noise_level,...
+                            modulated_ts);
+obj.modulated_ts = modulated_ts' + noise';
+
+obj.signal = obj.modulating_ts - obj.modulated_ts;
+
 obj.state_switching = state_switching';
 obj.time_vect = obj.time_vect';
 
