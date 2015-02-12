@@ -55,8 +55,7 @@ elseif S.method == 'mw'
         modulating_ts=sin(2*pi*obj.time_vect/Ttheta)/2;
 
         % Vary coupling over time
-        Tswitch = 1.5;
-        state_switching = (square(2*pi*obj.time_vect/Tswitch)+1)/2;
+        state_switching = (square(2*pi*obj.time_vect/obj.switching_freq)+1)/2;
 
         k=3;c=3;tc=0.6;
         amp_gamma=state_switching.*k./(1 + exp(-c*(modulating_ts-tc)));
