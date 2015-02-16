@@ -60,9 +60,14 @@ step = floor( obj.step / ( 1 / obj.sr ) );
 nwindows = floor ( (nsamples - window_size) / step);
 
 % Make sliding window data
+skip_field = {'hi_bounds','lo_bounds','sr'};
 fields = fieldnames(signals);
 for i = 1:numel(fields)
-    signals.(fields{i}) = make_sw_data(signals.(fields{i}),window_size,step);
+    if strmatch(fields{i},skip_field)
+        continue
+     else
+        signals.(fields{i}) = make_sw_data(signals.(fields{i}),window_size,step);
+    end
 end
 
 %% Compute the metrics
