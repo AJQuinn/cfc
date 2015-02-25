@@ -21,7 +21,7 @@ for ep = 1:size(modulating_signal,2)
    glm.dev = dev;
    glm.stats = stats;
 
-   ss_data = sum( modulated_signal .* modulated_signal);
+   ss_data = sum( modulated_signal(:,ep) .* modulated_signal(:,ep));
    ss_resid = sum ( stats.resid .* stats.resid );
 
    r2(ep) = (ss_data - ss_resid) / ss_data;
