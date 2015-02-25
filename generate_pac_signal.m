@@ -55,8 +55,8 @@ elseif S.method == 'mw'
         % Generate coupled signals
         Ttheta=1/S.modulating_freq;
         Tgamma=1/S.modulated_freq; %secs
-        modulated_ts = sin(2*pi*obj.time_vect/Tgamma)/2;
-        modulating_ts=sin(2*pi*obj.time_vect/Ttheta)/2;
+        modulated_ts = S.modulated_amp * sin(2*pi*obj.time_vect/Tgamma)/2;
+        modulating_ts= S.modulating_amp* sin(2*pi*obj.time_vect/Ttheta)/2;
 
         % Vary coupling over time
         state_switching = (square(2*pi*obj.time_vect/obj.switching_freq)+1)/2;
