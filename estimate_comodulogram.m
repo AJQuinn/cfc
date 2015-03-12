@@ -61,7 +61,7 @@ lo_freqs = ones(2,n_lo_steps) .* repmat(obj.lo_bounds(1):obj.lo_step:obj.lo_boun
 lo_freqs(1,:) = lo_freqs(1,:) - obj.lo_bandwidth/2;
 lo_freqs(2,:) = lo_freqs(2,:) + obj.lo_bandwidth/2;
 
-n_hi_steps = floor((obj.hi_bounds(2)-obj.hi_bounds(1))/obj.hi_step + 1)
+n_hi_steps = floor((obj.hi_bounds(2)-obj.hi_bounds(1))/obj.hi_step + 1);
 hi_freqs = ones(2,n_hi_steps,n_lo_steps) .* repmat(obj.hi_bounds(1):obj.hi_step:obj.hi_bounds(2),[2,1,n_lo_steps]);
 
 if strcmp(obj.hi_bandwidth,'adaptive')
