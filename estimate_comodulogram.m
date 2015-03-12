@@ -96,7 +96,7 @@ msg = '';
 for lo_idx = 1:n_lo_steps
     for hi_idx = 1:n_hi_steps
 
-        fprintf(repmat('\r',1,length(msg)));
+        fprintf(repmat(char(8),1,length(msg)));
         msg = sprintf('Computing low - %.2f:%.2f high - %.2f:%.2f', ...
             lo_freqs(1,lo_idx),lo_freqs(2,lo_idx),hi_freqs(1,hi_idx,lo_idx),hi_freqs(2,hi_idx,lo_idx));
         fprintf(msg);
