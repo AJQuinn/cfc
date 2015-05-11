@@ -134,7 +134,7 @@ for lo_idx = 1:n_lo_steps
 
     end
 end
-
+fprintf('\n');
 %% Create output struct
 
 cmg = struct('lo_freqs',    lo_freqs,...
