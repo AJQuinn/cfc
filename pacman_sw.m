@@ -28,19 +28,20 @@ if nargin < 2
 end
 
 % Make sure we haven't been given contradicting arguments
-if isfield(obj,'signal') && isfield(obj,'theta')
-    error('Please define either a signal and frequency bands or separate modulating and modulated signals');
-end
+%if isfield(obj,'signal') && isfield(obj,'theta')
+%    error('Please define either a signal and frequency bands or separate modulating and modulated signals');
+%end
 
 if ~isfield(obj,'pad')
     obj.pad = 100;
+end
+if ~isfield(obj,'true_timecourse')
+    obj.true_timecourse = zeros(size(obj.signal,1),size(obj.signal,2));
 end
 
 % Generate time vector
 if isfield(obj,'signal')
     [nsamples,~] = size(obj.signal);
-else
-    [nsamples,~] = size(obj.theta);
 end
 time_vect = (0:1/obj.sr:(nsamples-1) * (1/obj.sr))';
 
