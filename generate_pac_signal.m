@@ -9,19 +9,20 @@ function obj = generate_pac_signal(S)
 % S.phase_lag
 % S.method
 % S.noise_ratio
+% S.theta
 
-if ~ isfield('S','phase_lag')
-    S.phase_lag = pi/2; % Lock to peak of theta wave
-end
+%if ~isfield('S','phase_lag')
+%    S.phase_lag = pi/2; % Lock to peak of theta wave
+%end
 
 obj.time_vect = 0:1/S.sample_rate:S.seconds;
-obj.sample_rate = S.sample_rate; 
-obj.switching_freq = 1;
+obj.sample_rate = S.sample_rate;
+obj.switching_freq = 30;
 
 if S.method == 'aq'
 
         base_gamma = .1;
-        
+
         % Generate coupled signals
         modulating_ts = S.modulating_amp*sin(2*pi*S.modulating_freq*obj.time_vect);
         modulated_ts = S.modulating_amp*sin(2*pi*S.modulated_freq*obj.time_vect);
@@ -49,14 +50,37 @@ if S.method == 'aq'
         obj.mod = mod;
 
         modulated_ts = modulated_ts.*mod;
-        
+
 elseif S.method == 'mw'
 
         % Generate coupled signals
         Ttheta=1/S.modulating_freq;
         Tgamma=1/S.modulated_freq; %secs
         modulated_ts = S.modulated_amp * sin(2*pi*obj.time_vect/Tgamma)/2;
-        modulating_ts= S.modulating_amp* sin(2*pi*obj.time_vect/Ttheta)/2;
+        if isfield(S,'theta')
+            modulating_ts = sin(S.theta)';
+        else
+            modulating_ts= S.modulating_amp* sin(2*pi*obj.time_vect/Ttheta)/2;
+        end
+        % Vary coupling over time
+        state_switching = (square(2*pi*obj.time_vect/obj.switching_freq)+1)/2;
+
+        k=3;c=3;
+        modulating_ts_lag=sin(2*pi*obj.time_vect/Ttheta + S.phase_lag)/2;
+        amp_gamma=state_switching.*k./(1 + exp(-c*(modulating_ts_lag)));
+        modulated_ts=amp_gamma.*modulated_ts;
+
+        % Normalise variance of the modulated signal when not modulated
+        amptmp=std(modulated_ts(find(modulated_ts~=0)));
+        modulated_ts(find(modulated_ts==0))=randn(size(find(modulated_ts==0)))*amptmp;
+
+elseif S.method == 'hippo'
+
+        % Generate coupled signals
+        Ttheta=1/S.modulating_freq;
+        Tgamma=1/S.modulated_freq; %secs
+        modulated_ts = S.modulated_amp * sin(2*pi*obj.time_vect/Tgamma)/2;
+        modulating_ts= S.modulating_amp* load_pac_theta(S.sample_rate);
 
         % Vary coupling over time
         state_switching = (square(2*pi*obj.time_vect/obj.switching_freq)+1)/2;
@@ -69,6 +93,7 @@ elseif S.method == 'mw'
         % Normalise variance of the modulated signal when not modulated
         amptmp=std(modulated_ts(find(modulated_ts~=0)));
         modulated_ts(find(modulated_ts==0))=randn(size(find(modulated_ts==0)))*amptmp;
+
 
 elseif S.method == 'ab'
 
