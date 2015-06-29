@@ -5,8 +5,6 @@ function cmg = estimate_comodulogram( obj )
 %
 % Must be passed a struct with:
 %     sr: sampling rate
-%     window_size: length in seconds for sliding window
-%     step: step size between windows in seconds
 %     signal: 1d broadband signal to be analysed
 %     obj.lo_bounds: frequency range for modulating signal (eg [5 7])
 %     obj.lo_step: frequency steps for modulating signal (eg 1)
@@ -18,6 +16,8 @@ function cmg = estimate_comodulogram( obj )
 % and optionally:
 %     true_timecourse: 1d signal indicating where pac exists
 %     zero_pad: the number of samples to pad the time series when filtering
+%     window_size: length in seconds for sliding window
+%     step: step size between windows in seconds
 
 %% Housekeeping
 
@@ -39,12 +39,14 @@ if isfield(obj,'signal')
 end
 time_vect = (0:1/obj.sr:(nsamples-1) * (1/obj.sr))';
 
-% Convert window and step to samples
-window_size = floor( obj.window_size / ( 1 / obj.sr ) );
-step = floor( obj.step / ( 1 / obj.sr ) );
+if isfield(obj,'window_size') && isfield(obj,'step')
+    % Convert window and step to samples
+    window_size = floor( obj.window_size / ( 1 / obj.sr ) );
+    step = floor( obj.step / ( 1 / obj.sr ) );
 
-% Find number of windows
-nwindows = floor ( (nsamples - window_size) / step);
+    % Find number of windows
+    nwindows = floor ( (nsamples - window_size) / step);
+end
 
 
 %% Create frequency ranges
@@ -112,18 +114,20 @@ for lo_idx = 1:n_lo_steps
 
 
 
-        % Make sliding window data
-        skip_field = {'hi_bounds','hi_bandwidth','hi_steps',...
-                      'lo_bounds','lo_bandwidth','lo_steps','sr'};
-        fields = fieldnames(signals);
-        for i = 1:numel(fields)
-            if strmatch(fields{i},skip_field)
-                continue
-             else
-                signals.(fields{i}) = make_sw_data(signals.(fields{i}),window_size,step);
+        if isfield(obj,'window_size')
+            % Make sliding window data
+            skip_field = {'hi_bounds','hi_bandwidth','hi_steps',...
+                          'lo_bounds','lo_bandwidth','lo_steps','sr'};
+            fields = fieldnames(signals);
+            for i = 1:numel(fields)
+                if strmatch(fields{i},skip_field)
+                    continue
+                 else
+                    signals.(fields{i}) = make_sw_data(signals.(fields{i}),window_size,step);
+                end
             end
         end
-
+    
         % Estimate CFC
         esc(lo_idx,hi_idx) = esc_estimator(signals.theta,signals.gamma_amp);
         nesc(lo_idx,hi_idx) = nesc_estimator(signals.theta_phase,signals.gamma_amp);
