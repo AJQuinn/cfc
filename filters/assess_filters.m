@@ -11,7 +11,7 @@ function [filters] = assess_filters( signal, sample_rate, lo_bounds, hi_bounds )
 
 %% Assess spectra
 opt.Fs = sample_rate;
-opt.fpass = [1 150];
+opt.fpass = [1 48];
 
 fit = hmmspectramt(signal,nsamples,opt);
 
@@ -29,17 +29,20 @@ hi_fit = hmmspectramt(hi_signal',nsamples,opt)
 
 figure;
 subplot(311)
-plot(fit.state.f,fit.state.psd); hold on;
-line([hi_bounds(1) hi_bounds(1)],get(gca,'YLim'))
-line([hi_bounds(2) hi_bounds(2)],get(gca,'YLim'))
-line([lo_bounds(1) lo_bounds(1)],get(gca,'YLim'))
-line([lo_bounds(2) lo_bounds(2)],get(gca,'YLim'))
+plot(fit.state.f,log(fit.state.psd)); hold on;
+line([hi_bounds(1) hi_bounds(1)],get(gca,'YLim'),'r')
+line([hi_bounds(2) hi_bounds(2)],get(gca,'YLim'),'r')
+line([lo_bounds(1) lo_bounds(1)],get(gca,'YLim'),'r')
+line([lo_bounds(2) lo_bounds(2)],get(gca,'YLim'),'r')
+title('Original data')
 subplot(312)
-plot(lo_fit.state.f,lo_fit.state.psd); hold on;
-line([lo_bounds(1) lo_bounds(1)],get(gca,'YLim'))
-line([lo_bounds(2) lo_bounds(2)],get(gca,'YLim'))
+plot(lo_fit.state.f,log(lo_fit.state.psd)); hold on;
+line([lo_bounds(1) lo_bounds(1)],get(gca,'YLim'),'r')
+line([lo_bounds(2) lo_bounds(2)],get(gca,'YLim'),'r')
+title('Low Filters')
 subplot(313)
-plot(hi_fit.state.f,hi_fit.state.psd); hold on;
-line([hi_bounds(1) hi_bounds(1)],get(gca,'YLim'))
-line([hi_bounds(2) hi_bounds(2)],get(gca,'YLim'))
+plot(hi_fit.state.f,log(hi_fit.state.psd)); hold on;
+line([hi_bounds(1) hi_bounds(1)],get(gca,'YLim'),'r')
+line([hi_bounds(2) hi_bounds(2)],get(gca,'YLim'),'r')
+title('High Filters')
 xlabel('Frequency (Hz)');
