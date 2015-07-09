@@ -12,6 +12,14 @@ function cmg = estimate_comodulogram( obj )
 %     obj.hi_bounds: frequency range for modulated signal (eg [50 60])
 %     obj.hi_step: frequency steps for modulated signal (eg 10)
 %     obj.hi_bandwidth: bandwidth for modulated signal, either int or 'adaptive'
+%     obj.metric: cell array with metrics to compute, defaults to Canolty. eg {'MI','PLV'};
+%            options are:
+%                MI   - Modulation Index: Canolty et al 2008
+%                ESC  - Envelope Signal Correlation
+%                NESC - Normalised Envelope Signal Correlation
+%                GLM  - General Linear Model Method
+%                PLV  - Phase Locking Value
+%                AEC  - Amplitude Envelope Correlation
 %
 % and optionally:
 %     true_timecourse: 1d signal indicating where pac exists
@@ -46,6 +54,8 @@ if isfield(obj,'window_size') && isfield(obj,'step')
 
     % Find number of windows
     nwindows = floor ( (nsamples - window_size) / step);
+else
+    nwindows = 1;
 end
 
 
@@ -82,12 +92,12 @@ end
 
 % Preallocate metrics
 
-esc = zeros(n_lo_steps,n_hi_steps);
-nesc = zeros(n_lo_steps,n_hi_steps);
-plv = zeros(n_lo_steps,n_hi_steps);
-mi = zeros(n_lo_steps,n_hi_steps);
-glm = zeros(n_lo_steps,n_hi_steps);
-aec = zeros(n_lo_steps,n_hi_steps);
+esc = zeros(nwindows,n_lo_steps,n_hi_steps);
+nesc = zeros(nwindows,n_lo_steps,n_hi_steps);
+plv = zeros(nwindows,n_lo_steps,n_hi_steps);
+mi = zeros(nwindows,n_lo_steps,n_hi_steps);
+glm = zeros(nwindows,n_lo_steps,n_hi_steps);
+aec = zeros(nwindows,n_lo_steps,n_hi_steps);
 
 
 %%%%%%%%%%%%%%%%%%
@@ -129,23 +139,49 @@ for lo_idx = 1:n_lo_steps
         end
     
         % Estimate CFC
-        esc(lo_idx,hi_idx) = esc_estimator(signals.theta,signals.gamma_amp);
-        nesc(lo_idx,hi_idx) = nesc_estimator(signals.theta_phase,signals.gamma_amp);
-        plv(lo_idx,hi_idx) = plv_estimator(signals.theta_phase,signals.gamma_amp_phase);
-        glm(lo_idx,hi_idx) = glm_estimator(signals.theta_phase,signals.gamma_amp);
-        mi(lo_idx,hi_idx) = mi_estimator(signals.theta_phase,signals.gamma_amp);
-        aec(lo_idx,hi_idx) = aec_estimator(signals.theta_amp,signals.gamma_amp);
-
+        for met_idx = 1:length(obj.metrics)
+            if strcmp(obj.metrics{met_idx},'ESC')
+                esc(:,lo_idx,hi_idx) = esc_estimator(signals.theta,signals.gamma_amp);
+            elseif strcmp(obj.metrics{met_idx},'NESC')
+                nesc(:,lo_idx,hi_idx) = nesc_estimator(signals.theta_phase,signals.gamma_amp);
+            elseif strcmp(obj.metrics{met_idx},'AEC')
+                aec(:,lo_idx,hi_idx) = aec_estimator(signals.theta_amp,signals.gamma_amp);
+            elseif strcmp(obj.metrics{met_idx},'PLV')
+                plv(:,lo_idx,hi_idx) = plv_estimator(signals.theta_phase,signals.gamma_amp_phase);
+            elseif strcmp(obj.metrics{met_idx},'GLM')
+                glm(:,lo_idx,hi_idx) = glm_estimator(signals.theta_phase,signals.gamma_amp);
+            elseif strcmp(obj.metrics{met_idx},'MI')
+                mi(:,lo_idx,hi_idx) = mi_estimator(signals.theta_phase,signals.gamma_amp);
+            else
+                fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',obj.metrics{met_idx});
+            end
+        end
     end
 end
+
 fprintf('\n');
 %% Create output struct
 
 cmg = struct('lo_freqs',    lo_freqs,...
              'hi_freqs',    hi_freqs,...
-             'esc',         esc,...
-             'nesc',        nesc,...
-             'plv',         plv,...
-             'glm',         glm,...
-             'mi',          mi,...
-             'aec',         aec);
+             'signal',      signals.signal,...
+             'time_vect',   signals.time_vect);
+
+% add metrics
+for met_idx = 1:length(obj.metrics)
+    if strcmp(obj.metrics{met_idx},'ESC')
+        cmg.esc = esc;
+    elseif strcmp(obj.metrics{met_idx},'NESC')
+        cmg.nesc = nesc;
+    elseif strcmp(obj.metrics{met_idx},'AEC')
+        cmg.aec = aec;
+    elseif strcmp(obj.metrics{met_idx},'PLV')
+        cmg.plv = plv;
+    elseif strcmp(obj.metrics{met_idx},'GLM')
+        cmg.glm = glm;
+    elseif strcmp(obj.metrics{met_idx},'MI')
+        cmg.mi = mi;
+    end
+end
+
+end
