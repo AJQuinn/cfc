@@ -43,16 +43,39 @@ if centre_freq+(trans_width/2) >= sample_rate/2
     warning('Upper filter transition band is too close to Nyquist!')
 end
 
-%% Design a filter
-D = designfilt('bandpassfir', 'FilterOrder', order, ...
-      'StopbandFrequency1', centre_freq-(trans_width/2),...
-      'PassbandFrequency1', centre_freq-(pass_width/2) , ...
-      'PassbandFrequency2', centre_freq+(pass_width/2),...
-      'StopbandFrequency2', centre_freq+(trans_width/2),...
-      'SampleRate', sample_rate);
-  
-  % Get frequency response
-  [h,~] = freqz(D);
-  
-  % Get phase response
-  [phi,w] = phasez(D);
+method = 'parks';
+
+
+if strcmp(method, 'window')
+    %% Design a filter with windowing method
+    D = designfilt('bandpassfir', 'FilterOrder', order, ...
+        'StopbandFrequency1', centre_freq-(trans_width/2),...
+        'PassbandFrequency1', centre_freq-(pass_width/2) , ...
+        'PassbandFrequency2', centre_freq+(pass_width/2),...
+        'StopbandFrequency2', centre_freq+(trans_width/2),...
+        'SampleRate', sample_rate);
+    
+    % Get frequency response
+    [h,~] = freqz(D);
+    
+    % Get phase response
+    [phi,w] = phasez(D);
+    
+else
+    %% Design a filter with Parks & McClelland
+    
+    f = [0, centre_freq-(trans_width/2)....
+        centre_freq-(pass_width/2),...
+        centre_freq+(pass_width/2),...
+        centre_freq+(trans_width/2),...
+        sample_rate / 2];
+    f = f / ( sample_rate / 2); % normalised frequency
+    a = [0 0.0 1.0 1.0 0.0 0];
+    D = firpm(order,f,a);
+    
+    % get frequency response
+    [h,~] = freqz(D,1,512);
+    
+    % get phase response
+    [phi,w] = phasez(D,1,512);
+end
