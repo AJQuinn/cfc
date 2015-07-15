@@ -6,12 +6,11 @@ if nargin < 2
     figure;
     contourf(squeeze(mean(cmg.lo_freqs,1)),...
         squeeze(mean(cmg.hi_freqs(:,:,1),1)),...
-        cmg.mi');
+        squeeze(cmg.mi)');
     colormap('hot');
     colorbar();
 else
 
-    disp(col_levels)
     if nargin < 5 || isempty(col_levels)
         % Set colour levels based on the data
         col_levels = 0:max(max(cmg.mi))/24:max(max(cmg.mi));
@@ -57,7 +56,7 @@ else
     axes('position',[.3,.3,.6,.6])
     contourf(squeeze(mean(cmg.lo_freqs,1)),...
         squeeze(mean(cmg.hi_freqs(:,:,1),1)),...
-        cmg.mi',... 
+        squeeze(cmg.mi)',...
         'linestyle','none');
     caxis([col_levels(1) col_levels(end)]);
     colormap('hot');
