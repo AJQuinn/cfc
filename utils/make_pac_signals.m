@@ -1,23 +1,50 @@
-function signals = make_pac_signals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse)
+function signals = make_pac_signals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
 
 [nsamples,~] = size(signal);
 
-if nargin < 6
+if nargin < 8 || isempty(lo_trans)
+    % Use a constant transition band
+    lo_trans = [lo_bounds(1)-5 lo_bounds(2)+5];
+end
+
+if nargin < 7 || isempty(hi_trans)
+    hi_trans = [hi_bounds(1)-5 hi_bounds(2)+5];
+end
+
+if nargin < 6 || isempty(true_timecourse)
     true_timecourse = zeros(nsamples,1);
 end
 
-if nargin < 5
+if nargin < 5 || isempty(time_vect)
     time_vect = (0:1/sr:(nsamples-1) * (1/sr))';
 end
 
 pad = 150;
 
     % Compute frequencies of interest
-pad_signal = [zeros(pad,1); signal; zeros(pad,1)];
-theta = eegfilt_silent(pad_signal',sr,lo_bounds(1),lo_bounds(2),0,[],0,'fir1');
-theta = theta(pad:end-pad-1)';
-gamma = eegfilt_silent(pad_signal',sr,hi_bounds(1),hi_bounds(2),0,[],0,'fir1');
-gamma = gamma(pad:end-pad-1)';
+% pad_signal = [zeros(pad,1); signal; zeros(pad,1)];
+% theta = eegfilt_silent(pad_signal',sr,lo_bounds(1),lo_bounds(2),0,[],0,'fir1');
+% theta = theta(pad:end-pad-1)';
+% gamma = eegfilt_silent(pad_signal',sr,hi_bounds(1),hi_bounds(2),0,[],0,'fir1');
+% gamma = gamma(pad:end-pad-1)';
+
+theta_cfg.order = 200;
+theta_cfg.sample_rate = sr;
+theta_cfg.centre_freq = (lo_bounds(1)+lo_bounds(2))/2;
+theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
+theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
+theta_cfg.method = 'twopass';
+
+theta = fir_filter_data(signal,theta_cfg);
+
+gamma_cfg.order = 200;
+gamma_cfg.sample_rate = sr;
+gamma_cfg.centre_freq = (hi_bounds(1)+hi_bounds(2))/2;
+gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
+gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
+gamma_cfg.method = 'twopass';
+
+gamma = fir_filter_data(signal,gamma_cfg);
 
 %% Compute signals
 
