@@ -92,12 +92,12 @@ end
 
 % Preallocate metrics
 
-esc = zeros(nwindows,n_lo_steps,n_hi_steps);
-nesc = zeros(nwindows,n_lo_steps,n_hi_steps);
-plv = zeros(nwindows,n_lo_steps,n_hi_steps);
-mi = zeros(nwindows,n_lo_steps,n_hi_steps);
-glm = zeros(nwindows,n_lo_steps,n_hi_steps);
-aec = zeros(nwindows,n_lo_steps,n_hi_steps);
+esc = nan(nwindows,n_lo_steps,n_hi_steps);
+nesc = nan(nwindows,n_lo_steps,n_hi_steps);
+plv = nan(nwindows,n_lo_steps,n_hi_steps);
+mi = nan(nwindows,n_lo_steps,n_hi_steps);
+glm = nan(nwindows,n_lo_steps,n_hi_steps);
+aec = nan(nwindows,n_lo_steps,n_hi_steps);
 
 
 %%%%%%%%%%%%%%%%%%
@@ -112,6 +112,11 @@ for lo_idx = 1:n_lo_steps
         msg = sprintf('Computing low - %.2f:%.2f high - %.2f:%.2f', ...
             lo_freqs(1,lo_idx),lo_freqs(2,lo_idx),hi_freqs(1,hi_idx,lo_idx),hi_freqs(2,hi_idx,lo_idx));
         fprintf(msg);
+
+        if hi_freqs(1,hi_idx,lo_idx) <= lo_freqs(2,lo_idx)
+            % Skip estimation if the hi and lo bands overlap
+            continue
+        end
 
         %% Create PAC signal -
 
