@@ -2,14 +2,17 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
 %% Function using Savitsky-Golay smoothing filter to detect peaks in a
 % spectrum or time-series
 %
-% data: vector
-%       series to find peaks in
+% data: 2d array
+%       series to find peaks in [channels, samples], will average over channels
+%       if more than one
 % sample_rate: scalar
 %       sampling frequency of the data
 % freq_of_interest: vector
 %       low and high frequencies of interest eg [ .01 100 ]
 % plot_flag: bool
 %       flag to indicate whether to produce a plot
+% detrent: str
+%       Optional detrending of spectrum. Either '1/f' or 'polyfit'
 
 
     if nargin < 5 || isempty(detrend)
