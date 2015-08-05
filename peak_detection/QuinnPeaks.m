@@ -1,18 +1,21 @@
 function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
-%% Function using Savitsky-Golay smoothing filter to detect peaks in a
-% spectrum or time-series
+%% QuinnPeaks
+% Function using Savitsky-Golay smoothing filter to detect peaks in the
+% spectrum of a given time series
 %
+% Inputs
+% ------
 % data: 2d array
 %       series to find peaks in [channels, samples], will average over channels
 %       if more than one
-% sample_rate: scalar
+% sample_rate: double
 %       sampling frequency of the data
 % freq_of_interest: vector
 %       low and high frequencies of interest eg [ .01 100 ]
-% plot_flag: bool
-%       flag to indicate whether to produce a plot
-% detrent: str
-%       Optional detrending of spectrum. Either '1/f' or 'polyfit'
+% order: int [optional]
+%       order for sgolayfilter
+% detrend: str [optional]
+%       Optional detrending of spectrum. Choose from '1/f','linear' or 'polyfit'
 
 
     if nargin < 5 || isempty(detrend)
@@ -44,7 +47,6 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
     obj.fft = fftshift(abs(fft(data,[],2)));
     obj.freq_vect = linspace(-sample_rate/2,sample_rate/2,length(obj.fft));
 
-    
     if size(data,1) > 1
         obj.fft = mean(obj.fft,1);
     end
@@ -58,8 +60,14 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
         obj.sub_vect = (1./obj.freq_vect) * obj.fft(1);
         obj.fft = obj.fft - obj.sub_vect;
         obj.smo_fft = obj.smo_fft - obj.sub_vect;
+    elseif strcmp(detrend,'linear')
+        X = obj.freq_vect;
+        X = cat(1,X,ones(size(X)));
+        Y_hat = X'* ( X'\obj.fft');
+        obj.fft = obj.fft - Y_hat';
+        Y_hat = X'* ( X'\obj.smo_fft');
+        obj.smo_fft = obj.smo_fft - Y_hat';      
     elseif strcmp(detrend,'polyfit')
-        
         S.detrend_pred = zeros(size(obj.smo_fft,1),size(obj.smo_fft,2));
         modelfun = @(p,x)(p(1)*(x-p(4)) - p(2)*(x-p(4)) + p(3)*(x-p(4)).^2);
         beta0 = [1, 1, 1, 500];
@@ -74,19 +82,11 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
         figure;plot(obj.smo_fft)
     end
         
-        
-    %% Extract frequencies of interest
-    freq_idx_of_interest = obj.freq_vect > freq_of_interest(1) & obj.freq_vect < freq_of_interest(2);
-    obj.fft = obj.fft(freq_idx_of_interest);
-    obj.freq_vect = obj.freq_vect(freq_idx_of_interest);
-    obj.smo_fft = obj.smo_fft(freq_idx_of_interest);
-    if detrend == true
-        obj.sub_vect = obj.sub_vect(freq_idx_of_interest);
-    end
+       
         
     %% Fit diff of peaks
     disp('Peaking')
-    freq_width = .3;
+    freq_width = 1;
     % Find peaks using file-exchange script as matlab's one sucks
     % algorithm from: http://www.mathworks.com/matlabcentral/fileexchange/25500-peakfinder
     %[locs,pks] = peakfinder(obj.smo_fft,max(obj.smo_fft)/50,[],[],false);
