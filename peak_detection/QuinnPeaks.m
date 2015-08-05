@@ -55,6 +55,15 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
     disp('Smoothing')
     obj.smo_fft = sgolayfilt(obj.fft, order, sg_win);
 
+    %% Extract frequencies of interest
+    freq_idx_of_interest = obj.freq_vect > freq_of_interest(1) & obj.freq_vect < freq_of_interest(2);
+    obj.fft = obj.fft(freq_idx_of_interest);
+    obj.freq_vect = obj.freq_vect(freq_idx_of_interest);
+    obj.smo_fft = obj.smo_fft(freq_idx_of_interest);
+    if detrend == true
+        obj.sub_vect = obj.sub_vect(freq_idx_of_interest);
+    end
+    
     %% Subtract 1/f if requested
     if strcmp(detrend,'1/f')
         obj.sub_vect = (1./obj.freq_vect) * obj.fft(1);
