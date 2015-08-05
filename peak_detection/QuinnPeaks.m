@@ -63,7 +63,7 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
     if detrend == true
         obj.sub_vect = obj.sub_vect(freq_idx_of_interest);
     end
-    
+
     %% Subtract 1/f if requested
     if strcmp(detrend,'1/f')
         obj.sub_vect = (1./obj.freq_vect) * obj.fft(1);
@@ -75,7 +75,7 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
         Y_hat = X'* ( X'\obj.fft');
         obj.fft = obj.fft - Y_hat';
         Y_hat = X'* ( X'\obj.smo_fft');
-        obj.smo_fft = obj.smo_fft - Y_hat';      
+        obj.smo_fft = obj.smo_fft - Y_hat';
     elseif strcmp(detrend,'polyfit')
         S.detrend_pred = zeros(size(obj.smo_fft,1),size(obj.smo_fft,2));
         modelfun = @(p,x)(p(1)*(x-p(4)) - p(2)*(x-p(4)) + p(3)*(x-p(4)).^2);
@@ -90,9 +90,9 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
         figure;plot(pred)
         figure;plot(obj.smo_fft)
     end
-        
-       
-        
+
+
+
     %% Fit diff of peaks
     disp('Peaking')
     freq_width = 1;
@@ -100,16 +100,16 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
     % algorithm from: http://www.mathworks.com/matlabcentral/fileexchange/25500-peakfinder
     %[locs,pks] = peakfinder(obj.smo_fft,max(obj.smo_fft)/50,[],[],false);
     [locs,pks] = peakfinder(obj.smo_fft,max(obj.smo_fft)/50,[],[],false);
-    
-    %% Perform a linear regression to the differential of the smoothed spectrum 
+
+    %% Perform a linear regression to the differential of the smoothed spectrum
     % +/- 1Hz around each peak in the spectrum, this might be a bit big, .5Hz is probably fine...
     disp('Peak ID')
     for ipk = 1:length(pks)
-   
+
         % Assign peak location and height
         tmp.loc = locs(ipk);
         tmp.peak = pks(ipk);
- 
+
         % Create design matrix for regression
         tmp.X = obj.freq_vect(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
         tmp.X = cat(1,tmp.X,ones(size(tmp.X)));
@@ -120,10 +120,10 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
 
         % Assign differential as predicted variable for regression
         tmp.Y = smo_tmp(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
-    
+
         % Regress!
         tmp.coeff = tmp.X'\tmp.Y';
-    
+
         % Get predicted spectrum
         tmp.Y_hat = tmp.X'*tmp.coeff;
 
@@ -131,16 +131,16 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
         denom = sqrt ( sum ( (tmp.X(1,:) - mean(tmp.X(1,:))) .^2 ) );
         num   = sqrt ( sum ( (tmp.Y - tmp.Y_hat').^2 ) / ( size(tmp.Y,2) - 2));
         tmp.SE = num / denom;
-        
+
         % Get t-value for peak (testing against a beta of 0)
         tmp.t = tmp.coeff(1) / tmp.SE;
-        
+
         % Get p-value from t-distribution
         tmp.p = 2*(1-tcdf(abs(tmp.t),size(tmp.Y,2)-2));
-        
+
         % Get R2
         tmp.r2 = 1 - ( sum((tmp.Y - tmp.Y_hat').^2) / sum(tmp.Y.^2) );
-        
+
         % Create an interpolated oj for sub-sample resolution
         interp_X = linspace(tmp.X(1,1),tmp.X(end,1),10000);
         tmp.interp_X = cat(1,interp_X,ones(size(interp_X)));
