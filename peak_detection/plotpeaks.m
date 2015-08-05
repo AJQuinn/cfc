@@ -27,19 +27,9 @@ legend({'Original','Smoothed','Peaks'})
 ylabel('Amplitude')
 grid on;
 
-
-%% Smoothing window size for the SG filter
-sg_win = round(length(obj.freq_vect)/100);
-if rem(sg_win,2) == 0
-    sg_win = sg_win+1;
-end
-smo_tmp = sgolayfilt(diff(obj.smo_fft),2,sg_win);
-
-
 subplot(312)
 plot(obj.freq_vect(2:max_freq_idx),diff(obj.smo_fft(1:max_freq_idx)))
 hold on
-plot(obj.freq_vect(2:max_freq_idx),smo_tmp(1:max_freq_idx-1),'r')
 grid on;
 
 for ipk = 1:length(obj.peak)
