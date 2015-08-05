@@ -1,7 +1,13 @@
 function plotpeaks(obj, outpath, max_freq)
 %%
 % Create a plot from the output struct from sgolay_peaks
-% 
+%
+% obj: peaks struct
+%   the output from a call to QuinnPeaks
+% outpath: string
+%   a filepath to save out a copy of the figure
+% maxfreq: double
+%   the maximum frequency you want to display
 
 if nargin<3
     max_freq = obj.freq_vect(end-1);
