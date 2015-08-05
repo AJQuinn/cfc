@@ -104,11 +104,12 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
     %% Perform a linear regression to the differential of the smoothed spectrum
     % +/- 1Hz around each peak in the spectrum, this might be a bit big, .5Hz is probably fine...
     disp('Peak ID')
+    pk_cnt = 1;
     for ipk = 1:length(pks)
 
         % Assign peak location and height
         tmp.loc = locs(ipk);
-        tmp.peak = pks(ipk);
+        tmp.peak_amp = pks(ipk);
 
         % Create design matrix for regression
         tmp.X = obj.freq_vect(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
@@ -142,31 +143,40 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
         tmp.r2 = 1 - ( sum((tmp.Y - tmp.Y_hat').^2) / sum(tmp.Y.^2) );
 
         % Create an interpolated oj for sub-sample resolution
-        interp_X = linspace(tmp.X(1,1),tmp.X(end,1),10000);
+        interp_X = linspace(tmp.X(1,1),tmp.X(1,end),10000);
         tmp.interp_X = cat(1,interp_X,ones(size(interp_X)));
-        tmp.interp_obj = tmp.interp_X'*tmp.coeff;
+        tmp.interp_Y_hat = tmp.interp_X'*tmp.coeff;
 
-        % The zero crossing of this obj is the exact peak on x
-        tmp.zero_crossing = tmp.interp_X(1,diff(sign(tmp.interp_obj)) ~= 0);
-
-        tmp.interp_peak_loc = obj.freq_vect(locs(ipk));
-
-        % Save in main structure
-        obj.peak{ipk} = tmp;
+        % peak frequency is then the zero crossing
+        zero_crossing = tmp.interp_X(1,diff(sign(tmp.interp_Y_hat)) ~= 0)
+        if isempty(zero_crossing)
+            tmp.peak_freq = nan;
+        else
+            tmp.peak_freq = tmp.interp_X(1,diff(sign(tmp.interp_Y_hat)) ~= 0);
+            % Save in main structure
+            obj.peak{pk_cnt} = tmp;
+            pk_cnt = pk_cnt+1;
+        end
 
     end
 
+    pk_cnt = pk_cnt - 1
+    
+    % Store some key information at the top level
+    obj.peak_amplitudes = arrayfun(@(i) obj.peak{i}.peak_amp, 1:pk_cnt);
+    obj.peak_frequencies = arrayfun(@(i) obj.peak{i}.peak_freq, 1:pk_cnt);
+    [~,obj.peaks_by_amplitude] = sort(obj.peak_amplitudes,2,'descend');
 
     %% Print a fancy table
     header = sprintf('%-8s%-10s%-12s%-12s%-8s%-8s%-8s%-8s','Peak','Freq(Hz)','Amp','Beta','R2','SE','T','p');
     table_lines = repmat('-',1,length(header));
 
     disp(table_lines);disp(header);disp(table_lines);
-    for idx = 1:length(pks)
+    for idx = 1:pk_cnt
         fprintf('%-8d%-10.2f%-12.2f%-12.2f%-8.2f%-8.2f%-8.2f%-8.2f\n',...
             idx,...
-            obj.peak{idx}.interp_peak_loc,...
-            obj.peak{idx}.peak,...
+            obj.peak{idx}.peak_freq,...
+            obj.peak{idx}.peak_amp,...
             obj.peak{idx}.coeff(1),...
             obj.peak{idx}.r2,...
             obj.peak{idx}.SE,...
