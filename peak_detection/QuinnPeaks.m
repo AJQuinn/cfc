@@ -105,36 +105,49 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
     % +/- 1Hz around each peak in the spectrum, this might be a bit big, .5Hz is probably fine...
     disp('Peak ID')
     for ipk = 1:length(pks)
-        disp(ipk);
    
         % Assign peak location and height
-        obj.peak{ipk}.loc = locs(ipk)
-        obj.peak{ipk}.peak = pks(ipk)
+        tmp.loc = locs(ipk);
+        tmp.peak = pks(ipk);
  
         % Create design matrix for regression
-        obj.peak{ipk}.X = obj.freq_vect(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
-        obj.peak{ipk}.X = cat(1,obj.peak{ipk}.X,ones(size(obj.peak{ipk}.X)));
+        tmp.X = obj.freq_vect(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
+        tmp.X = cat(1,tmp.X,ones(size(tmp.X)));
 
         % Take differential of the smoothed fft
         %smo_tmp = sgolayfilt(diff(obj.smo_fft),order,sg_win);
-        smo_tmp = diff(obj.smo_fft);
+        smo_tmp = [0 diff(obj.smo_fft)];
 
         % Assign differential as predicted variable for regression
-        obj.peak{ipk}.Y = smo_tmp(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
+        tmp.Y = smo_tmp(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
     
         % Regress!
-        obj.peak{ipk}.coeff = obj.peak{ipk}.X'\obj.peak{ipk}.Y';
+        tmp.coeff = tmp.X'\tmp.Y';
     
         % Get predicted spectrum
-        obj.peak{ipk}.diff_obj = obj.peak{ipk}.X'*obj.peak{ipk}.coeff;
+        tmp.Y_hat = tmp.X'*tmp.coeff;
 
-        %% Create an interpolated obj for sub-sample resolution
-        interp_X = linspace(obj.peak{ipk}.X(1,1),obj.peak{ipk}.X(end,1),10000);
-        obj.peak{ipk}.interp_X = cat(1,interp_X,ones(size(interp_X)));
-        obj.peak{ipk}.interp_obj = obj.peak{ipk}.interp_X'*obj.peak{ipk}.coeff;
+        % Get standard error sqrt [ ?(yi - ?i)2 / (n - 2) ] / sqrt [ ?(xi - x)2 ]
+        denom = sqrt ( sum ( (tmp.X(1,:) - mean(tmp.X(1,:))) .^2 ) );
+        num   = sqrt ( sum ( (tmp.Y - tmp.Y_hat').^2 ) / ( size(tmp.Y,2) - 2));
+        tmp.SE = num / denom;
+        
+        % Get t-value for peak (testing against a beta of 0)
+        tmp.t = tmp.coeff(1) / tmp.SE;
+        
+        % Get p-value from t-distribution
+        tmp.p = 2*(1-tcdf(abs(tmp.t),size(tmp.Y,2)-2));
+        
+        % Get R2
+        tmp.r2 = 1 - ( sum((tmp.Y - tmp.Y_hat').^2) / sum(tmp.Y.^2) );
+        
+        % Create an interpolated oj for sub-sample resolution
+        interp_X = linspace(tmp.X(1,1),tmp.X(end,1),10000);
+        tmp.interp_X = cat(1,interp_X,ones(size(interp_X)));
+        tmp.interp_obj = tmp.interp_X'*tmp.coeff;
 
         % The zero crossing of this obj is the exact peak on x
-        obj.peak{ipk}.zero_crossing = obj.peak{ipk}.interp_X(1,diff(sign(obj.peak{ipk}.interp_obj)) ~= 0);
+        tmp.zero_crossing = tmp.interp_X(1,diff(sign(tmp.interp_obj)) ~= 0);
 
         obj.peak{ipk}.interp_peak_loc = obj.freq_vect(locs(ipk));
         
