@@ -149,8 +149,30 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
         % The zero crossing of this obj is the exact peak on x
         tmp.zero_crossing = tmp.interp_X(1,diff(sign(tmp.interp_obj)) ~= 0);
 
-        obj.peak{ipk}.interp_peak_loc = obj.freq_vect(locs(ipk));
-        
+        tmp.interp_peak_loc = obj.freq_vect(locs(ipk));
+
+        % Save in main structure
+        obj.peak{ipk} = tmp;
+
     end
+
+
+    %% Print a fancy table
+    header = sprintf('%-8s%-10s%-12s%-12s%-8s%-8s%-8s%-8s','Peak','Freq(Hz)','Amp','Beta','R2','SE','T','p');
+    table_lines = repmat('-',1,length(header));
+
+    disp(table_lines);disp(header);disp(table_lines);
+    for idx = 1:length(pks)
+        fprintf('%-8d%-10.2f%-12.2f%-12.2f%-8.2f%-8.2f%-8.2f%-8.2f\n',...
+            idx,...
+            obj.peak{idx}.interp_peak_loc,...
+            obj.peak{idx}.peak,...
+            obj.peak{idx}.coeff(1),...
+            obj.peak{idx}.r2,...
+            obj.peak{idx}.SE,...
+            obj.peak{idx}.t,...
+            obj.peak{idx}.p);
+    end
+    disp(table_lines);
 
 end
