@@ -17,7 +17,9 @@ function obj = generate_pac_signal(S)
 
 obj.time_vect = [0:1/S.sample_rate:S.seconds];
 obj.sample_rate = S.sample_rate;
-obj.switching_freq = 3;
+if isfield(S, 'switching_freq')
+    obj.switching_freq = S.switching_freq;
+end
 
 obj
 
