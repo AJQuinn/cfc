@@ -187,21 +187,27 @@ if nperms > 0
             if strcmp(cfg.metrics{met_idx},'ESC')
                 tmp = esc_estimator(surr_signals.theta,surr_signals.gamma_amp);
                 cfc_results.esc_null(idx) = max(tmp);
+                cfc_results.esc_z = ( cfc_results.esc - mean(cfc_results.esc_null) ) / std(cfc_results.esc_null);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
                 tmp = nesc_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.nesc_null(idx) = max(tmp);
+                cfc_results.nesc_z = ( cfc_results.nesc - mean(cfc_results.nesc_null) ) / std(cfc_results.nesc_null);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
                 tmp = aec_estimator(surr_signals.theta_amp,surr_signals.gamma_amp);
                 cfc_results.aec_null(idx) = max(tmp);
+                cfc_results.aec_z = ( cfc_results.aec - mean(cfc_results.aec_null) ) / std(cfc_results.aec_null);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
                 tmp = plv_estimator(surr_signals.theta_phase,surr_signals.gamma_amp_phase);
                 cfc_results.plv_null(idx) = max(tmp);
+                cfc_results.plv_z = ( cfc_results.plv - mean(cfc_results.plv_null) ) / std(cfc_results.plv_null);
             elseif strcmp(cfg.metrics{met_idx},'GLM')
                 tmp = glm_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.glm_null(idx) = max(tmp);
+                cfc_results.glm_z = ( cfc_results.glm - mean(cfc_results.glm_null) ) / std(cfc_results.glm_null);
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 tmp = mi_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_null(idx) = max(tmp);
+                cfc_results.mi_z = ( cfc_results.mi - mean(cfc_results.mi_null) ) / std(cfc_results.mi_null);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
