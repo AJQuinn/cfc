@@ -29,7 +29,7 @@ for i = 1:numel(fields)
             sw_data(idx,:) = squeeze(data(:,start_idx:end_idx));
         end
 
-        sw_signals.(fields{i}) = sw_data
+        sw_signals.(fields{i}) = sw_data;
 
     end
 end
