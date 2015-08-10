@@ -24,7 +24,7 @@ S.fh = figure('units','pixels',...
 
 % Design intial filter
 if strcmp(obj.method,'designfilt')
-  [~,h,phi,w] = make_filter(248,obj.sample_rate,obj.lo_bound,...
+  [~,h,phi,w] = make_filter(512,obj.sample_rate,obj.lo_bound,...
                             obj.pass_width,obj.trans_width);
 elseif strcmp(obj.method,'eeglab')
   [~,filtwts] = eegfilt_silent(randn(1,10240),obj.sample_rate,...
@@ -38,7 +38,7 @@ elseif strcmp(obj.method,'ft')
    [B, A] = fir1(N, [obj.lo_bound/(obj.sample_rate/2) obj.hi_bound/(obj.sample_rate/2)]);
    [h,w] = freqz(B,1,512);
 end
-   
+
 % Get frequency vector w = (2*pi*f) / fw
 freq_vect = (w*obj.sample_rate) / (2*pi);
 
@@ -105,7 +105,7 @@ set(H,'Value',value);
 
 % Design new filter
 if strcmp(S.obj.method,'designfilt')
-[~,h,phi,w] = make_filter(248,S.obj.sample_rate,get(H,'value'),...
+[~,h,phi,w] = make_filter(512,S.obj.sample_rate,get(H,'value'),...
                             S.obj.pass_width,S.obj.trans_width);
 elseif strcmp(S.obj.method,'eeglab')
   [~,filtwts] = eegfilt_silent(randn(1,10240),S.obj.sample_rate, ...
