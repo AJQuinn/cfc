@@ -7,6 +7,9 @@ if nargin < 3
     distr = 'normal';
 end
 
+modulating_signal = modulating_signal';
+modulated_signal = modulated_signal';
+
 r2 = zeros(1,size(modulating_signal,2));
 for ep = 1:size(modulating_signal,2)
 

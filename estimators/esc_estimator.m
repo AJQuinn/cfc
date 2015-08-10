@@ -3,6 +3,9 @@ function [esc] = esc_estimator(modulating_signal,modulated_signal)
 % Function for estimamodulating_signal the Envelope-to-signal correlation as defined in Bruns and Eckhorn 2004
 % Modulating signal is the theta filtere time series and modulated_signal is the gamma amplitude
 
+modulating_signal = modulating_signal';
+modulated_signal = modulated_signal';
+
 %% Compute correlation
 % http://stackoverflow.com/questions/9262933/what-is-a-fast-way-to-compute-column-by-column-correlation-in-matlab
 

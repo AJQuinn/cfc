@@ -6,4 +6,4 @@ function [mean_vector] = mi_estimator(modulating_signal,modulated_signal)
 Z = modulated_signal .* exp(1i * modulating_signal);
 
 % Compute mean vector
-mean_vector = abs(mean(squeeze(Z)));
+mean_vector = abs(mean(squeeze(Z),2));
