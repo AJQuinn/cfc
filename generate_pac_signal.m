@@ -15,9 +15,11 @@ function obj = generate_pac_signal(S)
 %    S.phase_lag = pi/2; % Lock to peak of theta wave
 %end
 
-obj.time_vect = 0:1/S.sample_rate:S.seconds;
+obj.time_vect = [0:1/S.sample_rate:S.seconds];
 obj.sample_rate = S.sample_rate;
-obj.switching_freq = 30;
+obj.switching_freq = 3;
+
+obj
 
 if S.method == 'aq'
 
@@ -131,15 +133,15 @@ end
 noise = scale_signal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
                             S.noise_level,...
                             modulating_ts);
-obj.modulating_ts = modulating_ts' + noise';
+obj.modulating_ts = modulating_ts + noise;
 noise = scale_signal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
                             S.noise_level,...
                             modulated_ts);
-obj.modulated_ts = modulated_ts' + noise';
+obj.modulated_ts = modulated_ts + noise;
 
 obj.signal = obj.modulating_ts - obj.modulated_ts;
 
-obj.state_switching = state_switching';
-obj.time_vect = obj.time_vect';
+obj.state_switching = state_switching;
+obj.time_vect = obj.time_vect;
 
 
