@@ -19,11 +19,13 @@ if nargin < 3
     padding = round(filter_cfg.sample_rate);
 end
 
+[nchannels,nsamples] = size(data);
+
 %% Make filter
 [D,~,~,~] = make_filter(filter_cfg);
 
 %% Pad the data
-data = [zeros(padding,1); data; zeros(padding,1)];
+data = [zeros(nchannels, padding), data, zeros(nchannels, padding)];
 
 %% Filter the data
 
