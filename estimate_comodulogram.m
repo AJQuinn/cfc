@@ -1,18 +1,25 @@
-function cmg = estimate_comodulogram( obj )
-%%
+function cmg = estimate_comodulogram( signal, cfg )
+%% Estimate the co-modulogram from a signal
 %
-% Estimate the co-modulogram for a signal
+% This function can be called in two ways.
 %
-% Must be passed a struct with:
+% cmg = estimate_comodulogram(signal, cfg)
+%
+% signal is a 1d or 2d array [nchannels x nsamples] containing a time-series. If
+% one channel is passed in both the modulating and modulated time series will
+% be extracted from it. If two channels are passed in the modulating
+% time-series will be extracted from the first channels and the modulated
+% time-series will be extracted from the second.
+%
+% cfg is a struct with:
 %     sr: sampling rate
-%     signal: 1d broadband signal to be analysed
-%     obj.lo_bounds: frequency range for modulating signal (eg [5 7])
-%     obj.lo_step: frequency steps for modulating signal (eg 1)
-%     obj.lo_bandwidth: filter bandwidth for modulating signal (eg 2)
-%     obj.hi_bounds: frequency range for modulated signal (eg [50 60])
-%     obj.hi_step: frequency steps for modulated signal (eg 10)
-%     obj.hi_bandwidth: bandwidth for modulated signal, either int or 'adaptive'
-%     obj.metric: cell array with metrics to compute, defaults to Canolty. eg {'MI','PLV'};
+%     cfg.lo_bounds: frequency range for modulating signal (eg [5 7])
+%     cfg.lo_step: frequency steps for modulating signal (eg 1)
+%     cfg.lo_bandwidth: filter bandwidth for modulating signal (eg 2)
+%     cfg.hi_bounds: frequency range for modulated signal (eg [50 60])
+%     cfg.hi_step: frequency steps for modulated signal (eg 10)
+%     cfg.hi_bandwidth: bandwidth for modulated signal, either int or 'adaptive'
+%     cfg.metric: cell array with metrics to compute, defaults to Canolty. eg {'MI','PLV'};
 %            options are:
 %                MI   - Modulation Index: Canolty et al 2008
 %                ESC  - Envelope Signal Correlation
@@ -28,29 +35,33 @@ function cmg = estimate_comodulogram( obj )
 %     step: step size between windows in seconds
 
 %% Housekeeping
+[nchannels,nsamples] = size(signal);
+if nchannels > 2
+    error('%s channels were passed in, two is the maximum', nchannels)
+end
 
 if nargin < 2
     verbose = false;
 end
 
-if ~isfield(obj,'pad')
-    obj.pad = 100;
+if ~isfield(cfg,'pad')
+    cfg.pad = 100;
 end
 
-if ~isfield(obj,'true_timecourse')
-    obj.true_timecourse = zeros(size(obj.signal,1),size(obj.signal,2));
+if ~isfield(cfg,'true_timecourse')
+    cfg.true_timecourse = zeros(size(signal,1),size(signal,2));
 end
 
 % Generate time vector
-if isfield(obj,'signal')
-    [nsamples,~] = size(obj.signal);
+if isfield(cfg,'signal')
+    [nsamples,~] = size(signal);
 end
-time_vect = (0:1/obj.sr:(nsamples-1) * (1/obj.sr))';
+time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr))';
 
-if isfield(obj,'window_size') && isfield(obj,'step')
+if isfield(cfg,'window_size') && isfield(cfg,'step')
     % Convert window and step to samples
-    window_size = floor( obj.window_size / ( 1 / obj.sr ) );
-    step = floor( obj.step / ( 1 / obj.sr ) );
+    window_size = floor( cfg.window_size / ( 1 / cfg.sr ) );
+    step = floor( cfg.step / ( 1 / cfg.sr ) );
 
     % Find number of windows
     nwindows = floor ( (nsamples - window_size) / step);
@@ -68,15 +79,15 @@ end
 % allow for an adaptive bandwidth based on the lowest low frequency (if
 % requested).
 
-n_lo_steps = (obj.lo_bounds(2)-obj.lo_bounds(1))/obj.lo_step + 1;
-lo_freqs = ones(2,n_lo_steps) .* repmat(obj.lo_bounds(1):obj.lo_step:obj.lo_bounds(2),2,1);
-lo_freqs(1,:) = lo_freqs(1,:) - obj.lo_bandwidth/2;
-lo_freqs(2,:) = lo_freqs(2,:) + obj.lo_bandwidth/2;
+n_lo_steps = (cfg.lo_bounds(2)-cfg.lo_bounds(1))/cfg.lo_step + 1;
+lo_freqs = ones(2,n_lo_steps) .* repmat(cfg.lo_bounds(1):cfg.lo_step:cfg.lo_bounds(2),2,1);
+lo_freqs(1,:) = lo_freqs(1,:) - cfg.lo_bandwidth/2;
+lo_freqs(2,:) = lo_freqs(2,:) + cfg.lo_bandwidth/2;
 
-n_hi_steps = floor((obj.hi_bounds(2)-obj.hi_bounds(1))/obj.hi_step + 1);
-hi_freqs = ones(2,n_hi_steps,n_lo_steps) .* repmat(obj.hi_bounds(1):obj.hi_step:obj.hi_bounds(2),[2,1,n_lo_steps]);
+n_hi_steps = floor((cfg.hi_bounds(2)-cfg.hi_bounds(1))/cfg.hi_step + 1);
+hi_freqs = ones(2,n_hi_steps,n_lo_steps) .* repmat(cfg.hi_bounds(1):cfg.hi_step:cfg.hi_bounds(2),[2,1,n_lo_steps]);
 
-if strcmp(obj.hi_bandwidth,'adaptive')
+if strcmp(cfg.hi_bandwidth,'adaptive')
     for idx = 1:n_lo_steps
         hi_bandwidth = lo_freqs(1,idx)+2;
         hi_freqs(1,:,idx) = hi_freqs(1,:,idx) - ones(1,n_hi_steps,1)*hi_bandwidth;
@@ -84,9 +95,9 @@ if strcmp(obj.hi_bandwidth,'adaptive')
     end
 else
     size(hi_freqs)
-    size(ones(n_hi_steps,n_lo_steps)*obj.hi_bandwidth/2)
-     hi_freqs(1,:,:) = hi_freqs(1,:,:) - ones(1,n_hi_steps,n_lo_steps)*obj.hi_bandwidth/2;
-     hi_freqs(2,:,:) = hi_freqs(2,:,:) + ones(1,n_hi_steps,n_lo_steps)*obj.hi_bandwidth/2;
+    size(ones(n_hi_steps,n_lo_steps)*cfg.hi_bandwidth/2)
+     hi_freqs(1,:,:) = hi_freqs(1,:,:) - ones(1,n_hi_steps,n_lo_steps)*cfg.hi_bandwidth/2;
+     hi_freqs(2,:,:) = hi_freqs(2,:,:) + ones(1,n_hi_steps,n_lo_steps)*cfg.hi_bandwidth/2;
 
 end
 
@@ -120,17 +131,17 @@ for lo_idx = 1:n_lo_steps
 
         %% Create PAC signal -
 
-        signals = make_pac_signals(obj.signal, ...
-                                   obj.sr, ...
+        signals = make_pac_signals(signal, ...
+                                   cfg.sr, ...
                                    [hi_freqs(1,hi_idx,lo_idx) hi_freqs(2,hi_idx,lo_idx)], ...
                                    [lo_freqs(1,lo_idx), lo_freqs(2,lo_idx)],...
                                    time_vect, ...
-                                   obj.true_timecourse);
+                                   cfg.true_timecourse);
 
 
 
-        if isfield(obj,'window_size')
-            % Make sliding window data
+        if isfield(cfg,'window_size')
+            % Make sliding window signal
             skip_field = {'hi_bounds','hi_bandwidth','hi_steps',...
                           'lo_bounds','lo_bandwidth','lo_steps','sr'};
             fields = fieldnames(signals);
@@ -138,27 +149,27 @@ for lo_idx = 1:n_lo_steps
                 if strmatch(fields{i},skip_field)
                     continue
                  else
-                    signals.(fields{i}) = make_sw_data(signals.(fields{i}),window_size,step);
+                    signals.(fields{i}) = make_sw_signal(signals.(fields{i}),window_size,step);
                 end
             end
         end
-    
+
         % Estimate CFC
-        for met_idx = 1:length(obj.metrics)
-            if strcmp(obj.metrics{met_idx},'ESC')
+        for met_idx = 1:length(cfg.metrics)
+            if strcmp(cfg.metrics{met_idx},'ESC')
                 esc(:,lo_idx,hi_idx) = esc_estimator(signals.theta,signals.gamma_amp);
-            elseif strcmp(obj.metrics{met_idx},'NESC')
+            elseif strcmp(cfg.metrics{met_idx},'NESC')
                 nesc(:,lo_idx,hi_idx) = nesc_estimator(signals.theta_phase,signals.gamma_amp);
-            elseif strcmp(obj.metrics{met_idx},'AEC')
+            elseif strcmp(cfg.metrics{met_idx},'AEC')
                 aec(:,lo_idx,hi_idx) = aec_estimator(signals.theta_amp,signals.gamma_amp);
-            elseif strcmp(obj.metrics{met_idx},'PLV')
+            elseif strcmp(cfg.metrics{met_idx},'PLV')
                 plv(:,lo_idx,hi_idx) = plv_estimator(signals.theta_phase,signals.gamma_amp_phase);
-            elseif strcmp(obj.metrics{met_idx},'GLM')
+            elseif strcmp(cfg.metrics{met_idx},'GLM')
                 glm(:,lo_idx,hi_idx) = glm_estimator(signals.theta_phase,signals.gamma_amp);
-            elseif strcmp(obj.metrics{met_idx},'MI')
+            elseif strcmp(cfg.metrics{met_idx},'MI')
                 mi(:,lo_idx,hi_idx) = mi_estimator(signals.theta_phase,signals.gamma_amp);
             else
-                fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',obj.metrics{met_idx});
+                fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
         end
     end
@@ -173,18 +184,18 @@ cmg = struct('lo_freqs',    lo_freqs,...
              'time_vect',   signals.time_vect);
 
 % add metrics
-for met_idx = 1:length(obj.metrics)
-    if strcmp(obj.metrics{met_idx},'ESC')
+for met_idx = 1:length(cfg.metrics)
+    if strcmp(cfg.metrics{met_idx},'ESC')
         cmg.esc = esc;
-    elseif strcmp(obj.metrics{met_idx},'NESC')
+    elseif strcmp(cfg.metrics{met_idx},'NESC')
         cmg.nesc = nesc;
-    elseif strcmp(obj.metrics{met_idx},'AEC')
+    elseif strcmp(cfg.metrics{met_idx},'AEC')
         cmg.aec = aec;
-    elseif strcmp(obj.metrics{met_idx},'PLV')
+    elseif strcmp(cfg.metrics{met_idx},'PLV')
         cmg.plv = plv;
-    elseif strcmp(obj.metrics{met_idx},'GLM')
+    elseif strcmp(cfg.metrics{met_idx},'GLM')
         cmg.glm = glm;
-    elseif strcmp(obj.metrics{met_idx},'MI')
+    elseif strcmp(cfg.metrics{met_idx},'MI')
         cmg.mi = mi;
     end
 end
