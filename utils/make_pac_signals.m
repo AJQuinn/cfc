@@ -1,6 +1,16 @@
 function signals = make_pac_signals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
+%% Create the ingredients for CFC metric estimation.
+%
+% signal can be a 1 or 2d array [channels x samples]. There may only be one or
+% two channels within signal. If one channel is passed in both the modulating
+% and modulated time series and generated from it. If two channels are passed
+% in the modulating time series will be extracted from the first channel and
+% the modulated time series will be extracted from the second.
 
-[nsamples,~] = size(signal);
+[nchannels,nsamples] = size(signal);
+if nchannels > 2
+    error('%s channels were passed in, two is the maximum', char(nchannels))
+end
 
 if nargin < 8 || isempty(lo_trans)
     % Use a constant transition band
@@ -28,23 +38,27 @@ pad = 150;
 % gamma = eegfilt_silent(pad_signal',sr,hi_bounds(1),hi_bounds(2),0,[],0,'fir1');
 % gamma = gamma(pad:end-pad-1)';
 
-theta_cfg.order = 200;
+theta_cfg.order = 512;
 theta_cfg.sample_rate = sr;
 theta_cfg.centre_freq = (lo_bounds(1)+lo_bounds(2))/2;
 theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
 theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
 theta_cfg.method = 'twopass';
 
-theta = fir_filter_data(signal,theta_cfg);
+theta = fir_filter_data(signal(1,:),theta_cfg);
 
-gamma_cfg.order = 200;
+gamma_cfg.order = 512;
 gamma_cfg.sample_rate = sr;
 gamma_cfg.centre_freq = (hi_bounds(1)+hi_bounds(2))/2;
 gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
 gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
 gamma_cfg.method = 'twopass';
 
-gamma = fir_filter_data(signal,gamma_cfg);
+if nchannels == 1
+    gamma = fir_filter_data(signal(1,:),gamma_cfg);
+elseif nchannels == 2
+    gamma = fir_filter_data(signal(2,:),gamma_cfg);
+end
 
 %% Compute signals
 
@@ -59,9 +73,7 @@ theta_phase = angle(hilbert(theta));
 gamma_amp_phase = angle(hilbert(gamma_amp));
 
 % Compute theta-filtered gamma amplitude
-pad_gamma = [zeros(pad,1); gamma_amp; zeros(pad,1)];
-pad_gamma = eegfilt_silent(pad_gamma',sr,lo_bounds(1),lo_bounds(2),0,[],0,'fir1');
-gamma_amp_theta = pad_gamma(pad:end-pad-1)';
+gamma_amp_theta = fir_filter_data(gamma_amp, theta_cfg);
 
 %% TODO: This is wasteful, there is a lot in memory and only the filtering is
 %time consuming. Eventually we want to be able to only save the filtered time
