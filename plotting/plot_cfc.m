@@ -22,7 +22,7 @@ for met_idx = 1:length(cfc_results.cfg.metrics)
     elseif strcmp(cfc_results.cfg.metrics{met_idx},'PLV')
         metric_name = 'PLV';
         metric = cfc_results.plv;
-        metric_nulls = cfc_results.plv+null;
+        metric_nulls = cfc_results.plv_null;
         if isfield(cfc_results,'plv_thresh');thresh = cfc_results.plv_thresh;end
     elseif strcmp(cfc_results.cfg.metrics{met_idx},'GLM')
         metric_name = 'GLM';
