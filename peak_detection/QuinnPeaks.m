@@ -1,4 +1,4 @@
-function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
+function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend,fft_len)
 %% QuinnPeaks
 % Function using Savitsky-Golay smoothing filter to detect peaks in the
 % spectrum of a given time series
@@ -17,6 +17,9 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
 % detrend: str [optional]
 %       Optional detrending of spectrum. Choose from '1/f','linear' or 'polyfit'
 
+    if nargin < 6 || isempty(fft_len)
+        fft_len = [];
+    end
 
     if nargin < 5 || isempty(detrend)
         detrend = 'nope';
@@ -44,7 +47,7 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend)
 
     %% Peform frequency transform
     disp('FFT')
-    obj.fft = fftshift(abs(fft(data,[],2)));
+    obj.fft = fftshift(abs(fft(data,fft_len,2)));
     obj.freq_vect = linspace(-sample_rate/2,sample_rate/2,length(obj.fft));
 
     if size(data,1) > 1
