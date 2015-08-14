@@ -18,9 +18,17 @@ if nargin < 3 || isempty(mean_term)
     mean_term = 0;
 end
 
-% 1 get amplitude spectrum
+% Get amplitude spectrum
 amp_spec = abs( fft( data, [], 2 ) );
-amp_spec = amp_spec(1:fix(size(amp_spec,2)/2));
+nsamples = size(amp_spec,2);
+if mod(nsamples,2)
+    % We have an even number of components
+    stop_sample = (nsamples+1)/2;
+else
+    % We have an odd number of components
+    stop_sample = nsamples/2 + 1;
+end
+amp_spec = amp_spec(2:stop_sample);
 
 % Generate phase noise
 noise = rand(n,size(amp_spec,2)) .* (2*pi);
@@ -32,7 +40,7 @@ rand_spec = bsxfun(@times, exp(1i*noise), amp_spec);
 rand_spec = [rand_spec,fliplr(conj(rand_spec))];
 
 % Add mean term
-rand_spec = [ones(n,1)*mean_term, rand_spec];
+rand_spec = [ones(n,1) * mean_term * nsamples, rand_spec];
 
 % Create new time_course
 surrogates = ifft(rand_spec,[],2);
