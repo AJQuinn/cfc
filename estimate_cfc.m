@@ -14,7 +14,7 @@ function cfc_results = estimate_cfc( signal, cfg )
 %     cfg.lo_freq: frequency for modulating signal (eg 6)
 %     cfg.lo_bandwidth: filter bandwidth for modulating signal (eg 2)
 %     cfg.hi_freq: frequency for modulated signal (eg 60)
-%     cfg.hi_bandwidth: bandwidth for modulated signal, either int or 'adaptive'
+%     cfg.hi_bandwidth: bandwidth for modulated signal
 %     cfg.metric: cell array with metrics to compute, defaults to Canolty. eg {'MI','PLV'};
 %            options are:
 %                MI   - Modulation Index: Canolty et al 2008
@@ -30,8 +30,6 @@ function cfc_results = estimate_cfc( signal, cfg )
 %
 % options for statistical assessment (optional)
 %     cfg.nperms: integer denoting the number of surrogate time series to test
-%     cfg.alpha: scalar between zeros and one indicating the critical value for
-%                significance (default .05)
 %
 % and optionally:
 %     true_timecourse: 1d signal indicating where pac exists
@@ -44,10 +42,6 @@ function cfc_results = estimate_cfc( signal, cfg )
 [nchannels,nsamples] = size(signal);
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', nchannels)
-end
-
-if nargin < 2
-    verbose = false;
 end
 
 if ~isfield(cfg,'pad')
@@ -86,19 +80,6 @@ if ~isfield( cfg, 'nperms')
 else
     nperms = cfg.nperms;
 end
-
-if ~isfield( cfg, 'alpha')
-    alpha = 0.05;
-end
-
-% Preallocate metrics
-
-esc = nan(nwindows,1);
-nesc = nan(nwindows,1);
-plv = nan(nwindows,1);
-mi = nan(nwindows,1);
-glm = nan(nwindows,1);
-aec = nan(nwindows,1);
 
 %% Create results output
 cfc_results = [];
@@ -150,7 +131,7 @@ end
 % Get the surrogate signals if requested
 if nperms > 0
     % We only need the surrogates for the modulating time-course
-    surrogates = generate_surrogates(signal(1,:),nperms);
+    surrogates = generate_phase_surrogates(signal(1,:),nperms);
 
     cfc_results.esc_null = nan(nperms,1);
     ncfc_results.esc_null = nan(nperms,1);
@@ -164,8 +145,15 @@ if nperms > 0
     % permutation and add the max across windows to the null
 
     % Estimate surrogate CFC
+    msg = ''; tic; % Setup for update message
     for idx = 1:nperms
-        disp(idx);
+
+        % print update message
+        fprintf(repmat(char(8),1,length(msg)));
+        msg = sprintf('Computing permutation: %d/%d, elapsed time: %d seconds', ...
+            idx,nperms,fix(toc));
+        fprintf(msg);
+
         if nchannels == 2
             surr_signal = cat(1,surrogates(idx,:),signal.signal(2,:));
         else
@@ -187,27 +175,21 @@ if nperms > 0
             if strcmp(cfg.metrics{met_idx},'ESC')
                 tmp = esc_estimator(surr_signals.theta,surr_signals.gamma_amp);
                 cfc_results.esc_null(idx) = max(tmp);
-                cfc_results.esc_z = ( cfc_results.esc - mean(cfc_results.esc_null) ) / std(cfc_results.esc_null);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
                 tmp = nesc_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.nesc_null(idx) = max(tmp);
-                cfc_results.nesc_z = ( cfc_results.nesc - mean(cfc_results.nesc_null) ) / std(cfc_results.nesc_null);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
                 tmp = aec_estimator(surr_signals.theta_amp,surr_signals.gamma_amp);
                 cfc_results.aec_null(idx) = max(tmp);
-                cfc_results.aec_z = ( cfc_results.aec - mean(cfc_results.aec_null) ) / std(cfc_results.aec_null);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
                 tmp = plv_estimator(surr_signals.theta_phase,surr_signals.gamma_amp_phase);
                 cfc_results.plv_null(idx) = max(tmp);
-                cfc_results.plv_z = ( cfc_results.plv - mean(cfc_results.plv_null) ) / std(cfc_results.plv_null);
             elseif strcmp(cfg.metrics{met_idx},'GLM')
                 tmp = glm_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.glm_null(idx) = max(tmp);
-                cfc_results.glm_z = ( cfc_results.glm - mean(cfc_results.glm_null) ) / std(cfc_results.glm_null);
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 tmp = mi_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_null(idx) = max(tmp);
-                cfc_results.mi_z = ( cfc_results.mi - mean(cfc_results.mi_null) ) / std(cfc_results.mi_null);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
@@ -217,26 +199,32 @@ if nperms > 0
     % Get critical values
     for met_idx = 1:length(cfg.metrics)
         if strcmp(cfg.metrics{met_idx},'ESC')
+            cfc_results.esc_z = ( cfc_results.esc - mean(cfc_results.esc_null) ) / std(cfc_results.esc_null);
             cfc_results.esc_thresh(1) = prctile(cfc_results.esc_null,95);
             cfc_results.esc_thresh(2) = prctile(cfc_results.esc_null,99);
             cfc_results.esc_thresh(3) = prctile(cfc_results.esc_null,99.9);
         elseif strcmp(cfg.metrics{met_idx},'NESC')
+            cfc_results.nesc_z = ( cfc_results.nesc - mean(cfc_results.nesc_null) ) / std(cfc_results.nesc_null);
             cfc_results.nesc_thresh(1) = prctile(ncfc_results.esc_null,95);
             cfc_results.nesc_thresh(2) = prctile(ncfc_results.esc_null,99);
             cfc_results.nesc_thresh(3) = prctile(ncfc_results.esc_null,99.9);
         elseif strcmp(cfg.metrics{met_idx},'AEC')
+            cfc_results.aec_z = ( cfc_results.aec - mean(cfc_results.aec_null) ) / std(cfc_results.aec_null);
             cfc_results.aec_thresh(1) = prctile(cfc_results.aec_null,95);
             cfc_results.aec_thresh(2) = prctile(cfc_results.aec_null,99);
             cfc_results.aec_thresh(3) = prctile(cfc_results.aec_null,99.9);
         elseif strcmp(cfg.metrics{met_idx},'PLV')
+            cfc_results.plv_z = ( cfc_results.plv - mean(cfc_results.plv_null) ) / std(cfc_results.plv_null);
             cfc_results.plv_thresh(1) = prctile(cfc_results.plv_null,95);
             cfc_results.plv_thresh(2) = prctile(cfc_results.plv_null,99);
             cfc_results.plv_thresh(3) = prctile(cfc_results.plv_null,99.9);
         elseif strcmp(cfg.metrics{met_idx},'GLM')
+            cfc_results.glm_z = ( cfc_results.glm - mean(cfc_results.glm_null) ) / std(cfc_results.glm_null);
             cfc_results.glm_thresh(1) = prctile(cfc_results.glm_null,95);
             cfc_results.glm_thresh(2) = prctile(cfc_results.glm_null,99);
             cfc_results.glm_thresh(3) = prctile(cfc_results.glm_null,99.9);
         elseif strcmp(cfg.metrics{met_idx},'MI')
+            cfc_results.mi_z = ( cfc_results.mi - mean(cfc_results.mi_null) ) / std(cfc_results.mi_null);
             cfc_results.mi_thresh(1) = prctile(cfc_results.mi_null,95);
             cfc_results.mi_thresh(2) = prctile(cfc_results.mi_null,99);
             cfc_results.mi_thresh(3) = prctile(cfc_results.mi_null,99.9);
@@ -245,6 +233,7 @@ if nperms > 0
         end
     end
 end
+fprintf('\n');
 
 end % function
 
