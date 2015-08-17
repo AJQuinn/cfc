@@ -59,8 +59,8 @@ end
 time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr));
 
 % Generate frequency bounds
-lo_bounds = [cfg.lo_freq - cfg.lo_bandwidth, cfg.lo_freq + cfg.lo_bandwidth];
-hi_bounds = [cfg.hi_freq - cfg.hi_bandwidth, cfg.hi_freq + cfg.hi_bandwidth];
+lo_bounds = [cfg.lo_freq - cfg.lo_bandwidth/2, cfg.lo_freq + cfg.lo_bandwidth/2];
+hi_bounds = [cfg.hi_freq - cfg.hi_bandwidth/2, cfg.hi_freq + cfg.hi_bandwidth/2];
 
 % Set sliding window values if requested
 if isfield(cfg,'window_size') && isfield(cfg,'window_step')
