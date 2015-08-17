@@ -154,7 +154,7 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend,f
         tmp.interp_Y_hat = tmp.interp_X'*tmp.coeff;
 
         % peak frequency is then the zero crossing
-        zero_crossing = tmp.interp_X(1,diff(sign(tmp.interp_Y_hat)) ~= 0)
+        zero_crossing = tmp.interp_X(1,diff(sign(tmp.interp_Y_hat)) ~= 0);
         if isempty(zero_crossing)
             tmp.peak_freq = nan;
         else
@@ -166,8 +166,8 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend,f
 
     end
 
-    pk_cnt = pk_cnt - 1
-    
+    pk_cnt = pk_cnt - 1;
+
     % Store some key information at the top level
     obj.peak_amplitudes = arrayfun(@(i) obj.peak{i}.peak_amp, 1:pk_cnt);
     obj.peak_frequencies = arrayfun(@(i) obj.peak{i}.peak_freq, 1:pk_cnt);
