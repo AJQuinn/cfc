@@ -104,8 +104,8 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend,f
     % Peaks must be larger than the median differetial step in the spectrum
     [locs,pks] = peakfinder(obj.smo_fft,median(diff(obj.smo_fft)));
     % Remove peaks within 5 samples of the start or end
+    pks(locs < 5 | locs > size(obj.freq_vect,2)-5) = [];
     locs(locs < 5 | locs > size(obj.freq_vect,2)-5) = [];
-    pks(locs < 5 | locs > size(obj.freq_vect,2)-5) = []
 
     %% Perform a linear regression to the differential of the smoothed spectrum
     % +/- 1Hz around each peak in the spectrum, this might be a bit big, .5Hz is probably fine...
