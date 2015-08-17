@@ -101,8 +101,11 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend,f
     freq_width = 1;
     % Find peaks using file-exchange script as matlab's one sucks
     % algorithm from: http://www.mathworks.com/matlabcentral/fileexchange/25500-peakfinder
-    %[locs,pks] = peakfinder(obj.smo_fft,max(obj.smo_fft)/50,[],[],false);
-    [locs,pks] = peakfinder(obj.smo_fft,max(obj.smo_fft)/50,[],[],false);
+    % Peaks must be larger than the median differetial step in the spectrum
+    [locs,pks] = peakfinder(obj.smo_fft,median(diff(obj.smo_fft)));
+    % Remove peaks within 5 samples of the start or end
+    locs(locs < 5 | locs > size(obj.freq_vect,2)-5) = [];
+    pks(locs < 5 | locs > size(obj.freq_vect,2)-5) = []
 
     %% Perform a linear regression to the differential of the smoothed spectrum
     % +/- 1Hz around each peak in the spectrum, this might be a bit big, .5Hz is probably fine...
