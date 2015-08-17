@@ -48,7 +48,7 @@ function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend,f
     %% Peform frequency transform
     disp('FFT')
     obj.fft = fftshift(abs(fft(data,fft_len,2)));
-    obj.freq_vect = linspace(-sample_rate/2,sample_rate/2,length(obj.fft));
+    obj.freq_vect = linspace(-sample_rate/2,sample_rate/2,size(obj.fft,2));
 
     if size(data,1) > 1
         obj.fft = mean(obj.fft,1);
