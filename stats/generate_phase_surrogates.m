@@ -51,5 +51,4 @@ if ~isreal(surrogates)
 end
 
 % Normalise time_series
- surrogates = bsxfun(@rdivide,surrogates, std(surrogates,[],2).*std_term );
-
+ surrogates = bsxfun(@rdivide,surrogates, std(surrogates,[],2)).*std_term ;
