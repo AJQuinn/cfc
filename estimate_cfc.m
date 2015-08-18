@@ -17,12 +17,13 @@ function cfc_results = estimate_cfc( signal, cfg )
 %     cfg.hi_bandwidth: bandwidth for modulated signal
 %     cfg.metric: cell array with metrics to compute, defaults to Canolty. eg {'MI','PLV'};
 %            options are:
-%                MI   - Modulation Index: Canolty et al 2008
-%                ESC  - Envelope Signal Correlation
-%                NESC - Normalised Envelope Signal Correlation
-%                GLM  - General Linear Model Method
-%                PLV  - Phase Locking Value
-%                AEC  - Amplitude Envelope Correlation
+%                MI       - Modulation Index: Canolty et al 2008
+%                MI_NORM  - Normalised Modulation Index: Canolty et al 2008
+%                ESC      - Envelope Signal Correlation
+%                NESC     - Normalised Envelope Signal Correlation
+%                GLM      - General Linear Model Method
+%                PLV      - Phase Locking Value
+%                AEC      - Amplitude Envelope Correlation
 %
 % options for sliding windows (optional)
 %     cfg.window_size: scalar indicating sliding window length in ms
@@ -121,6 +122,9 @@ for met_idx = 1:length(cfg.metrics)
     elseif strcmp(cfg.metrics{met_idx},'MI')
         mi = mi_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mi = mi;
+    elseif strcmp(cfg.metrics{met_idx},'MIZ')
+        mi_norm = mi_norm_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        cfc_results.mi_norm = mi_norm;
     else
         fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
     end
@@ -190,6 +194,9 @@ if nperms > 0
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 tmp = mi_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_null(idx) = max(tmp);
+            elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
+                tmp = mi_norm_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
+                cfc_results.mi_norm_null(idx) = max(tmp);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
@@ -228,8 +235,13 @@ if nperms > 0
             cfc_results.mi_thresh(1) = prctile(cfc_results.mi_null,95);
             cfc_results.mi_thresh(2) = prctile(cfc_results.mi_null,99);
             cfc_results.mi_thresh(3) = prctile(cfc_results.mi_null,99.9);
+        elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
+            cfc_results.mi_norm_z = ( cfc_results.mi_norm - mean(cfc_results.mi_norm_null) ) / std(cfc_results.mi_norm_null);
+            cfc_results.mi_norm_thresh(1) = prctile(cfc_results.mi_norm_null,95);
+            cfc_results.mi_norm_thresh(2) = prctile(cfc_results.mi_norm_null,99);
+            cfc_results.mi_norm_thresh(3) = prctile(cfc_results.mi_norm_null,99.9);
         else
-            fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
+            fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM, MI and MI_NORM',cfg.metrics{met_idx});
         end
     end
 end

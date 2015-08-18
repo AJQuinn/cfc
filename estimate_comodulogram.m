@@ -21,12 +21,13 @@ function cmg = estimate_comodulogram( signal, cfg )
 %     cfg.hi_bandwidth: bandwidth for modulated signal, either int or 'adaptive'
 %     cfg.metric: cell array with metrics to compute, defaults to Canolty. eg {'MI','PLV'};
 %            options are:
-%                MI   - Modulation Index: Canolty et al 2008
-%                ESC  - Envelope Signal Correlation
-%                NESC - Normalised Envelope Signal Correlation
-%                GLM  - General Linear Model Method
-%                PLV  - Phase Locking Value
-%                AEC  - Amplitude Envelope Correlation
+%                MI       - Modulation Index: Canolty et al 2008
+%                MI_NORM  - Normalised Modulation Index: Canolty et al 2008
+%                ESC      - Envelope Signal Correlation
+%                NESC     - Normalised Envelope Signal Correlation
+%                GLM      - General Linear Model Method
+%                PLV      - Phase Locking Value
+%                AEC      - Amplitude Envelope Correlation
 %
 % and optionally:
 %     true_timecourse: 1d signal indicating where pac exists
@@ -107,6 +108,7 @@ esc = nan(nwindows,n_lo_steps,n_hi_steps);
 nesc = nan(nwindows,n_lo_steps,n_hi_steps);
 plv = nan(nwindows,n_lo_steps,n_hi_steps);
 mi = nan(nwindows,n_lo_steps,n_hi_steps);
+mi_norm = nan(nwindows,n_lo_steps,n_hi_steps);
 glm = nan(nwindows,n_lo_steps,n_hi_steps);
 aec = nan(nwindows,n_lo_steps,n_hi_steps);
 
@@ -168,6 +170,8 @@ for lo_idx = 1:n_lo_steps
                 glm(:,lo_idx,hi_idx) = glm_estimator(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 mi(:,lo_idx,hi_idx) = mi_estimator(signals.theta_phase,signals.gamma_amp);
+            elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
+                mi_norm(:,lo_idx,hi_idx) = mi_norm_estimator(signals.theta_phase,signals.gamma_amp);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
@@ -197,6 +201,8 @@ for met_idx = 1:length(cfg.metrics)
         cmg.glm = glm;
     elseif strcmp(cfg.metrics{met_idx},'MI')
         cmg.mi = mi;
+    elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
+        cmg.mi_norm = mi_norm;
     end
 end
 
