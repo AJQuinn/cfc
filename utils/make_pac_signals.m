@@ -18,7 +18,7 @@ if nargin < 8 || isempty(lo_trans)
 end
 
 if nargin < 7 || isempty(hi_trans)
-    hi_trans = [hi_bounds(1)-5 hi_bounds(2)+5];
+    hi_trans = [hi_bounds(1)-7.5 hi_bounds(2)+7.5];
 end
 
 if nargin < 6 || isempty(true_timecourse)
@@ -29,14 +29,7 @@ if nargin < 5 || isempty(time_vect)
     time_vect = (0:1/sr:(nsamples-1) * (1/sr))';
 end
 
-pad = 150;
-
-    % Compute frequencies of interest
-% pad_signal = [zeros(pad,1); signal; zeros(pad,1)];
-% theta = eegfilt_silent(pad_signal',sr,lo_bounds(1),lo_bounds(2),0,[],0,'fir1');
-% theta = theta(pad:end-pad-1)';
-% gamma = eegfilt_silent(pad_signal',sr,hi_bounds(1),hi_bounds(2),0,[],0,'fir1');
-% gamma = gamma(pad:end-pad-1)';
+%% Compute frequencies of interest
 
 theta_cfg.order = 512;
 theta_cfg.sample_rate = sr;
