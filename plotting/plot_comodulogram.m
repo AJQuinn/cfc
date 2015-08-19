@@ -3,11 +3,16 @@ function plot_comodulogram(cmg,spectrum,freq_vect,log_high,col_levels)
 if nargin < 2
 
     %% Just plot the cmg without any fancy spectrum sidebars
+    col_levels = 0:max(max(cmg.mi_norm))/24:max(max(cmg.mi_norm));
     figure;
     contourf(squeeze(mean(cmg.lo_freqs,1)),...
         squeeze(mean(cmg.hi_freqs(:,:,1),1)),...
-        squeeze(cmg.mi)');
+        squeeze(cmg.mi_norm)',...
+        'linestyle','none');
+    caxis([col_levels(1) col_levels(end)]);
     colormap('hot');
+    xlabel('Modulating Frequency (Hz)');
+    ylabel('Modulated Frequency (Hz)');
     colorbar();
 else
 
