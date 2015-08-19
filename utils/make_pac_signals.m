@@ -31,7 +31,7 @@ if nargin < 6 || isempty(true_timecourse)
 end
 
 if nargin < 5 || isempty(time_vect)
-    time_vect = (0:1/sr:(nsamples-1) * (1/sr))';
+    time_vect = (0:1/sr:(nsamples-1) * (1/sr));
 end
 
 %% Compute frequencies of interest
