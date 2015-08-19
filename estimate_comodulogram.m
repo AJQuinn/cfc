@@ -62,7 +62,7 @@ end
 if isfield(cfg,'signal')
     [nsamples,~] = size(signal);
 end
-time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr))';
+time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr));
 
 if isfield(cfg,'window_size') && isfield(cfg,'step')
     % Convert window and step to samples
@@ -153,19 +153,8 @@ for lo_idx = 1:n_lo_steps
                                    cfg.true_timecourse);
 
 
-
         if isfield(cfg,'window_size')
-            % Make sliding window signal
-            skip_field = {'hi_bounds','hi_bandwidth','hi_steps',...
-                          'lo_bounds','lo_bandwidth','lo_steps','sr'};
-            fields = fieldnames(signals);
-            for i = 1:numel(fields)
-                if strmatch(fields{i},skip_field)
-                    continue
-                 else
-                    signals.(fields{i}) = make_sw_signal(signals.(fields{i}),window_size,step);
-                end
-            end
+            [ signals ] = make_sw_data(signals,window_size,step);
         end
 
         % Estimate CFC
