@@ -30,10 +30,11 @@ function cmg = estimate_comodulogram( signal, cfg )
 %                AEC      - Amplitude Envelope Correlation
 %
 % and optionally:
-%     true_timecourse: 1d signal indicating where pac exists
-%     zero_pad: the number of samples to pad the time series when filtering
-%     window_size: length in seconds for sliding window
-%     step: step size between windows in seconds
+%     cfg.true_timecourse: 1d signal indicating where pac exists
+%     cfg.zero_pad: the number of samples to pad the time series when filtering
+%     cfg.theta_interp: bool to indicate that theta_waveform should be used
+%     cfg.window_size: length in seconds for sliding window
+%     cfg.step: step size between windows in seconds
 
 %% Housekeeping
 [nchannels,nsamples] = size(signal);
@@ -43,6 +44,10 @@ end
 
 if nargin < 2
     verbose = false;
+end
+
+if ~isfield(cfg,'theta_interp')
+    cfg.theta_interp = false;
 end
 
 if ~isfield(cfg,'pad')
@@ -133,10 +138,17 @@ for lo_idx = 1:n_lo_steps
 
         %% Create PAC signal -
 
+        if cfg.theta_interp == true
+            % Extract phase through interpolation
+            lo = mean([lo_freqs(1,lo_idx), lo_freqs(2,lo_idx)]);
+        else
+            lo = [lo_freqs(1,lo_idx), lo_freqs(2,lo_idx)];
+        end
+
         signals = make_pac_signals(signal, ...
                                    cfg.sr, ...
                                    [hi_freqs(1,hi_idx,lo_idx) hi_freqs(2,hi_idx,lo_idx)], ...
-                                   [lo_freqs(1,lo_idx), lo_freqs(2,lo_idx)],...
+                                   lo,...
                                    time_vect, ...
                                    cfg.true_timecourse);
 
