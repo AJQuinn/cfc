@@ -43,8 +43,8 @@ if centre_freq+(trans_width/2) >= sample_rate/2
     warning('Upper filter transition band is too close to Nyquist!')
 end
 
+% TODO: expose this option?
 method = 'parks';
-
 
 if strcmp(method, 'window')
     %% Design a filter with windowing method
