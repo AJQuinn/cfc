@@ -10,7 +10,14 @@ function plot_group_peaks( varargin )
 % plot_group_peaks( condition_1_peaks, condition_2_peaks );
 %
 
-    nconditions = length(varargin);
+    if iscellstr(varargin{end}) == 1
+        % Final argument is legends
+        labels = varargin{end};
+        nconditions = length(varargin)-1;
+    else
+        labels = [];
+        nconditions = length(varargin);
+    end
 
     colour_cycle = {'b','r','g','c'};
     if nconditions > 3;
@@ -65,11 +72,20 @@ function plot_group_peaks( varargin )
         hold(vert_axis,'on');
         grid(vert_axis,'on');
 
-        if cond_idx == 1;
-            leg = {'Condition 1 Average','Condition 1 Individual'};
-        else
-            leg = cat(2,leg,{['Condition ' num2str(cond_idx) ' Average'], ...
+        %% Attach legend
+        if isempty(labels)
+            if cond_idx == 1;
+                leg = {'Condition 1 Average','Condition 1 Individual'};
+            else
+                leg = cat(2,leg,{['Condition ' num2str(cond_idx) ' Average'], ...
                             ['Condition ' num2str(cond_idx) ' Individual']});
+            end
+        else
+            if cond_idx == 1;
+                leg = {[labels{1} ' Average'],[labels{1} ' Individual']};
+            else
+                leg = cat(2,leg,{[labels{cond_idx} ' Average'],[labels{cond_idx} ' Individual']});
+            end
         end
 
     end
