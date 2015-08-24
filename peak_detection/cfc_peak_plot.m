@@ -1,4 +1,4 @@
-function plotpeaks(obj, outpath, max_freq)
+function cfc_peak_plot(obj, outpath, max_freq)
 %%
 % Create a plot from the output struct from sgolay_peaks
 %
