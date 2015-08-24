@@ -44,7 +44,7 @@ if length(lo_bounds) == 2
     theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
     theta_cfg.method = 'twopass';
 
-    theta = fir_filter_data(signal(1,:),theta_cfg);
+    theta = cfc_filt_fir(signal(1,:),theta_cfg);
 else
     theta = [];
 end
@@ -57,9 +57,9 @@ gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
 gamma_cfg.method = 'twopass';
 
 if nchannels == 1
-    gamma = fir_filter_data(signal(1,:),gamma_cfg);
+    gamma = cfc_filt_fir(signal(1,:),gamma_cfg);
 elseif nchannels == 2
-    gamma = fir_filter_data(signal(2,:),gamma_cfg);
+    gamma = cfc_filt_fir(signal(2,:),gamma_cfg);
 end
 
 %% Compute signals
@@ -81,7 +81,7 @@ gamma_amp_phase = angle(hilbert(gamma_amp));
 
 % Compute theta-filtered gamma amplitude
 if length(lo_bounds) == 2
-    gamma_amp_theta = fir_filter_data(gamma_amp(1,:),theta_cfg);
+    gamma_amp_theta = cfc_filt_fir(gamma_amp(1,:),theta_cfg);
 else
     gamma_amp_theta = theta_waveform(signal(1,:),lo_bounds,sr);
 end

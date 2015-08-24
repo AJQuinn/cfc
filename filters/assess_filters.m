@@ -34,7 +34,7 @@ theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
 theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
 theta_cfg.method = 'twopass';
 
-theta = fir_filter_data(signal(1,:),theta_cfg);
+theta = cfc_filt_fir(signal(1,:),theta_cfg);
 
 gamma_cfg.order = 512;
 gamma_cfg.sample_rate = sample_rate;
@@ -44,9 +44,9 @@ gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
 gamma_cfg.method = 'twopass';
 
 if nchannels == 1
-    gamma = fir_filter_data(signal(1,:),gamma_cfg);
+    gamma = cfc_filt_fir(signal(1,:),gamma_cfg);
 elseif nchannels == 2
-    gamma = fir_filter_data(signal(2,:),gamma_cfg);
+    gamma = cfc_filt_fir(signal(2,:),gamma_cfg);
 end
 
 lo_fit = hmmspectramt(theta',nsamples,opt);

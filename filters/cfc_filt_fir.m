@@ -1,4 +1,4 @@
-function [filt_data,D] = fir_filter_data(data,filter_cfg,padding,method)
+function [filt_data,D] = cfc_filt_fir(data,filter_cfg,padding,method)
 %
 % filter_cfg: struct containing
 %   order:
