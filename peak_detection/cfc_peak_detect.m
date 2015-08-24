@@ -1,5 +1,5 @@
-function [obj] = QuinnPeaks(data, sample_rate, freq_of_interest, order,detrend,fft_len)
-%% QuinnPeaks
+function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detrend,fft_len)
+%% cfc_peak_detect
 % Function using Savitsky-Golay smoothing filter to detect peaks in the
 % spectrum of a given time series
 %
