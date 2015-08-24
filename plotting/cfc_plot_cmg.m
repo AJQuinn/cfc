@@ -1,4 +1,4 @@
-function plot_comodulogram(cmg,spectrum,freq_vect,log_high,col_levels)
+function cfc_plot_cmg(cmg,spectrum,freq_vect,log_high,col_levels)
 
 if nargin < 2
 
