@@ -1,4 +1,4 @@
-function animate_comodulogram( obj, outpath )
+function cfc_plot_animcmg( obj, outpath )
 % Make a movie from a sliding window comodulogram
 
 
