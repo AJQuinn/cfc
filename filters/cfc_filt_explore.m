@@ -1,4 +1,4 @@
-function [] = filter_explore(obj)
+function [] = cfc_filt_explore(obj)
 %
 %
 % Input object
