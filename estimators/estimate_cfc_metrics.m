@@ -17,11 +17,11 @@ results.mi = mi_estimator(signal.theta_phase,signal.gamma_amp);
 
 %% Estimate ESC - using theta signal and gamma amplitude
 % Bruns & Eckhorn 2004
-results.esc = esc_estimator(signal.theta,signal.gamma_amp);
+results.esc = cfc_est_esc(signal.theta,signal.gamma_amp);
 
 %% Estimate NESC - using theta phase and gamma amplitude
 % Penny 2007
-results.nesc = nesc_estimator(signal.theta_phase, signal.gamma_amp);
+results.nesc = ncfc_est_esc(signal.theta_phase, signal.gamma_amp);
 
 %% Estimate GLM -  using theta phase and gamma amplitude
 % Penny 2007

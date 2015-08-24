@@ -77,11 +77,11 @@ metrics = {'esc','nesc','aec','plv','voytek','mi','glm'};
 results = [];
 if sum(ismember(metrics,'esc')) == 1
     if verbose;disp('Computing ESC...');end
-    results.esc = esc_estimator(signals.theta,signals.gamma_amp);
+    results.esc = cfc_est_esc(signals.theta,signals.gamma_amp);
 end
 if sum(ismember(metrics,'nesc')) == 1
     if verbose;disp('Computing NESC...');end
-    results.nesc = nesc_estimator(signals.theta_phase,signals.gamma_amp);
+    results.nesc = ncfc_est_esc(signals.theta_phase,signals.gamma_amp);
 end
 if sum(ismember(metrics,'aec')) == 1
     if verbose;disp('Computing AEC');end

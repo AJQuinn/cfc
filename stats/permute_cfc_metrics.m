@@ -34,11 +34,11 @@ for idx = 1:nperms
     
     % Estimate ESC - using theta signal and gamma amplitude
     % Bruns & Eckhorn 2004
-    results.esc_null(idx) = max(esc_estimator(signal.theta,signal.gamma_amp));
+    results.esc_null(idx) = max(cfc_est_esc(signal.theta,signal.gamma_amp));
     
     % Estimate NESC - using theta phase and gamma amplitude
     % Penny 2007
-    results.nesc_null(idx) = max(nesc_estimator(signal.theta_phase, signal.gamma_amp));
+    results.nesc_null(idx) = max(ncfc_est_esc(signal.theta_phase, signal.gamma_amp));
     
     % Estimate GLM -  using theta phase and gamma amplitude
     % Penny 2007

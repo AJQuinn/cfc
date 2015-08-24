@@ -105,10 +105,10 @@ cfc_results.time_vect = cfc_signals.time_vect;
 % Estimate observed CFC
 for met_idx = 1:length(cfg.metrics)
     if strcmp(cfg.metrics{met_idx},'ESC')
-        esc = esc_estimator(cfc_signals.theta,cfc_signals.gamma_amp);
+        esc = cfc_est_esc(cfc_signals.theta,cfc_signals.gamma_amp);
         cfc_results.esc = esc;
     elseif strcmp(cfg.metrics{met_idx},'NESC')
-        nesc = nesc_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        nesc = ncfc_est_esc(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.nesc = nesc;
     elseif strcmp(cfg.metrics{met_idx},'AEC')
         aec = cfc_est_aec(cfc_signals.theta_amp,cfc_signals.gamma_amp);
@@ -177,10 +177,10 @@ if nperms > 0
         % Estimate surrogate CFC
         for met_idx = 1:length(cfg.metrics)
             if strcmp(cfg.metrics{met_idx},'ESC')
-                tmp = esc_estimator(surr_signals.theta,surr_signals.gamma_amp);
+                tmp = cfc_est_esc(surr_signals.theta,surr_signals.gamma_amp);
                 cfc_results.esc_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
-                tmp = nesc_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
+                tmp = ncfc_est_esc(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.nesc_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
                 tmp = cfc_est_aec(surr_signals.theta_amp,surr_signals.gamma_amp);

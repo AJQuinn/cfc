@@ -160,9 +160,9 @@ for lo_idx = 1:n_lo_steps
         % Estimate CFC
         for met_idx = 1:length(cfg.metrics)
             if strcmp(cfg.metrics{met_idx},'ESC')
-                esc(:,lo_idx,hi_idx) = esc_estimator(signals.theta,signals.gamma_amp);
+                esc(:,lo_idx,hi_idx) = cfc_est_esc(signals.theta,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
-                nesc(:,lo_idx,hi_idx) = nesc_estimator(signals.theta_phase,signals.gamma_amp);
+                nesc(:,lo_idx,hi_idx) = ncfc_est_esc(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
                 aec(:,lo_idx,hi_idx) = cfc_est_aec(signals.theta_amp,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
