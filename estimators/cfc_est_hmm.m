@@ -1,4 +1,4 @@
-function [ hmm,Gamma,vpath ] = hmm_estimator(modulating_signal,modulated_signal,timelag,order,exptimelag)
+function [ hmm,Gamma,vpath ] = cfc_est_hmm(modulating_signal,modulated_signal,timelag,order,exptimelag)
 
 if nargin < 5
     exptimelag = [];
