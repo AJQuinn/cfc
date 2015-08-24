@@ -1,4 +1,4 @@
-function assess_filters( signal, sample_rate, lo_bounds, hi_bounds, lo_trans, hi_trans )
+function cfc_filt_assess( signal, sample_rate, lo_bounds, hi_bounds, lo_trans, hi_trans )
 
 % Assumes --
 % addpath(genpath('/Users/andrew/Projects/HMMPAC/toolbox'));
