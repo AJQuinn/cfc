@@ -1,4 +1,4 @@
-function obj = generate_pac_signal(S)
+function obj = cfc_simulate(S)
 
 % S.seconds
 % S.sample_rate
