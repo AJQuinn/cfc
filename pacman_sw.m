@@ -97,7 +97,7 @@ if sum(ismember(metrics,'mi')) == 1
 end
 if sum(ismember(metrics,'glm')) == 1
     if verbose;disp('Computing GLM...');end
-    results.glm = glm_estimator(signals.theta_phase,signals.gamma_amp);
+    results.glm = cfc_est_glm(signals.theta_phase,signals.gamma_amp);
 end
 if sum(ismember(metrics,'voytek')) == 1
     if verbose;disp('Computing voytek...');end

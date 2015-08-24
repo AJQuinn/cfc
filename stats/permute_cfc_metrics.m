@@ -42,7 +42,7 @@ for idx = 1:nperms
     
     % Estimate GLM -  using theta phase and gamma amplitude
     % Penny 2007
-    results.glm_null(idx) = max(glm_estimator(signal.theta_phase, signal.gamma_amp));
+    results.glm_null(idx) = max(cfc_est_glm(signal.theta_phase, signal.gamma_amp));
     
 end
 

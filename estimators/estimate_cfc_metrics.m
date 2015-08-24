@@ -25,7 +25,7 @@ results.nesc = ncfc_est_esc(signal.theta_phase, signal.gamma_amp);
 
 %% Estimate GLM -  using theta phase and gamma amplitude
 % Penny 2007
-results.glm = glm_estimator(signal.theta_phase, signal.gamma_amp);
+results.glm = cfc_est_glm(signal.theta_phase, signal.gamma_amp);
 
 %% Estimate Voytek - using theta phase and theta band filtered gamma amplitude
 % Voytek 
