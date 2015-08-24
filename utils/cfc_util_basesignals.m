@@ -70,7 +70,7 @@ gamma_amp = abs(hilbert(gamma));
 % Compute phase time series
 if length(lo_bounds) == 1
     % We only have one theta frequency, extract phase manually
-    theta_phase = theta_waveform(signal(1,:),lo_bounds,sr);
+    theta_phase = cfc_util_thetawaveform(signal(1,:),lo_bounds,sr);
 else
     % We have filter bounds, extract phase with hilbert
     theta_phase = angle(hilbert(theta));
@@ -83,7 +83,7 @@ gamma_amp_phase = angle(hilbert(gamma_amp));
 if length(lo_bounds) == 2
     gamma_amp_theta = cfc_filt_fir(gamma_amp(1,:),theta_cfg);
 else
-    gamma_amp_theta = theta_waveform(signal(1,:),lo_bounds,sr);
+    gamma_amp_theta = cfc_util_thetawaveform(signal(1,:),lo_bounds,sr);
 end
 
 %% TODO: This is wasteful, there is a lot in memory and only the filtering is

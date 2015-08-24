@@ -32,7 +32,7 @@ function cmg = estimate_comodulogram( signal, cfg )
 % and optionally:
 %     cfg.true_timecourse: 1d signal indicating where pac exists
 %     cfg.zero_pad: the number of samples to pad the time series when filtering
-%     cfg.theta_interp: bool to indicate that theta_waveform should be used
+%     cfg.theta_interp: bool to indicate that cfc_util_thetawaveform should be used
 %     cfg.window_size: length in seconds for sliding window
 %     cfg.step: step size between windows in seconds
 

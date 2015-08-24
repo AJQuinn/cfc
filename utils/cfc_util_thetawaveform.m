@@ -1,4 +1,4 @@
-function [ waveform_phase ] = theta_waveform( signal, theta_freq, sr )
+function [ waveform_phase ] = cfc_util_thetawaveform( signal, theta_freq, sr )
 %% Brute force estimation of theta phase by extraction of maxima, minima and
 % zero crossings. This avoids bandwidth problems.
 
