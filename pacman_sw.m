@@ -85,7 +85,7 @@ if sum(ismember(metrics,'nesc')) == 1
 end
 if sum(ismember(metrics,'aec')) == 1
     if verbose;disp('Computing AEC');end
-    results.aec = aec_estimator(signals.theta_amp,signals.gamma_amp);
+    results.aec = cfc_est_aec(signals.theta_amp,signals.gamma_amp);
 end
 if sum(ismember(metrics,'plv')) == 1
     if verbose;disp('Computing PLV');end

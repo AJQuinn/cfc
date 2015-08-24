@@ -111,7 +111,7 @@ for met_idx = 1:length(cfg.metrics)
         nesc = nesc_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.nesc = nesc;
     elseif strcmp(cfg.metrics{met_idx},'AEC')
-        aec = aec_estimator(cfc_signals.theta_amp,cfc_signals.gamma_amp);
+        aec = cfc_est_aec(cfc_signals.theta_amp,cfc_signals.gamma_amp);
         cfc_results.aec = aec;
     elseif strcmp(cfg.metrics{met_idx},'PLV')
         plv = plv_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp_phase);
@@ -183,7 +183,7 @@ if nperms > 0
                 tmp = nesc_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.nesc_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
-                tmp = aec_estimator(surr_signals.theta_amp,surr_signals.gamma_amp);
+                tmp = cfc_est_aec(surr_signals.theta_amp,surr_signals.gamma_amp);
                 cfc_results.aec_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
                 tmp = plv_estimator(surr_signals.theta_phase,surr_signals.gamma_amp_phase);

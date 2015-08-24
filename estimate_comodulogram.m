@@ -164,7 +164,7 @@ for lo_idx = 1:n_lo_steps
             elseif strcmp(cfg.metrics{met_idx},'NESC')
                 nesc(:,lo_idx,hi_idx) = nesc_estimator(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
-                aec(:,lo_idx,hi_idx) = aec_estimator(signals.theta_amp,signals.gamma_amp);
+                aec(:,lo_idx,hi_idx) = cfc_est_aec(signals.theta_amp,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
                 plv(:,lo_idx,hi_idx) = plv_estimator(signals.theta_phase,signals.gamma_amp_phase);
             elseif strcmp(cfg.metrics{met_idx},'GLM')

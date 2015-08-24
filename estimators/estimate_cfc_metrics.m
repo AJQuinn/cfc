@@ -9,7 +9,7 @@ results.plv = plv_estimator(signal.theta_phase, signal.gamma_amp_phase);
 
 %% Estimate AEC - using theta amplitude and gamma amplitude 
 % Bruns & Eckhorn 2004
-results.aec= aec_estimator(signal.theta_amp, signal.gamma_amp);
+results.aec= cfc_est_aec(signal.theta_amp, signal.gamma_amp);
 
 %% Estimate MI - using theta phase and gamma amplitude
 % Canolty 2006
