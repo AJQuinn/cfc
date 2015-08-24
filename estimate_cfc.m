@@ -123,7 +123,7 @@ for met_idx = 1:length(cfg.metrics)
         mi = cfc_est_mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mi = mi;
     elseif strcmp(cfg.metrics{met_idx},'MIZ')
-        mi_norm = mi_norm_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        mi_norm = cfc_est_minorm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mi_norm = mi_norm;
     else
         fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
@@ -195,7 +195,7 @@ if nperms > 0
                 tmp = cfc_est_mi(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
-                tmp = mi_norm_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
+                tmp = cfc_est_minorm(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_norm_null(idx) = max(tmp);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});

@@ -172,7 +172,7 @@ for lo_idx = 1:n_lo_steps
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 mi(:,lo_idx,hi_idx) = cfc_est_mi(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
-                mi_norm(:,lo_idx,hi_idx) = mi_norm_estimator(signals.theta_phase,signals.gamma_amp);
+                mi_norm(:,lo_idx,hi_idx) = cfc_est_minorm(signals.theta_phase,signals.gamma_amp);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
