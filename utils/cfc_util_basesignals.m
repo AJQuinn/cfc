@@ -1,4 +1,4 @@
-function signals = make_pac_signals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
+function signals = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
 %% Create the ingredients for CFC metric estimation.
 %
 % signal can be a 1 or 2d array [channels x samples]. There may only be one or

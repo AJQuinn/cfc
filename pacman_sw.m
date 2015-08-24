@@ -47,7 +47,7 @@ time_vect = (0:1/obj.sr:(nsamples-1) * (1/obj.sr))';
 
 if verbose;disp('Computing Signals...');end;
 
-signals = make_pac_signals(obj.signal,obj.sr,obj.hi_bounds,obj.lo_bounds,time_vect,obj.true_timecourse);
+signals = cfc_util_basesignals(obj.signal,obj.sr,obj.hi_bounds,obj.lo_bounds,time_vect,obj.true_timecourse);
 
 %% Set up sliding window
 
