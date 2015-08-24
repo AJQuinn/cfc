@@ -154,7 +154,7 @@ for lo_idx = 1:n_lo_steps
 
 
         if isfield(cfg,'window_size')
-            [ signals ] = make_sw_data(signals,window_size,step);
+            [ signals ] = cfc_util_swsignals(signals,window_size,step);
         end
 
         % Estimate CFC

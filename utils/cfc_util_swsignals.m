@@ -1,4 +1,4 @@
-function [ sw_signals ] = make_sw_data(signals,window_size,step)
+function [ sw_signals ] = cfc_util_swsignals(signals,window_size,step)
 %
 % Function for splitting the data within a cfc signals struct into separate %
 % sliding windows based on a window length and step size (must be set in
@@ -24,7 +24,7 @@ for i = 1:numel(fields)
         data = signals.(fields{i});
         for idx = 1:nwindows
             start_idx = (idx-1)*step + 1;
-            end_idx = (idx-1)*step + window_size; 
+            end_idx = (idx-1)*step + window_size;
 
             sw_data(idx,:) = squeeze(data(:,start_idx:end_idx));
         end

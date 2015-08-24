@@ -97,7 +97,7 @@ cfc_signals = cfc_util_basesignals( signal, cfg.sr, ...
     cfg.true_timecourse );
 
 if nwindows > 1
-    cfc_signals  = make_sw_data(cfc_signals,window_size,window_step);
+    cfc_signals  = cfc_util_swsignals(cfc_signals,window_size,window_step);
 end
 
 cfc_results.time_vect = cfc_signals.time_vect;
@@ -171,7 +171,7 @@ if nperms > 0
             cfg.true_timecourse );
 
         if nwindows > 1
-            surr_signals  = make_sw_data(surr_signals,window_size,window_step);
+            surr_signals  = cfc_util_swsignals(surr_signals,window_size,window_step);
         end
 
         % Estimate surrogate CFC

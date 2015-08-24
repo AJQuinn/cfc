@@ -67,7 +67,7 @@ for i = 1:numel(fields)
     if strmatch(fields{i},skip_field)
         continue
      else
-        signals.(fields{i}) = make_sw_data(signals.(fields{i}),window_size,step);
+        signals.(fields{i}) = cfc_util_swsignals(signals.(fields{i}),window_size,step);
     end
 end
 
