@@ -1,4 +1,4 @@
-function plot_cfc( cfc_results )
+function cfc_plot_cfc( cfc_results )
 
 time = mean(cfc_results.time_vect,2);
 thresh = nan;
