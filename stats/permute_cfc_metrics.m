@@ -22,7 +22,7 @@ for idx = 1:nperms
     
     % Estimate the PLV - using theta phase and gamma amplitude
     % Lachaux 1999
-    results.plv_null(idx) = max(plv_estimator(signal.theta_phase, signal.gamma_amp_phase));
+    results.plv_null(idx) = max(cfc_est_plv(signal.theta_phase, signal.gamma_amp_phase));
     
     % Estimate AEC - using theta amplitude and gamma amplitude
     % Bruns & Eckhorn 2004

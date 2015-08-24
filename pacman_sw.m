@@ -89,7 +89,7 @@ if sum(ismember(metrics,'aec')) == 1
 end
 if sum(ismember(metrics,'plv')) == 1
     if verbose;disp('Computing PLV');end
-    results.plv = plv_estimator(signals.theta_phase,signals.gamma_amp_phase);
+    results.plv = cfc_est_plv(signals.theta_phase,signals.gamma_amp_phase);
 end
 if sum(ismember(metrics,'mi')) == 1
     if verbose;disp('Computing MI...');end
