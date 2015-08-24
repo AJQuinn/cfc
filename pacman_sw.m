@@ -101,7 +101,7 @@ if sum(ismember(metrics,'glm')) == 1
 end
 if sum(ismember(metrics,'voytek')) == 1
     if verbose;disp('Computing voytek...');end
-    results.voytek = voytek_estimator(signals.theta_phase,signals.gamma_amp);
+    results.voytek = cfc_est_voytek(signals.theta_phase,signals.gamma_amp);
 end
 
 results.nwindows = nwindows;

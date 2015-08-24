@@ -29,4 +29,4 @@ results.glm = cfc_est_glm(signal.theta_phase, signal.gamma_amp);
 
 %% Estimate Voytek - using theta phase and theta band filtered gamma amplitude
 % Voytek 
-results.voytek = voytek_estimator(signal.theta_phase, signal.gamma_amp_theta);
+results.voytek = cfc_est_voytek(signal.theta_phase, signal.gamma_amp_theta);
