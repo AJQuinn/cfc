@@ -22,7 +22,7 @@ end
 [nchannels,nsamples] = size(data);
 
 %% Make filter
-[D,~,~,~] = make_filter(filter_cfg);
+[D,~,~,~] = cfc_filt_generate(filter_cfg);
 
 %% Pad the data
 data = [zeros(nchannels, padding), data, zeros(nchannels, padding)];

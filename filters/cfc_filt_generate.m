@@ -1,9 +1,9 @@
-function [D,h,phi,w] = make_filter(varargin)
+function [D,h,phi,w] = cfc_filt_generate(varargin)
 %
 % USAGE 1:
 % Call either with a single argument with a filter_cfg object
 %
-% [D,h,phi,w] = make_filter(filter_cfg)
+% [D,h,phi,w] = cfc_filt_generate(filter_cfg)
 %
 % in which filter_cfg is a struct containing
 %   order:
@@ -13,7 +13,7 @@ function [D,h,phi,w] = make_filter(varargin)
 %   trans_width:
 %
 % USAGE 2:
-% [D,h,phi,w] = make_filter(order, sample_rate, ...
+% [D,h,phi,w] = cfc_filt_generate(order, sample_rate, ...
 %                           centre_freq, pass_width, trans_width)
 
 %% Housekeeping
@@ -32,7 +32,7 @@ elseif length(varargin) == 5
     pass_width = varargin{4};
     trans_width = varargin{5};
 else
-    warning('Wrong number of arguments passed, check make_filter usage');
+    warning('Wrong number of arguments passed, check cfc_filt_generate usage');
 end
         
 if centre_freq-(trans_width/2) <= 0
