@@ -170,7 +170,7 @@ for lo_idx = 1:n_lo_steps
             elseif strcmp(cfg.metrics{met_idx},'GLM')
                 glm(:,lo_idx,hi_idx) = cfc_est_glm(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI')
-                mi(:,lo_idx,hi_idx) = mi_estimator(signals.theta_phase,signals.gamma_amp);
+                mi(:,lo_idx,hi_idx) = cfc_est_mi(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
                 mi_norm(:,lo_idx,hi_idx) = mi_norm_estimator(signals.theta_phase,signals.gamma_amp);
             else

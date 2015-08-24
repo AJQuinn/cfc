@@ -93,7 +93,7 @@ if sum(ismember(metrics,'plv')) == 1
 end
 if sum(ismember(metrics,'mi')) == 1
     if verbose;disp('Computing MI...');end
-    results.mi = mi_estimator(signals.theta_phase,signals.gamma_amp);
+    results.mi = cfc_est_mi(signals.theta_phase,signals.gamma_amp);
 end
 if sum(ismember(metrics,'glm')) == 1
     if verbose;disp('Computing GLM...');end

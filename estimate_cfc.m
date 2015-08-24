@@ -120,7 +120,7 @@ for met_idx = 1:length(cfg.metrics)
         glm = cfc_est_glm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.glm = glm;
     elseif strcmp(cfg.metrics{met_idx},'MI')
-        mi = mi_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        mi = cfc_est_mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mi = mi;
     elseif strcmp(cfg.metrics{met_idx},'MIZ')
         mi_norm = mi_norm_estimator(cfc_signals.theta_phase,cfc_signals.gamma_amp);
@@ -192,7 +192,7 @@ if nperms > 0
                 tmp = cfc_est_glm(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.glm_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'MI')
-                tmp = mi_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);
+                tmp = cfc_est_mi(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
                 tmp = mi_norm_estimator(surr_signals.theta_phase,surr_signals.gamma_amp);

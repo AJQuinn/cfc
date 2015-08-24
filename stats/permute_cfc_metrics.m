@@ -30,7 +30,7 @@ for idx = 1:nperms
     
     % Estimate MI - using theta phase and gamma amplitude
     % Canolty 2006
-    results.mi_null(idx) = max(mi_estimator(signal.theta_phase,signal.gamma_amp));
+    results.mi_null(idx) = max(cfc_est_mi(signal.theta_phase,signal.gamma_amp));
     
     % Estimate ESC - using theta signal and gamma amplitude
     % Bruns & Eckhorn 2004
