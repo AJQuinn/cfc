@@ -1,4 +1,4 @@
-function [weighted_signals] = weight_signals(signals,Gamma)
+function [weighted_signals] = cfc_util_weightsignal(signals,Gamma)
 
 nstates = size(Gamma,2);
 
