@@ -19,7 +19,7 @@ if length(lo_bounds) == 2
     % We only need these if we're filtering for the modulating time series
     if (nargin < 8 || isempty(lo_trans))
         % Use a constant transition band
-        lo_trans = [lo_bounds(1)-5 lo_bounds(2)+5];
+        lo_trans = [lo_bounds(1)-3 lo_bounds(2)+3];
     end
 end
 if nargin < 7 || isempty(hi_trans)
