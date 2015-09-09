@@ -27,7 +27,7 @@ if nargin < 7 || isempty(hi_trans)
 end
 
 if nargin < 6 || isempty(true_timecourse)
-    true_timecourse = zeros(nsamples,1);
+    true_timecourse = zeros(1,nsamples);
 end
 
 if nargin < 5 || isempty(time_vect)
