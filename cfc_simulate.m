@@ -15,6 +15,9 @@ function obj = cfc_simulate(S)
 %    S.phase_lag = pi/2; % Lock to peak of theta wave
 %end
 
+
+% TODO: Gamma amplitude not properly normalised??
+
 obj.time_vect = [0:1/S.sample_rate:S.seconds];
 obj.sample_rate = S.sample_rate;
 if isfield(S, 'switching_freq')
