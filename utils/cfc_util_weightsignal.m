@@ -2,7 +2,7 @@ function [weighted_signals] = cfc_util_weightsignal(signals,Gamma)
 
 nstates = size(Gamma,2);
 
-weighted_signals = cell(nstates);
+weighted_signals = cell(nstates,1);
 
 for idx = 1:nstates
     
@@ -14,7 +14,7 @@ for idx = 1:nstates
         if strmatch(fields{i},skip_field)
             tmp.(fields{i}) = signals.(fields{i});
         else
-            tmp.(fields{i}) = signals.(fields{i}).*Gamma(:,idx);
+            tmp.(fields{i}) = signals.(fields{i}).*Gamma(:,idx)';
         end
     end
     weighted_signals{idx}.signals = tmp;
