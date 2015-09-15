@@ -14,7 +14,8 @@ fields = fieldnames(signals);
 
 % We don't want to split these variables
 skip_field = {'hi_bounds','hi_bandwidth','hi_steps',...
-          'lo_bounds','lo_bandwidth','lo_steps','sr'};
+          'lo_bounds','lo_bandwidth','lo_steps','sr',...
+          'sample_rate','switching_freq'};
 
 %% Main loop
 for i = 1:numel(fields)
