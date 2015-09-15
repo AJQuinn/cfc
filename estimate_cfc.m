@@ -3,7 +3,7 @@ function cfc_results = estimate_cfc( signal, cfg )
 %
 % cfc_results = estimate_cfc(signal, cfg)
 %
-% signal is a 1d or 2d array [nchannels x nsamples] containing a time-series. If
+% signal is an array [nchannels x nsamples x nrealisations] containing a time-series. If
 % one channel is passed in both the modulating and modulated time series will
 % be extracted from it. If two channels are passed in the modulating
 % time-series will be extracted from the first channels and the modulated

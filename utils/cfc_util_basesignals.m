@@ -1,16 +1,16 @@
 function signals = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
 %% Create the ingredients for CFC metric estimation.
 %
-% signal can be a 1 or 2d array [channels x samples]. There may only be one or
-% two channels within signal. If one channel is passed in both the modulating
-% and modulated time series and generated from it. If two channels are passed
-% in the modulating time series will be extracted from the first channel and
-% the modulated time series will be extracted from the second.
+% signal is an array [channels x samples x realisations]. There may only be one
+% or two channels within signal. If one channel is passed in both the
+% modulating and modulated time series and generated from it. If two channels
+% are passed in the modulating time series will be extracted from the first
+% channel and the modulated time series will be extracted from the second.
 %
 % If the lo_bounds variable is one number, the modulating phase will be
 % estimated with an interpolation method.
 
-[nchannels,nsamples] = size(signal);
+[nchannels,nsamples,nrealisations] = size(signal);
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', char(nchannels))
 end
@@ -34,57 +34,70 @@ if nargin < 5 || isempty(time_vect)
     time_vect = (0:1/sr:(nsamples-1) * (1/sr));
 end
 
+%% preallocated
+theta = zeros(nchannels,nsamples,nrealisations);
+gamma = zeros(nchannels,nsamples,nrealisations);
+theta_phase = zeros(nchannels,nsamples,nrealisations);
+gamma_amp = zeros(nchannels,nsamples,nrealisations);
+theta_amp = zeros(nchannels,nsamples,nrealisations);
+gamma_amp_phase = zeros(nchannels,nsamples,nrealisations);
+gamma_amp_theta = zeros(nchannels,nsamples,nrealisations);
+
 %% Compute frequencies of interest
 
-if length(lo_bounds) == 2
-    theta_cfg.order = 512;
-    theta_cfg.sample_rate = sr;
-    theta_cfg.centre_freq = (lo_bounds(1)+lo_bounds(2))/2;
-    theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
-    theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
-    theta_cfg.method = 'twopass';
+for idx = 1:nrealisations
 
-    theta = cfc_filt_fir(signal(1,:),theta_cfg);
-else
-    theta = [];
-end
+    if length(lo_bounds) == 2
+        theta_cfg.order = 512;
+        theta_cfg.sample_rate = sr;
+        theta_cfg.centre_freq = (lo_bounds(1)+lo_bounds(2))/2;
+        theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
+        theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
+        theta_cfg.method = 'twopass';
+    
+        theta(1,:,idx) = cfc_filt_fir(signal(1,:,idx),theta_cfg);
+    else
+        theta = [];
+    end
+    
+    gamma_cfg.order = 512;
+    gamma_cfg.sample_rate = sr;
+    gamma_cfg.centre_freq = (hi_bounds(1)+hi_bounds(2))/2;
+    gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
+    gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
+    gamma_cfg.method = 'twopass';
+    
+    if nchannels == 1
+        gamma(1,:,idx) = cfc_filt_fir(signal(1,:,idx),gamma_cfg);
+    elseif nchannels == 2
+        gamma(1,:,idx) = cfc_filt_fir(signal(2,:,idx),gamma_cfg);
+    end
+    
+    %% Compute signals
+    
+    % Compute amplitude time series
+    gamma_amp(1,:,idx) = abs(hilbert(gamma(1,:,idx)));
+    theta_amp(1,:,idx) = abs(hilbert(theta(1,:,idx)));
+    
+    % Compute phase time series
+    if length(lo_bounds) == 1
+        % We only have one theta frequency, extract phase manually
+        theta_phase(1,:,idx) = cfc_util_thetawaveform(signal(1,:,idx),lo_bounds,sr);
+    else
+        % We have filter bounds, extract phase with hilbert
+        theta_phase(1,:,idx) = angle(hilbert(theta(1,:,idx)));
+    end
+    
+    % Compute phase of gamma amplitude
+    gamma_amp_phase(1,:,idx) = angle(hilbert(gamma_amp(1,:,idx)));
+    
+    % Compute theta-filtered gamma amplitude
+    if length(lo_bounds) == 2
+        gamma_amp_theta(1,:,idx) = cfc_filt_fir(gamma_amp(1,:,idx),theta_cfg);
+    else
+        gamma_amp_theta(1,:,idx) = cfc_util_thetawaveform(signal(1,:,idx),lo_bounds,sr);
+    end
 
-gamma_cfg.order = 512;
-gamma_cfg.sample_rate = sr;
-gamma_cfg.centre_freq = (hi_bounds(1)+hi_bounds(2))/2;
-gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
-gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
-gamma_cfg.method = 'twopass';
-
-if nchannels == 1
-    gamma = cfc_filt_fir(signal(1,:),gamma_cfg);
-elseif nchannels == 2
-    gamma = cfc_filt_fir(signal(2,:),gamma_cfg);
-end
-
-%% Compute signals
-
-% Compute amplitude time series
-gamma_amp = abs(hilbert(gamma));
-theta_amp = abs(hilbert(theta));
-
-% Compute phase time series
-if length(lo_bounds) == 1
-    % We only have one theta frequency, extract phase manually
-    theta_phase = cfc_util_thetawaveform(signal(1,:),lo_bounds,sr);
-else
-    % We have filter bounds, extract phase with hilbert
-    theta_phase = angle(hilbert(theta));
-end
-
-% Compute phase of gamma amplitude
-gamma_amp_phase = angle(hilbert(gamma_amp));
-
-% Compute theta-filtered gamma amplitude
-if length(lo_bounds) == 2
-    gamma_amp_theta = cfc_filt_fir(gamma_amp(1,:),theta_cfg);
-else
-    gamma_amp_theta = cfc_util_thetawaveform(signal(1,:),lo_bounds,sr);
 end
 
 %% TODO: This is wasteful, there is a lot in memory and only the filtering is

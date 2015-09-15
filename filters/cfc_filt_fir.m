@@ -19,7 +19,7 @@ if nargin < 3
     padding = round(filter_cfg.sample_rate);
 end
 
-[nchannels,nsamples] = size(data);
+[nchannels,nsamples,nrealisations] = size(data);
 
 %% Make filter
 [D,~,~,~] = cfc_filt_generate(filter_cfg);

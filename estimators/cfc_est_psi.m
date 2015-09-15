@@ -1,8 +1,14 @@
 function [psi] = cfc_est_psi(modulating_signal,modulated_signal,theta_freq)
-
 % Function for estimating the phase slope index between two signals using the function retrieved from: http://doc.ml.tu-berlin.de/causality/
 % Modulating signal is the theta phase and the modulated signal is the phase of the gamma amplitude
+%
+% Modulating signal is [1 x samples x realisations]
+% Modulated signal is [1 x samples x realisations]
+%
+% A realisation can be either an epoch or a sliding window
 
+modulating_signal = squeeze(modulating_signal);
+modulated_signal = squeeze(modulated_signal);
 
 srate = 400; % ASSUMED FOR NOW!!!
 z = 2*pi*1i/srate;

@@ -1,10 +1,19 @@
 function [nesc] = ncfc_est_esc(modulating_signal,modulated_signal)
-
 % Function for estimating the normalised Envelope-to-signal correlation as defined in Penny et al 2008
 % Modulating signal is the theta filtere time series and modulated_signal is the gamma amplitude
+%
+% Modulating signal is [1 x samples x realisations]
+% Modulated signal is [1 x samples x realisations]
+%
+% A realisation can be either an epoch or a sliding window
 
-modulating_signal = cos(modulating_signal)';
-modulated_signal = modulated_signal';
+if ndims(modulating_signal) == 2
+    modulating_signal = cos(modulating_signal');
+    modulated_signal = modulated_signal';
+else
+    modulating_signal = cos(squeeze(modulating_signal));
+    modulated_signal = squeeze(modulated_signal);
+end
 
 %% Compute correlation
 % http://stackoverflow.com/questions/9262933/what-is-a-fast-way-to-compute-column-by-column-correlation-in-matlab
