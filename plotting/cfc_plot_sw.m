@@ -1,6 +1,6 @@
 function cfc_plot_sw( cfc_results )
 
-time = mean(cfc_results.time_vect,2);
+time = cfc_results.time_vect;
 thresh = nan;
 
 for met_idx = 1:length(cfc_results.cfg.metrics)

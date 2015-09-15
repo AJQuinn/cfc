@@ -37,7 +37,12 @@ function cmg = estimate_comodulogram( signal, cfg )
 %     cfg.step: step size between windows in seconds
 
 %% Housekeeping
-[nchannels,nsamples] = size(signal);
+if ndims(signal) == 2
+    [nchannels,nsamples] = size(signal);
+else
+    [nchannels,nsamples,~] = size(signal);
+end
+
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', nchannels)
 end
@@ -157,7 +162,7 @@ for lo_idx = 1:n_lo_steps
             [ signals ] = cfc_util_swsignals(signals,window_size,step);
         end
 
-        % Estimate CFC
+       % Estimate CFC
         for met_idx = 1:length(cfg.metrics)
             if strcmp(cfg.metrics{met_idx},'ESC')
                 esc(:,lo_idx,hi_idx) = cfc_est_esc(signals.theta,signals.gamma_amp);

@@ -40,7 +40,13 @@ function cfc_results = estimate_cfc( signal, cfg )
 
 
 %% Housekeeping
-[nchannels,nsamples] = size(signal);
+
+if ndims(signal) == 2
+    [nchannels,nsamples] = size(signal);
+else
+    [nchannels,nsamples,~] = size(signal);
+end
+
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', nchannels)
 end
@@ -98,9 +104,11 @@ cfc_signals = cfc_util_basesignals( signal, cfg.sr, ...
 
 if nwindows > 1
     cfc_signals  = cfc_util_swsignals(cfc_signals,window_size,window_step);
+    cfc_results.time_vect = squeeze(mean(cfc_signals.time_vect))';
+else
+    cfc_results.time_vect = cfc_signals.time_vect;
 end
 
-cfc_results.time_vect = cfc_signals.time_vect;
 
 % Estimate observed CFC
 for met_idx = 1:length(cfg.metrics)

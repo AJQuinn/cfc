@@ -11,8 +11,6 @@ function [mean_vector] = cfc_est_minorm(modulating_signal,modulated_signal)
 
 if ndims(modulating_signal) == 2
     ax = 2;
-    modulating_signal = modulating_signal';
-    modulated_signal = modulated_signal';
     [~,nsamples] = size(modulating_signal);
     nrealisations = 1;
 else
@@ -34,7 +32,7 @@ surrogate_Z = nan(nsurrogates,nrealisations);
 skips = randi([fix(nsamples/10),9*fix(nsamples/10)],nsurrogates,1);
 for idx = 1:nsurrogates
     tmp = circshift(modulated_signal,skips(idx),ax);
-    surrogate_Z(idx,:) = abs(mean( tmp.*exp(1i * modulating_signal),1));
+    surrogate_Z(idx,:) = abs(mean( tmp.*exp(1i * modulating_signal),ax));
 end
 
 % Normalise
