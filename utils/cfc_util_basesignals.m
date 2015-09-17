@@ -54,31 +54,31 @@ for idx = 1:nrealisations
         theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
         theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
         theta_cfg.method = 'twopass';
-    
+
         theta(1,:,idx) = cfc_filt_fir(signal(1,:,idx),theta_cfg);
     else
         theta = [];
     end
-    
+
     gamma_cfg.order = 512;
     gamma_cfg.sample_rate = sr;
     gamma_cfg.centre_freq = (hi_bounds(1)+hi_bounds(2))/2;
     gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
     gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
     gamma_cfg.method = 'twopass';
-    
+
     if nchannels == 1
         gamma(1,:,idx) = cfc_filt_fir(signal(1,:,idx),gamma_cfg);
     elseif nchannels == 2
         gamma(1,:,idx) = cfc_filt_fir(signal(2,:,idx),gamma_cfg);
     end
-    
+
     %% Compute signals
-    
+
     % Compute amplitude time series
     gamma_amp(1,:,idx) = abs(hilbert(gamma(1,:,idx)));
     theta_amp(1,:,idx) = abs(hilbert(theta(1,:,idx)));
-    
+
     % Compute phase time series
     if length(lo_bounds) == 1
         % We only have one theta frequency, extract phase manually
@@ -87,10 +87,10 @@ for idx = 1:nrealisations
         % We have filter bounds, extract phase with hilbert
         theta_phase(1,:,idx) = angle(hilbert(theta(1,:,idx)));
     end
-    
+
     % Compute phase of gamma amplitude
     gamma_amp_phase(1,:,idx) = angle(hilbert(gamma_amp(1,:,idx)));
-    
+
     % Compute theta-filtered gamma amplitude
     if length(lo_bounds) == 2
         gamma_amp_theta(1,:,idx) = cfc_filt_fir(gamma_amp(1,:,idx),theta_cfg);
