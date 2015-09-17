@@ -23,6 +23,7 @@ function cfc_peak_grouplot( varargin )
     if nconditions > 3;
         error('That is a lot of conditions, perhaps too many...');
     end
+    col_idx = 1;
 
     %% Get the figure started
     figure('Position',[1, 1, 800, 500]);
@@ -47,10 +48,6 @@ function cfc_peak_grouplot( varargin )
         ffts = arrayfun(@(i) group_peaks{i}.smo_fft, 1:nppts,'UniformOutput',false);
         group_fft = cell2mat(ffts');
 
-        % Get top peak from each participant
-        peak_freqs = arrayfun( @(i) group_peaks{i}.peak_frequencies(group_peaks{i}.peaks_by_amplitude(1)), 1:nppts);
-        peak_amps = arrayfun( @(i) group_peaks{i}.peak_amplitudes(group_peaks{i}.peaks_by_amplitude(1)), 1:nppts);
-
 
         %% Start plotting
         % Average spectrum and individuals
@@ -58,34 +55,56 @@ function cfc_peak_grouplot( varargin )
         plot(main_axis,freq_vect,mean(group_fft,1),colour_cycle{cond_idx});
         hold(main_axis,'on');
         grid(main_axis,'on');
-        plot(main_axis,peak_freqs,peak_amps,[colour_cycle{cond_idx} '*']);
 
-        % horizontal histogram
-        [n1,xout1] = hist(peak_freqs,nbins);
-        bar(horz_axis,xout1,n1,1,colour_cycle{cond_idx});
-        hold(horz_axis,'on');
-        grid(horz_axis,'on');
+        % plot top three peaks if only one file was passed
+        if nconditions == 1
+             npeaks = 3;
+        else
+             npeaks = 1;
+        end
 
-        % vertical histogram
-        [n1, xout1] = hist(peak_amps,nbins);
-        barh(vert_axis,xout1,n1,1,colour_cycle{cond_idx});
-        hold(vert_axis,'on');
-        grid(vert_axis,'on');
+        for peak_idx = 1:npeaks
+
+            % Get top peak from each participant
+            peak_freqs = arrayfun( @(i) group_peaks{i}.peak_frequencies(group_peaks{i}.peaks_by_amplitude(peak_idx)), 1:nppts);
+            peak_amps = arrayfun( @(i) group_peaks{i}.peak_amplitudes(group_peaks{i}.peaks_by_amplitude(peak_idx)), 1:nppts);
+
+            plot(main_axis,peak_freqs,peak_amps,[colour_cycle{col_idx} '*']);
+
+            % horizontal histogram
+            [n1,xout1] = hist(peak_freqs,nbins);
+            bar(horz_axis,xout1,n1,1,colour_cycle{col_idx});
+            hold(horz_axis,'on');
+            grid(horz_axis,'on');
+
+            % vertical histogram
+            [n1, xout1] = hist(peak_amps,nbins);
+            barh(vert_axis,xout1,n1,1,colour_cycle{col_idx});
+            hold(vert_axis,'on');
+            grid(vert_axis,'on');
+
+            col_idx = col_idx + 1;
+        end
 
         %% Attach legend
-        if isempty(labels)
-            if cond_idx == 1;
-                leg = {'Condition 1 Average','Condition 1 Individual'};
+        if nconditions > 1
+            if isempty(labels)
+                if cond_idx == 1;
+                    leg = {'Condition 1 Average','Condition 1 Individual'};
+                else
+                    leg = cat(2,leg,{['Condition ' num2str(col_idx) ' Average'], ...
+                                ['Condition ' num2str(col_idx) ' Individual']});
+                end
             else
-                leg = cat(2,leg,{['Condition ' num2str(cond_idx) ' Average'], ...
-                            ['Condition ' num2str(cond_idx) ' Individual']});
+                if cond_idx == 1;
+                    leg = {[labels{1} ' Average'],[labels{1} ' Individual']};
+                else
+                    leg = cat(2,leg,{[labels{col_idx} ' Average'],[labels{col_idx} ' Individual']});
+                end
             end
         else
-            if cond_idx == 1;
-                leg = {[labels{1} ' Average'],[labels{1} ' Individual']};
-            else
-                leg = cat(2,leg,{[labels{cond_idx} ' Average'],[labels{cond_idx} ' Individual']});
-            end
+            % We only have one condition and want the top peaks
+            leg = {'Average Spectrum','Peak 1','Peak 2','Peak 3'};
         end
 
     end
