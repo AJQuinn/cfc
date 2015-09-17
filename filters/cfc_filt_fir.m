@@ -16,7 +16,7 @@ if nargin < 4
 end
 
 if nargin < 3
-    padding = round(filter_cfg.sample_rate);
+    padding = round(filter_cfg.sample_rate)*2;
 end
 
 [nchannels,nsamples,nrealisations] = size(data);
