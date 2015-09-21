@@ -28,35 +28,31 @@ obj
 
 if S.method == 'aq'
 
-        base_gamma = .1;
-
-        % Generate coupled signals
+        modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
         modulating_ts = S.modulating_amp*sin(2*pi*S.modulating_freq*obj.time_vect);
-        modulated_ts = S.modulating_amp*sin(2*pi*S.modulated_freq*obj.time_vect);
 
-        mod = modulating_ts;
-        mod(mod < base_gamma) = base_gamma;
-        % Make modulation time-varying
-        state_switching = square(sin(2*pi*obj.switching_freq*obj.time_vect));
-        %mod = mod .*state_switching;
+        sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)) - ...
+                                     sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) - ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)));
 
-        % Create phase scramble of original modulating signal
-        s = phaseran(modulating_ts,1)';
-        s(s < base_gamma) = base_gamma;
+        state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
 
-        % Scramble scrambled series in chunks
-        chunk_size = 50;
-        nchunks = floor(size(s,2) / chunk_size);
-        s_chunk = reshape(s(1,1:chunk_size*nchunks),[chunk_size,nchunks]);
-        s_chunk = s_chunk(:,randperm(size(s_chunk,2)));
-        s(1,1:nchunks*chunk_size) = reshape(s_chunk,[1,chunk_size*nchunks]);
+        noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
+            S.noise_level,...
+            modulating_ts);
+        obj.modulating_ts = modulating_ts + noise;
+        noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+            S.noise_level,...
+            modulated_ts);
+        obj.modulated_ts = modulated_ts + noise;
 
-        % Where modulating signal is zero we substitute in the phase scrambled
-        % modulating signal
-        mod(state_switching < 1) = s(1,1:size(find(state_switching < 1),2));
-        obj.mod = mod;
+        obj.signal = (obj.modulated_ts + sb_double.*state_switching) + modulating_ts;
 
-        modulated_ts = modulated_ts.*mod;
+        obj.state_switching = state_switching;
+        obj.time_vect = obj.time_vect;
+
+        return
 
 elseif S.method == 'mw'
 
@@ -81,6 +77,8 @@ elseif S.method == 'mw'
         amptmp=std(modulated_ts(find(modulated_ts~=0)));
         modulated_ts(find(modulated_ts==0))=randn(size(find(modulated_ts==0)))*amptmp;
 
+        signal = obj.modulating_ts - obj.modulated_ts;
+
 elseif S.method == 'hippo'
 
         % Generate coupled signals
@@ -101,6 +99,7 @@ elseif S.method == 'hippo'
         amptmp=std(modulated_ts(find(modulated_ts~=0)));
         modulated_ts(find(modulated_ts==0))=randn(size(find(modulated_ts==0)))*amptmp;
 
+        signal = obj.modulating_ts - obj.modulated_ts;
 
 elseif S.method == 'ab'
 
@@ -133,6 +132,8 @@ elseif S.method == 'ab'
 
         state_switching = a>.1;
 
+        signal = obj.modulating_ts - obj.modulated_ts;
+
 end
 
 noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
@@ -144,7 +145,7 @@ noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),..
                             modulated_ts);
 obj.modulated_ts = modulated_ts + noise;
 
-obj.signal = obj.modulating_ts - obj.modulated_ts;
+obj.signal = signal;
 
 obj.state_switching = state_switching;
 obj.time_vect = obj.time_vect;
