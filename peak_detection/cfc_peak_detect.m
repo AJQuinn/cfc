@@ -54,10 +54,6 @@ function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detr
         obj.fft = mean(obj.fft,1);
     end
 
-    %% Smooth spectrum
-    disp('Smoothing')
-    obj.smo_fft = sgolayfilt(obj.fft, order, sg_win);
-
     %% Extract frequencies of interest
     freq_idx_of_interest = obj.freq_vect > freq_of_interest(1) & obj.freq_vect < freq_of_interest(2);
     obj.fft = obj.fft(freq_idx_of_interest);
@@ -66,6 +62,10 @@ function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detr
     if detrend == true
         obj.sub_vect = obj.sub_vect(freq_idx_of_interest);
     end
+
+    %% Smooth spectrum
+    disp('Smoothing')
+    obj.smo_fft = sgolayfilt(obj.fft, order, sg_win);
 
     %% Subtract 1/f if requested
     if strcmp(detrend,'1/f')
