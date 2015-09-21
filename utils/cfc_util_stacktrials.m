@@ -22,7 +22,8 @@ window_size = floor( window_size / ( 1000 / signals.sr ) );
 if strcmp( mode, 'stack');
     [nchannels, nsamples, ntrials] = size(signals.signal);
     % Find number of windows
-    nwindows = floor ( (nsamples - window_size) / window_size) + 1;
+    nwindows = fix(nsamples / window_size);
+    nsamples = window_size*nwindows;
 elseif strcmp( mode, 'unstack' )
     [nchannels, tmp, nwindows] = size(signals.signal);
     ntrials = tmp / window_size;
@@ -39,7 +40,8 @@ fields = fieldnames(signals);
 skip_field = {'hi_bounds','hi_bandwidth','hi_steps',...
           'lo_bounds','lo_bandwidth','lo_steps','sr',...
           'sample_rate','switching_freq','nwindows',...
-          'nsamples','ntrials','nchannels','window_size'};
+          'nsamples','ntrials','nchannels','window_size',...
+          'time_vect','true_timecourse'};
 
 out = [];
 for i = 1:numel(fields)
