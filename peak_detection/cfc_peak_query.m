@@ -35,12 +35,12 @@ function [out] = cfc_peak_query(indata, sample_rate, freq_of_interest, order,det
 
     nppts = length(indata);
     out.ppt = cell(nppts,1);
-    
+
     for ippt = 1:nppts
 
         obj = [];
         data = indata{ippt};
-        
+
         %% Smoothing window size for the SG filter
         sg_win = round(length(data)/100);
         if rem(sg_win,2) == 0
@@ -58,14 +58,14 @@ function [out] = cfc_peak_query(indata, sample_rate, freq_of_interest, order,det
         %% Smooth spectrum
         obj.smo_fft = sgolayfilt(obj.fft, order, sg_win);
 
-        if ippt == 1; 
+        if ippt == 1;
             tmp_idx = obj.freq_vect > 0 & obj.freq_vect < freq_of_interest+10;
             smo_fft = obj.smo_fft(tmp_idx);
             freq_vect = obj.freq_vect(tmp_idx);
         else
             smo_fft = cat(1,smo_fft,obj.smo_fft(tmp_idx));
         end
-        
+
         %% Extract frequencies of interest
         halfwidth = 1.5;
         freq_idx_of_interest = obj.freq_vect > freq_of_interest-halfwidth & obj.freq_vect < freq_of_interest+halfwidth;
@@ -156,7 +156,7 @@ function [out] = cfc_peak_query(indata, sample_rate, freq_of_interest, order,det
         out.ppt{ippt} = obj;
 
     end
-        
+
     % Store some key information at the top level
     out.peak_amplitudes = arrayfun(@(i) out.ppt{i}.peak{1}.peak_amp, 1:nppts);
     out.peak_frequencies = arrayfun(@(i) out.ppt{i}.peak{1}.peak_freq, 1:nppts);
@@ -167,20 +167,20 @@ function [out] = cfc_peak_query(indata, sample_rate, freq_of_interest, order,det
     R2 = arrayfun(@(i) out.ppt{i}.peak{1}.r2, 1:nppts);
     SE = arrayfun(@(i) out.ppt{i}.peak{1}.SE, 1:nppts);
     tvals = arrayfun(@(i) out.ppt{i}.peak{1}.t, 1:nppts);
-    
+
     % currently fixed effects, would be awfully nice to use SE here...
     [~,P,ci,stats] = ttest(tvals);
     out.P = P;
     out.ci = ci;
     out.stats = stats;
-    
+
     %% Make a fancy plot
-    
+
 
     figure
     plot(freq_vect,smo_fft);hold on
     plot(freq_vect,mean(smo_fft,1),'linewidth',3)
-    
+
     %% Print a fancy table
     header = sprintf('%-8s%-10s%-12s%-12s%-8s%-8s%-8s%-8s','Peak','Freq(Hz)','Amp','Beta','R2','SE','T','p');
     table_lines = repmat('-',1,length(header));
@@ -207,6 +207,6 @@ function [out] = cfc_peak_query(indata, sample_rate, freq_of_interest, order,det
         stats.tstat,...
         P);
     disp(table_lines);
-        
+
 
 end

@@ -45,14 +45,14 @@ function cfc_peak_grouplot( varargin )
 
         % Get smoothed fft from each participant
         % not currently sanity-checking the smoothing parameters....
-        ffts = arrayfun(@(i) group_peaks{i}.smo_fft, 1:nppts,'UniformOutput',false);
-        group_fft = cell2mat(ffts');
+        psds = arrayfun(@(i) group_peaks{i}.smo_psd, 1:nppts,'UniformOutput',false);
+        group_psd = cell2mat(psds');
 
 
         %% Start plotting
         % Average spectrum and individuals
 
-        plot(main_axis,freq_vect,mean(group_fft,1),colour_cycle{cond_idx});
+        plot(main_axis,freq_vect,mean(group_psd,1),colour_cycle{cond_idx});
         hold(main_axis,'on');
         grid(main_axis,'on');
 

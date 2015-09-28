@@ -1,4 +1,4 @@
-function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detrend,fft_len)
+function [obj] = cfc_peak_detect( data, cfg )
 %% cfc_peak_detect
 % Function using Savitsky-Golay smoothing filter to detect peaks in the
 % spectrum of a given time series
@@ -8,93 +8,102 @@ function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detr
 % data: 2d array
 %       series to find peaks in [channels, samples], will average over channels
 %       if more than one
-% sample_rate: double
+%
+% cfg struct defining options
+%
+% cfg.sample_rate: double
 %       sampling frequency of the data
-% freq_of_interest: vector
+% cfg.freq_of_interest: vector
 %       low and high frequencies of interest eg [ .01 100 ]
 % order: int [optional]
 %       order for sgolayfilter
 % detrend: str [optional]
 %       Optional detrending of spectrum. Choose from '1/f','linear' or 'polyfit'
 
-    if nargin < 6 || isempty(fft_len)
-        fft_len = [];
+    if ~isfield(cfg, 'fft_len')
+        cfg.fft_len = [];
     end
 
-    if nargin < 5 || isempty(detrend)
-        detrend = 'nope';
+    if ~isfield(cfg, 'detrend')
+        cfg.detrend = 'nope';
     end
 
-    if nargin < 4 || isempty(order)
-        order = 3;
+    if ~isfield(cfg, 'smoothing_order')
+        cfg.smoothing_order = 3;
     end
 
-    if nargin < 3 || isempty(freq_of_interest)
-        freq_of_interest = [ 0.001 100 ];
+    if ~isfield(cfg, 'freq_of_interest')
+        cfg.cfg.freq_of_interest = [ 0.001 100 ];
     end
 
-    if nargin < 2 || isempty(sample_rate)
-        sample_rate = 1;
+    if ~isfield(cfg, 'sample_rate')
+        cfg.cfg.sample_rate = 1;
+    end
+
+    if ~isfield(cfg,'input_domain')
+        error('Please specify the domain of the input data. Either time or frequency');
     end
 
     obj = [];
 
-    %% Smoothing window size for the SG filter
-    sg_win = round(length(data)/100);
-    if rem(sg_win,2) == 0
-        sg_win = sg_win+1;
+    if strcmp(cfg.input_domain, 'time')
+        % We have time domain data, fft and smooth it
+
+        % Smoothing window size for the SG filter
+        sg_win = round(length(data)/100);
+        if rem(sg_win,2) == 0
+            sg_win = sg_win+1;
+        end
+
+        % Peform frequency transform
+        obj.psd = fftshift(abs(fft(data,cfg.fft_len,2)));
+        obj.freq_vect = linspace(-cfg.sample_rate/2,cfg.sample_rate/2,size(obj.psd,2));
+
+        if size(data,1) > 1
+            obj.psd = mean(obj.psd,1);
+        end
+
+        obj = get_freq_of_interest(obj, cfg.freq_of_interest);
+
+        % Smooth spectrum
+        obj.smo_psd = sgolayfilt(obj.psd, cfg.smoothing_order, sg_win);
+
+    elseif strcmp(cfg.input_domain,'frequency')
+        % We have frequency domain data, extract the interesting part
+
+        obj = get_freq_of_interest(obj, cfg.freq_of_interest);
+
+    else
+        error('Please define input domain as EITHER time or frequency')
     end
 
-    %% Peform frequency transform
-    disp('FFT')
-    obj.fft = fftshift(abs(fft(data,fft_len,2)));
-    obj.freq_vect = linspace(-sample_rate/2,sample_rate/2,size(obj.fft,2));
-
-    if size(data,1) > 1
-        obj.fft = mean(obj.fft,1);
-    end
-
-    %% Extract frequencies of interest
-    freq_idx_of_interest = obj.freq_vect > freq_of_interest(1) & obj.freq_vect < freq_of_interest(2);
-    obj.fft = obj.fft(freq_idx_of_interest);
-    obj.freq_vect = obj.freq_vect(freq_idx_of_interest);
-    obj.smo_fft = obj.smo_fft(freq_idx_of_interest);
-    if detrend == true
-        obj.sub_vect = obj.sub_vect(freq_idx_of_interest);
-    end
-
-    %% Smooth spectrum
-    disp('Smoothing')
-    obj.smo_fft = sgolayfilt(obj.fft, order, sg_win);
 
     %% Subtract 1/f if requested
-    if strcmp(detrend,'1/f')
-        obj.sub_vect = (1./obj.freq_vect) * obj.fft(1);
-        obj.fft = obj.fft - obj.sub_vect;
-        obj.smo_fft = obj.smo_fft - obj.sub_vect;
-    elseif strcmp(detrend,'linear')
+    if strcmp(cfg.detrend,'1/f')
+        obj.sub_vect = (1./obj.freq_vect) * obj.psd(1);
+        obj.psd = obj.psd - obj.sub_vect;
+        obj.smo_psd = obj.smo_psd - obj.sub_vect;
+    elseif strcmp(cfg.detrend,'linear')
         X = obj.freq_vect;
         X = cat(1,X,ones(size(X)));
-        Y_hat = X'* ( X'\obj.fft');
-        obj.fft = obj.fft - Y_hat';
-        Y_hat = X'* ( X'\obj.smo_fft');
-        obj.smo_fft = obj.smo_fft - Y_hat';
-    elseif strcmp(detrend,'polyfit')
-        S.detrend_pred = zeros(size(obj.smo_fft,1),size(obj.smo_fft,2));
+        Y_hat = X'* ( X'\obj.psd');
+        obj.psd = obj.psd - Y_hat';
+        Y_hat = X'* ( X'\obj.smo_psd');
+        obj.smo_psd = obj.smo_psd - Y_hat';
+    elseif strcmp(cfg.detrend,'polyfit')
+        S.detrend_pred = zeros(size(obj.smo_psd,1),size(obj.smo_psd,2));
         modelfun = @(p,x)(p(1)*(x-p(4)) - p(2)*(x-p(4)) + p(3)*(x-p(4)).^2);
         beta0 = [1, 1, 1, 500];
-        [beta,R,J,covb,mse] = nlinfit(obj.freq_vect,obj.smo_fft,modelfun,beta0);
+        [beta,R,J,covb,mse] = nlinfit(obj.freq_vect,obj.smo_psd,modelfun,beta0);
         % Get confidence intervals for the parameters in the fit
         CI = nlparci(beta,R,'covar',covb);
-        pred = modelfun(beta,obj.smo_fft);
-        obj.smo_fft = obj.smo_fft - pred;
-        %obj.smo_fft = pred;
+        pred = modelfun(beta,obj.smo_psd);
+        obj.smo_psd = obj.smo_psd - pred;
+        %obj.smo_psd = pred;
         %S.data(:,idx) = S.data(:,idx) + abs(min(S.data(:,idx))); % no values less than 0
         figure;plot(pred)
-        figure;plot(obj.smo_fft)
+        figure;plot(obj.smo_psd)
     end
-
-
 
     %% Fit diff of peaks
     disp('Peaking')
@@ -102,7 +111,7 @@ function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detr
     % Find peaks using file-exchange script as matlab's one sucks
     % algorithm from: http://www.mathworks.com/matlabcentral/fileexchange/25500-peakfinder
     % Peaks must be larger than the median differetial step in the spectrum
-    [locs,pks] = peakfinder(obj.smo_fft,median(diff(obj.smo_fft)));
+    [locs,pks] = peakfinder(obj.smo_psd,median(diff(obj.smo_psd)));
     % Remove peaks within 5 samples of the start or end
     pks(locs < 5 | locs > size(obj.freq_vect,2)-5) = [];
     locs(locs < 5 | locs > size(obj.freq_vect,2)-5) = [];
@@ -122,8 +131,8 @@ function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detr
         tmp.X = cat(1,tmp.X,ones(size(tmp.X)));
 
         % Take differential of the smoothed fft
-        %smo_tmp = sgolayfilt(diff(obj.smo_fft),order,sg_win);
-        smo_tmp = [0 diff(obj.smo_fft)];
+        %smo_tmp = sgolayfilt(diff(obj.smo_psd),order,sg_win);
+        smo_tmp = [0 diff(obj.smo_psd)];
 
         % Assign differential as predicted variable for regression
         tmp.Y = smo_tmp(obj.freq_vect > obj.freq_vect(locs(ipk))-freq_width & obj.freq_vect < obj.freq_vect(locs(ipk))+freq_width);
@@ -192,3 +201,13 @@ function [obj] = cfc_peak_detect(data, sample_rate, freq_of_interest, order,detr
     disp(table_lines);
 
 end
+
+function this_obj = get_freq_of_interest(this_obj, freq_of_interest)
+
+    %% Extract frequencies of interest
+    freq_idx_of_interest = this_obj.freq_vect > freq_of_interest(1) & this_obj.freq_vect < freq_of_interest(2);
+    this_obj.psd = this_obj.psd(freq_idx_of_interest);
+    this_obj.freq_vect = this_obj.freq_vect(freq_idx_of_interest);
+
+end
+
