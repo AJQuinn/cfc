@@ -56,7 +56,7 @@ function [obj] = cfc_peak_detect( data, cfg )
         end
 
         % Peform frequency transform
-        obj.psd = fftshift(abs(fft(data,cfg.fft_len,2)));
+        obj.psd = fftshift(abs(fft(data,cfg.fft_len,2)).^2);
         obj.freq_vect = linspace(-cfg.sample_rate/2,cfg.sample_rate/2,size(obj.psd,2));
 
         if size(data,1) > 1
