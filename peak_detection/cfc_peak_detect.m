@@ -15,6 +15,8 @@ function [obj] = cfc_peak_detect( data, cfg )
 %       sampling frequency of the data
 % cfg.freq_of_interest: vector
 %       low and high frequencies of interest eg [ .01 100 ]
+% cfg.input_domain: string
+%       The domain of the input data, either 'time' or 'frequency'
 % order: int [optional]
 %       order for sgolayfilter
 % detrend: str [optional]
@@ -56,7 +58,7 @@ function [obj] = cfc_peak_detect( data, cfg )
         end
 
         % Peform frequency transform
-        obj.psd = fftshift(abs(fft(data,cfg.fft_len,2)));
+        obj.psd = fftshift(abs(fft(data,cfg.fft_len,2)).^2);
         obj.freq_vect = linspace(-cfg.sample_rate/2,cfg.sample_rate/2,size(obj.psd,2));
 
         if size(data,1) > 1

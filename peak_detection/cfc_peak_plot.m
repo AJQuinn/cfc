@@ -21,9 +21,9 @@ max_freq_idx = length(obj.freq_vect(obj.freq_vect < max_freq));
 
 figure('Position',[50 50 500 800]);
 subplot(311)
-plot(obj.freq_vect(1:max_freq_idx),obj.fft(1:max_freq_idx))
+plot(obj.freq_vect(1:max_freq_idx),obj.psd(1:max_freq_idx))
 hold on
-plot(obj.freq_vect(1:max_freq_idx),obj.smo_fft(1:max_freq_idx),'r')
+plot(obj.freq_vect(1:max_freq_idx),obj.smo_psd(1:max_freq_idx),'r')
 
 for ipk = 1:length(obj.peak)
     plot(obj.peak{ipk}.peak_freq,obj.peak{ipk}.peak_amp,'og');
@@ -34,7 +34,7 @@ ylabel('Amplitude')
 grid on;
 
 subplot(312)
-plot(obj.freq_vect(2:max_freq_idx),diff(obj.smo_fft(1:max_freq_idx)))
+plot(obj.freq_vect(2:max_freq_idx),diff(obj.smo_psd(1:max_freq_idx)))
 hold on
 grid on;
 

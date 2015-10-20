@@ -79,7 +79,7 @@ function cfc_peak_grouplot( varargin )
 
             % vertical histogram
             [n1, xout1] = hist(peak_amps,nbins);
-            barh(vert_axis,xout1,n1,1,colour_cycle{col_idx});
+
             hold(vert_axis,'on');
             grid(vert_axis,'on');
 
