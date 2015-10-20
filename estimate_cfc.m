@@ -37,6 +37,7 @@ function cfc_results = estimate_cfc( signal, cfg )
 %     zero_pad: the number of samples to pad the time series when filtering
 %     window_size: length in seconds for sliding window
 %     step: step size between windows in seconds
+%     ret_cfc_signals: return the phase and amplitude signals used in cfc estimation. true|false
 
 
 %% Housekeeping
@@ -45,6 +46,10 @@ if ndims(signal) == 2
     [nchannels,nsamples] = size(signal);
 else
     [nchannels,nsamples,~] = size(signal);
+end
+
+if ~isfield(cfg,'ret_cfc_signals')
+    cfg.ret_cfc_signals = false;
 end
 
 if nchannels > 2
@@ -109,6 +114,9 @@ else
     cfc_results.time_vect = cfc_signals.time_vect;
 end
 
+if cfg.ret_cfc_signals == true
+    cfc_results.cfc_signals = cfc_signals;
+end
 
 % Estimate observed CFC
 for met_idx = 1:length(cfg.metrics)
@@ -137,7 +145,6 @@ for met_idx = 1:length(cfg.metrics)
         fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
     end
 end
-
 
 
 % Get the surrogate signals if requested
