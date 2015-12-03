@@ -45,9 +45,9 @@ if S.method == 'aq'
         noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
             S.noise_level,...
             modulated_ts);
-        obj.modulated_ts = modulated_ts + noise;
+        obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
 
-        obj.signal = (obj.modulated_ts + sb_double.*state_switching) + modulating_ts;
+        obj.signal = obj.modulated_ts + modulating_ts;
 
         obj.state_switching = state_switching;
         obj.time_vect = obj.time_vect;
