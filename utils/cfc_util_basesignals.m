@@ -1,4 +1,4 @@
-function signals = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
+function [signals,gamma_cfg,theta_cfg] = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
 %% Create the ingredients for CFC metric estimation.
 %
 % signal is an array [channels x samples x realisations]. There may only be one
@@ -34,6 +34,13 @@ if nargin < 5 || isempty(time_vect)
     time_vect = (0:1/sr:(nsamples-1) * (1/sr));
 end
 
+if nsamples < sr*4
+    % Should probably expose this at the top
+    order = 256;
+else
+    order = 512;
+end
+
 %% preallocated
 theta = zeros(nchannels,nsamples,nrealisations);
 gamma = zeros(nchannels,nsamples,nrealisations);
@@ -48,7 +55,7 @@ gamma_amp_theta = zeros(nchannels,nsamples,nrealisations);
 for idx = 1:nrealisations
 
     if length(lo_bounds) == 2
-        theta_cfg.order = 512;
+        theta_cfg.order = order;
         theta_cfg.sample_rate = sr;
         theta_cfg.centre_freq = (lo_bounds(1)+lo_bounds(2))/2;
         theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
@@ -60,7 +67,7 @@ for idx = 1:nrealisations
         theta = [];
     end
 
-    gamma_cfg.order = 512;
+    gamma_cfg.order = order;
     gamma_cfg.sample_rate = sr;
     gamma_cfg.centre_freq = (hi_bounds(1)+hi_bounds(2))/2;
     gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
