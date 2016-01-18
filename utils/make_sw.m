@@ -7,11 +7,11 @@ function out = make_sw( data, window_size, window_step )
     [nchannels,nsamples] = size(data); % there should only be one channel here
     nwindows = fix ( (nsamples - window_size) / window_step);
 
-    out = zeros(window_size,nwindows);
+    out = zeros(nchannels,window_size,nwindows);
 
     for idx = 1:nwindows
         start_idx = (idx-1)*window_step + 1;
         end_idx   = (idx-1)*window_step + window_size;
 
-        out(:,idx) = squeeze(data(:,start_idx:end_idx));
+        out(1,:,idx) = squeeze(data(:,start_idx:end_idx));
     end
