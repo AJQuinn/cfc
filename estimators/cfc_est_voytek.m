@@ -1,9 +1,9 @@
 function [pac] = cfc_est_voytek(modulating_signal,modulated_signal)
-% Function for estimating phase amplitude coupling as defined in Voytek et al 
+% Function for estimating phase amplitude coupling as defined in Voytek et al
 % The modulated signal here should be the amplitude time-series of the high frequency component filtered to the same frequencies as the modulating signal.
 %
-% Modulating signal is [samples x realisations]
-% Modulated signal is [samples x realisations]
+% Modulating signal is [1 x samples x realisations]
+% Modulated signal is [1 x samples x realisations]
 %
 % A realisation can be either an epoch or a sliding window
 

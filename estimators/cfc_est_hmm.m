@@ -17,18 +17,19 @@ signal = [modulating_signal, modulated_signal];
 options = struct('K',2);
 options.cyc = 100;
 options.tol = 0.00001;
-options.initcyc = 10;
+%options.inittype = 'GMM';
+options.initcyc = 100;
+options.initrep = 5;
 options.order = order;
 options.timelag = timelag;
 options.embeddedlags = 0;
 options.orderoffset = 25;
 options.covtype = 'diag';
-
 if ~isempty(exptimelag)
     options.exptimelag = exptimelag;
 end
 
-niters = 2;
+niters = 1;
 minfe = 0;
 
 for idx = 1:niters
