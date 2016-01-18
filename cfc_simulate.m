@@ -24,9 +24,7 @@ if isfield(S, 'switching_freq')
     obj.switching_freq = S.switching_freq;
 end
 
-obj
-
-if S.method == 'aq'
+if strcmp(S.method,'aq')
 
         modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
         modulating_ts = S.modulating_amp*sin(2*pi*S.modulating_freq*obj.time_vect);
@@ -42,6 +40,45 @@ if S.method == 'aq'
             S.noise_level,...
             modulating_ts);
         obj.modulating_ts = modulating_ts + noise;
+        noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+            S.noise_level,...
+            modulated_ts);
+        obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
+
+        obj.signal = obj.modulated_ts + modulating_ts;
+
+        obj.state_switching = state_switching;
+        obj.time_vect = obj.time_vect;
+
+        return
+
+elseif strcmp(S.method,'modal')
+
+        r = .9;
+        wr = 2*pi*S.modulating_freq/S.sample_rate;
+        a1 = [1 -2*r*cos(wr) (r^2)];
+
+        time_vect = 0:1/S.sample_rate:S.seconds;
+        modulating_ts = randn(1,length(time_vect));
+
+        for idx = 4:length(time_vect)
+            for ilag = 2:3
+                modulating_ts(idx) = modulating_ts(idx) - squeeze(a1(ilag))*modulating_ts(idx-ilag+1);
+            end
+        end
+
+                sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)) - ...
+                                     sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) - ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)));
+
+        state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+        noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
+            S.noise_level,...
+            modulating_ts);
+        obj.modulating_ts = modulating_ts + noise;
+        modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
         noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
             S.noise_level,...
             modulated_ts);
