@@ -1,3 +1,4 @@
+
 function [signals,gamma_cfg,theta_cfg] = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans)
 %% Create the ingredients for CFC metric estimation.
 %
@@ -19,7 +20,7 @@ if length(lo_bounds) == 2
     % We only need these if we're filtering for the modulating time series
     if (nargin < 8 || isempty(lo_trans))
         % Use a constant transition band
-        lo_trans = [lo_bounds(1)-3 lo_bounds(2)+3];
+        lo_trans = [lo_bounds(1)-2 lo_bounds(2)+2];
     end
 end
 if nargin < 7 || isempty(hi_trans)
