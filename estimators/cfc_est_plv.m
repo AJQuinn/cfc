@@ -9,9 +9,9 @@ function [plv] = cfc_est_plv(modulating_signal,modulated_signal)
 if ndims(modulating_signal) == 2
     ax = 2;
 else
-    ax = 1;
+    ax = 2;
 end
-nsamples = size(modulating_signal,ax);
+nsamples = size(modulating_signal,2);
 
 modulating_signal = squeeze(modulating_signal);
 modulated_signal = squeeze(modulated_signal);

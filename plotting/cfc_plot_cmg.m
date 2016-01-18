@@ -1,13 +1,28 @@
-function cfc_plot_cmg(cmg,spectrum,freq_vect,log_high,col_levels)
+function cfc_plot_cmg(cmg,metric_name,spectrum,freq_vect,log_high,col_levels)
 
-if nargin < 2
+if nargin < 2 || isempty(metric_name)
+    if isfield(cmg,'mi_norm')
+        metric_name = 'mi_norm';
+    elseif isfield(cmg,'mi')
+        metric_name = 'mi';
+    elseif isfield(cmg,'esc')
+        metric_name = 'ecs';
+    else
+        error('Please specify which metric to plot!')
+    end
+end
+
+metric = cmg.(metric_name);
+
+
+if nargin <= 2
 
     %% Just plot the cmg without any fancy spectrum sidebars
-    col_levels = 0:max(max(cmg.mi_norm))/24:max(max(cmg.mi_norm));
+    col_levels = 0:max(max(metric))/24:max(max(metric));
     figure;
     contourf(squeeze(mean(cmg.lo_freqs,1)),...
         squeeze(mean(cmg.hi_freqs(:,:,1),1)),...
-        squeeze(cmg.mi_norm)',...
+        squeeze(metric)',...
         'linestyle','none');
     caxis([col_levels(1) col_levels(end)]);
     colormap('hot');
@@ -18,7 +33,7 @@ else
 
     if nargin < 5 || isempty(col_levels)
         % Set colour levels based on the data
-        col_levels = 0:max(max(cmg.mi_norm))/24:max(max(cmg.mi_norm));
+        col_levels = 0:max(max(metric))/24:max(max(metric));
     end
 
     if nargin < 4 || isempty(log_high)
@@ -61,7 +76,7 @@ else
     axes('position',[.3,.3,.6,.6])
     contourf(squeeze(mean(cmg.lo_freqs,1)),...
         squeeze(mean(cmg.hi_freqs(:,:,1),1)),...
-        squeeze(cmg.mi_norm)',...
+        squeeze(metric)',...
         'linestyle','none');
     caxis([col_levels(1) col_levels(end)]);
     colormap('hot');

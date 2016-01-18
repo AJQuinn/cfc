@@ -121,7 +121,7 @@ for win_idx = 1:nwindows
         elseif strcmp(cfg.metrics{met_idx},'MI')
             mi = cfc_est_mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);
             cfc_results.mi = mi;
-        elseif strcmp(cfg.metrics{met_idx},'MIZ')
+        elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
             mi_norm = cfc_est_minorm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
             cfc_results.mi_norm = mi_norm;
         else
