@@ -22,6 +22,8 @@ end
 [nchannels,nsamples,nrealisations] = size(data);
 
 %% Make filter
+filter_cfg = cfc_filt_checkcfg( filter_cfg );
+
 [D,~,~,~] = cfc_filt_generate(filter_cfg);
 
 %% Pad the data
