@@ -1,4 +1,8 @@
-function cfc_plot_sw( cfc_results )
+function cfc_plot_sw( cfc_results, outpath )
+
+if nargin < 2
+    outpath = nan;
+end
 
 time = cfc_results.time_vect;
 thresh = nan;
@@ -54,6 +58,10 @@ for met_idx = 1:length(cfc_results.cfg.metrics)
         legend({metric_name,'Thresh .001','Thresh .01','Thresh .05'});
     else
         legend({metric_name});
+    end
+
+    if ~isnan(outpath)
+        saveas(gcf,[outpath 'sw_analysis'],'epsc')
     end
 
     % Histograms
