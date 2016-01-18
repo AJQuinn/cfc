@@ -39,11 +39,11 @@ for idx = 1:length(tb)
 
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))
-    
+
     subplot(212)
     [h,w] = freqz(D{idx});
     plot(w,abs(h))
-    
+
 end
 
 legend({'Original','4','6','8','10'})
@@ -64,14 +64,14 @@ for idx = 1:length(tb)
     tmp_cfg.centre_freq = tb(idx);
 
     [theta,D{idx}] = cfc_filt_fir(X,tmp_cfg);
-    
+
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))
-    
+
     subplot(212)
     [h,w] = freqz(D{idx});
     plot(w,abs(h))
-    
+
 end
 
 legend({'Original','8','10','12','14','16'})
@@ -93,14 +93,14 @@ for idx = 1:length(tb)
     tmp_cfg.centre_freq = tb(idx);
 
     [theta,D{idx}] = cfc_filt_fir(X,tmp_cfg);
-    
+
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))
-    
+
     subplot(212)
     [h,w] = freqz(D{idx});
     plot(w,abs(h))
-    
+
 end
 
 subplot(211)
@@ -141,14 +141,14 @@ for idx = 1:length(tb)
 
 
     [theta,D{idx}] = cfc_filt_fir(X,gamma_cfg);
-    
+
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))
-    
+
     subplot(212)
     [h,w] = freqz(D{idx});
     plot(w,abs(h))
-    
+
 end
 
 legend({'Original','8','10','12','14','16'})

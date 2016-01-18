@@ -32,7 +32,7 @@ if isfield(filt_cfg,'explore_freq')
     else
         freq = filt_cfg.centre_freq;
     end
-    
+
     if freq >= nyquist
         warning( 'Upper explore frequency is above Nyquist!')
     end
@@ -65,7 +65,7 @@ if isfield(filt_cfg,'explore_freq')
     else
         freq = filt_cfg.centre_freq;
     end
-    
+
     if freq <= 0
         warning( 'Lower explore frequency is below zero')
     end
