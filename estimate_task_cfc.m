@@ -32,6 +32,7 @@ function cfc_results = estimate_task_cfc( signal, cfg )
 % and optionally:
 %     true_timecourse: 1d signal indicating where pac exists
 %     zero_pad: the number of samples to pad the time series when filtering
+%     ret_cfc_signals: return the phase and amplitude signals used in cfc estimation. true|false
 
 
 %% Housekeeping
@@ -42,10 +43,14 @@ else
     [nchannels,nsamples,nepochs] = size(signal);
 end
 
+if ~isfield(cfg,'ret_cfc_signals')
+    cfg.ret_cfc_signals = false;
+end
+
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', nchannels)
 end
-
+cfg
 if ~isfield(cfg,'pad')
     cfg.pad = 100;
 end
@@ -95,6 +100,11 @@ cfc_signals = cfc_util_basesignals( signal, cfg.sr, ...
     lo_bounds, ...
     time_vect, ...
     cfg.true_timecourse );
+
+% Add to output if requested
+if cfg.ret_cfc_signals == true
+    cfc_results.cfc_signals = cfc_signals;
+end
 
 % Stack data for analysis
 cfc_signals = cfc_util_stacktrials(cfc_signals,cfg.window_size,'stack');
