@@ -106,9 +106,42 @@ xlabel('Real');
 ylabel('Imag');
 title('Canolty MI')
 
+%% Make more detailed phase plot
 
+% Undo stacking if we have stacked
+if stacked == 1
+    signals = cfc_util_stacktrials(signals,signals.time_vect(end) *1000,'unstack');
+end
 
+%%
 
+figure('position',[1100 100 512, 768]);
 
+% Plot the phase, separate lines for each epoch
+subplot(311);hold on;grid on
+plot(squeeze(signals.time_vect),squeeze(signals.theta_phase))
+ylim([-pi pi]);xlim([signals.time_vect(1) signals.time_vect(end)])
+xlabel('Time (seconds')
+ylabel('Phase (rads)')
 
+% Plot the mean phase, should be (at least close to) zero for al time points
+% TODO: perhaps could smooth this to reduce noise/paranoia
+subplot(312);hold on; grid on;
+plot([signals.time_vect(1) signals.time_vect(end)],[0 0],'k','linewidth',2);
+plot(signals.time_vect,squeeze(mean(signals.theta_phase,3)))
+ylim([-pi pi]);xlim([signals.time_vect(1) signals.time_vect(end)]);
+xlabel('Time (seconds)');
+ylabel('Average phase');
 
+% Plot the phase slips with an approximate threshold based on the median of the differential
+subplot(313);hold on; grid on
+slipdat = diff(unwrap(signals.theta_phase));
+medslip = mean(median(slipdat));
+medmedslip = mean(std(slipdat));
+plot(signals.time_vect(2:end),squeeze(slipdat))
+plot([signals.time_vect(1) signals.time_vect(end)],[medslip + 3*medmedslip,medslip + 3*medmedslip],'r--')
+plot([signals.time_vect(1) signals.time_vect(end)],[medslip - 3*medmedslip,medslip - 3*medmedslip],'r--')
+legend({'Phase differential','Approx upper bound','Approx lower bound'});
+xlabel('Time (seconds)');
+ylabel('Phase progression');
+xlim([signals.time_vect(1) signals.time_vect(end)])
