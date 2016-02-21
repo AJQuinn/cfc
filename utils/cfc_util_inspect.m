@@ -24,34 +24,62 @@ if nargin < 2 || isempty(freq_max)
     freq_max = signals.sr / 2;
 end
 
+% If we have been given windowed or epoched data, stack everything up
+% This is a bit of a hack for the pwelch below, really should estimate this per
+% epoch to avoid edges
+stacked = 0;
+if ndims ( signals.signal ) == 3
+    signals = cfc_util_stacktrials(signals,signals.time_vect(end) *1000,'stack');
+    stacked = 1;
+end
+
 figure('position',[100 100 1024, 512]);
 
 %% Plot full data power spectrum
-subplot(2,5,[1 2 6 7]);hold on;grid on;
+subplot(3,4,[1 2 5 6]);hold on;grid on;
 [pow,f] = pwelch(signals.signal,[],[],[],signals.sr);
+[pow_lo,~] = pwelch(signals.theta,[],[],[],signals.sr);
+[pow_hi,~] = pwelch(signals.gamma,[],[],[],signals.sr);
 
 if strcmp(freq_scale,'log')
     pow = log(pow);
+    pow_lo = log(pow_lo);
+    pow_hi = log(pow_hi);
 elseif strcmp(freq_scale,'dB')
     pow = 20*log(pow);
+    pow_lo = 20*log(pow_lo);
+    pow_hi = 20*log(pow_hi);
 end
 
 plot(f,pow);
-
 % add in frequencies of interest
+
 yval = [min(pow) min(pow)];
 plot(signals.lo_bounds,yval,'r','linewidth',10);
 plot(signals.hi_bounds,yval,'g','linewidth',10);
 axis('tight');
-
 legend({'Signal','Modulating Range','Modulated Range'});
 title('Power Spectrum and Frequency ranges')
 xlabel('Frequency (Hz)')
 ylabel('Power');
 xlim([0 freq_max]);
+yvals = ylim;
+
+subplot(3,4,[9 10]);hold on; grid on;
+plot(f,pow_lo);
+plot(f,pow_hi);
+legend({'Modulating Signal','Modulated Signal'});
+title('Filtered Signal Power Spectra')
+xlabel('Frequency (Hz)')
+ylabel('Power');
+xlim([0 freq_max])
+ylim(yvals);
+
+
+
 
 %% Phase and power distributions
-subplot(253);hold on;grid on;
+subplot(343);hold on;grid on;
 [counts,bins] = hist(signals.theta_phase,20);
 hist(signals.theta_phase,20);
 plot([-pi pi],[mean(counts) mean(counts)],'k--','linewidth',2);
@@ -59,14 +87,14 @@ xlabel('Modulating Phase');
 xlim([-pi pi]);
 title('Phase Distribution');
 
-subplot(254);hold on;grid on;
+subplot(3,4,7);hold on;grid on;
 hist(signals.gamma_amp,20);
 xlabel('Modulated Power');
 ylabel('Amplitude Envelope');
 title('Power Distribution');
 
 %% Phase on unit circle
-subplot(258);grid on;hold on;
+subplot(3,4,4);grid on;hold on;
 plot(sin(signals.theta_phase),cos(signals.theta_phase))
 plot([0 mean(sin(signals.theta_phase))],[0 mean(cos(signals.theta_phase))],'r','linewidth',5)
 xlabel('Real (cos)');xlim([-1.2 1.2])
@@ -74,7 +102,7 @@ ylabel('Imag (sin)');ylim([-1.2 1.2])
 title('Modulating phase in z-plane')
 
 %% Amp on unit circle
-subplot(2,5,9);grid on;hold on;
+subplot(3,4,8);grid on;hold on;
 plot(sin(signals.gamma_amp),cos(signals.gamma_amp))
 plot([0 mean(sin(signals.gamma_amp))],[0 mean(cos(signals.gamma_amp))],'r','linewidth',5)
 xlabel('Real (cos)');xlim([-1.2 1.2])
@@ -83,7 +111,7 @@ title('Modulated amplitude in z-plane')
 
 
 %% Gamma amp by theta phase
-subplot(255)
+subplot(3,4,11)
 [~,bins] = hist(signals.theta_phase,20);
 counts = zeros(1,20);
 for idx = 1:19
@@ -98,7 +126,7 @@ title('Phase-Amplitude Distribution');
 
 
 %% Phase * Amp on unit circle
-subplot(2,5,10);hold on;grid on;
+subplot(3,4,12);hold on;grid on;
 canolty = signals.gamma_amp .* exp(1i * signals.theta_phase);
 plot(real(canolty),imag(canolty))
 plot([0 mean(real(canolty))],[0 mean(imag(canolty))],'r','linewidth',3)
