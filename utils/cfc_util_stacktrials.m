@@ -73,6 +73,11 @@ for i = 1:numel(fields)
     end
 end
 
+if strcmp(mode,'unstack')
+    % We might have lost a sample
+    out.time_vect = out.time_vect(1:size(out.theta,2));
+end
+
 out.nwindows = nwindows;
 out.nsamples = nsamples;
 out.ntrials = ntrials;
