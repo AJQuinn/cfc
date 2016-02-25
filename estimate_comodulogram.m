@@ -59,6 +59,10 @@ if ~isfield(cfg,'pad')
     cfg.pad = 100;
 end
 
+if ~isfield(cfg,'pretrig')
+    cfg.pretrig = 0;
+end
+
 if ~isfield(cfg,'true_timecourse')
     cfg.true_timecourse = zeros(size(signal,1),size(signal,2));
 end
@@ -67,7 +71,7 @@ end
 if isfield(cfg,'signal')
     [nsamples,~] = size(signal);
 end
-time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr));
+time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr)) - cfg.pretrig;
 
 if isfield(cfg,'window_size') && isfield(cfg,'step')
     % Convert window and step to samples
