@@ -68,9 +68,10 @@ xlim([0 freq_max]);
 yvals = ylim;
 
 subplot(3,4,[9 10]);hold on; grid on;
+plot(f,pow,'Color',[.5 .5 .5]);
 plot(f,pow_lo);
 plot(f,pow_hi);
-legend({'Modulating Signal','Modulated Signal'});
+legend({'Signal','Modulating Signal','Modulated Signal'});
 title('Filtered Signal Power Spectra')
 xlabel('Frequency (Hz)')
 ylabel('Power');
@@ -113,15 +114,18 @@ title('Modulated amplitude in z-plane')
 
 
 %% Gamma amp by theta phase
-subplot(3,4,11)
-[~,bins] = hist(signals.theta_phase,20);
-counts = zeros(1,20);
-for idx = 1:19
+subplot(3,4,11); grid on; hold on;
+[~,bins] = hist(signals.theta_phase,21);
+counts = zeros(1,2);
+for idx = 1:20
     inds = bins(idx) < signals.theta_phase & bins(idx+1) > signals.theta_phase;
     counts(idx) = mean(signals.gamma_amp(inds));
 end
-bar(bins,counts,pi/2);
+x_centres = (bins(1:end-1) + bins(2:end)) ./ 2;
+bar(x_centres,counts,pi/2);
 xlim([-pi pi]);
+rng = max(counts) - min(counts);
+ylim([min(counts) - (rng/2) max(counts) + (rng/2)]);
 xlabel('Modulating Phase');
 ylabel('Modulated Power');
 title('Phase-Amplitude Distribution');
@@ -152,6 +156,7 @@ plot(squeeze(signals.time_vect),squeeze(signals.theta_phase))
 ylim([-pi pi]);xlim([signals.time_vect(1) signals.time_vect(end)])
 xlabel('Time (seconds')
 ylabel('Phase (rads)')
+title('Signal Phase Timecourse')
 
 % Plot the mean phase, should be (at least close to) zero for al time points
 % TODO: perhaps could smooth this to reduce noise/paranoia
@@ -161,6 +166,7 @@ plot(signals.time_vect,squeeze(mean(signals.theta_phase,3)))
 ylim([-pi pi]);xlim([signals.time_vect(1) signals.time_vect(end)]);
 xlabel('Time (seconds)');
 ylabel('Average phase');
+title('Average Phase over trials');
 
 % Plot the phase slips with an approximate threshold based on the median of the differential
 subplot(313);hold on; grid on
@@ -174,3 +180,4 @@ legend({'Phase differential','Approx upper bound','Approx lower bound'});
 xlabel('Time (seconds)');
 ylabel('Phase progression');
 xlim([signals.time_vect(1) signals.time_vect(end)])
+title('Phase Slips');
