@@ -24,12 +24,14 @@ if nargin < 2 || isempty(freq_max)
     freq_max = signals.sr / 2;
 end
 
+winlen = signals.time_vect(end) - signals.time_vect(1);
+
 % If we have been given windowed or epoched data, stack everything up
 % This is a bit of a hack for the pwelch below, really should estimate this per
 % epoch to avoid edges
 stacked = 0;
 if ndims ( signals.signal ) == 3
-    signals = cfc_util_stacktrials(signals,signals.time_vect(end) *1000,'stack');
+    signals = cfc_util_stacktrials(signals,signals.window_len *1000,'stack');
     stacked = 1;
 end
 
@@ -138,11 +140,10 @@ title('Canolty MI')
 
 % Undo stacking if we have stacked
 if stacked == 1
-    signals = cfc_util_stacktrials(signals,signals.time_vect(end) *1000,'unstack');
+    signals = cfc_util_stacktrials(signals,signals.window_len*1000,'unstack');
 end
 
 %%
-
 figure('position',[1100 100 512, 768]);
 
 % Plot the phase, separate lines for each epoch
