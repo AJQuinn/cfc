@@ -29,6 +29,8 @@ function cfc_results = estimate_cfc( signal, cfg )
 %     cfg.window_size: scalar indicating sliding window length in ms
 %     cfg.window_step: scalar indicating sliding window step size in ms
 %
+%     cfg.pretrig: starting time for trial, default is 0
+%
 % options for statistical assessment (optional)
 %     cfg.nperms: integer denoting the number of surrogate time series to test
 %
@@ -60,6 +62,10 @@ if ~isfield(cfg,'pad')
     cfg.pad = 100;
 end
 
+if ~isfield(cfg,'pretrig')
+    cfg.pretrig = 0;
+end
+
 if ~isfield(cfg,'true_timecourse')
     cfg.true_timecourse = zeros(size(signal,1),size(signal,2));
 end
@@ -68,7 +74,7 @@ end
 if isfield(cfg,'signal')
     [nsamples,~] = size(signal);
 end
-time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr));
+time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr)) - cfg.pretrig;
 
 % Generate frequency bounds
 lo_bounds = [cfg.lo_freq - cfg.lo_bandwidth/2, cfg.lo_freq + cfg.lo_bandwidth/2];
