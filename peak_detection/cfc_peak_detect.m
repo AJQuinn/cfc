@@ -52,7 +52,7 @@ function [obj] = cfc_peak_detect( data, cfg )
         % We have time domain data, fft and smooth it
 
         % Smoothing window size for the SG filter
-        sg_win = round(length(data)/100);
+        sg_win = round(length(data)/25);
         if rem(sg_win,2) == 0
             sg_win = sg_win+1;
         end
