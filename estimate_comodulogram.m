@@ -39,8 +39,9 @@ function cmg = estimate_comodulogram( signal, cfg )
 %% Housekeeping
 if ndims(signal) == 2
     [nchannels,nsamples] = size(signal);
+    ntrials = 1;
 else
-    [nchannels,nsamples,~] = size(signal);
+    [nchannels,nsamples,ntrials] = size(signal);
 end
 
 if nchannels > 2
@@ -118,13 +119,13 @@ end
 
 % Preallocate metrics
 
-esc = nan(nwindows,n_lo_steps,n_hi_steps);
-nesc = nan(nwindows,n_lo_steps,n_hi_steps);
-plv = nan(nwindows,n_lo_steps,n_hi_steps);
-mi = nan(nwindows,n_lo_steps,n_hi_steps);
-mi_norm = nan(nwindows,n_lo_steps,n_hi_steps);
-glm = nan(nwindows,n_lo_steps,n_hi_steps);
-aec = nan(nwindows,n_lo_steps,n_hi_steps);
+esc = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+nesc = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+plv = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+mi = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+mi_norm = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+glm = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+aec = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
 
 
 %%%%%%%%%%%%%%%%%%
@@ -169,19 +170,19 @@ for lo_idx = 1:n_lo_steps
        % Estimate CFC
         for met_idx = 1:length(cfg.metrics)
             if strcmp(cfg.metrics{met_idx},'ESC')
-                esc(:,lo_idx,hi_idx) = cfc_est_esc(signals.theta,signals.gamma_amp);
+                esc(:,lo_idx,hi_idx,:) = cfc_est_esc(signals.theta,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
-                nesc(:,lo_idx,hi_idx) = ncfc_est_esc(signals.theta_phase,signals.gamma_amp);
+                nesc(:,lo_idx,hi_idx,:) = ncfc_est_esc(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
-                aec(:,lo_idx,hi_idx) = cfc_est_aec(signals.theta_amp,signals.gamma_amp);
+                aec(:,lo_idx,hi_idx,:) = cfc_est_aec(signals.theta_amp,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
-                plv(:,lo_idx,hi_idx) = cfc_est_plv(signals.theta_phase,signals.gamma_amp_phase);
+                plv(:,lo_idx,hi_idx,:) = cfc_est_plv(signals.theta_phase,signals.gamma_amp_phase);
             elseif strcmp(cfg.metrics{met_idx},'GLM')
-                glm(:,lo_idx,hi_idx) = cfc_est_glm(signals.theta_phase,signals.gamma_amp);
+                glm(:,lo_idx,hi_idx,:) = cfc_est_glm(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI')
-                mi(:,lo_idx,hi_idx) = cfc_est_mi(signals.theta_phase,signals.gamma_amp);
+                mi(:,lo_idx,hi_idx,:) = cfc_est_mi(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
-                mi_norm(:,lo_idx,hi_idx) = cfc_est_minorm(signals.theta_phase,signals.gamma_amp);
+                mi_norm(:,lo_idx,hi_idx,:) = cfc_est_minorm(signals.theta_phase,signals.gamma_amp);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
