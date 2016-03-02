@@ -14,6 +14,9 @@ end
 
 metric = cmg.(metric_name);
 
+if ndims(metric) >= 3
+    metric = squeeze(mean(metric,4));
+end
 
 if nargin <= 2
 
