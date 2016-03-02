@@ -37,9 +37,9 @@ end
 
 if nsamples < sr*4
     % Should probably expose this at the top
-    order = 256;
+    order = 128;
 else
-    order = 512;
+    order = 256;
 end
 
 %% preallocated
