@@ -130,7 +130,7 @@ for met_idx = 1:length(cfg.metrics)
         esc = cfc_est_esc(cfc_signals.theta,cfc_signals.gamma_amp);
         cfc_results.esc = esc;
     elseif strcmp(cfg.metrics{met_idx},'NESC')
-        nesc = ncfc_est_esc(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        nesc = cfc_est_nesc(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.nesc = nesc;
     elseif strcmp(cfg.metrics{met_idx},'AEC')
         aec = cfc_est_aec(cfc_signals.theta_amp,cfc_signals.gamma_amp);
