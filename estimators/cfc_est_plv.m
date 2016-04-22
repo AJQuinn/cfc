@@ -13,9 +13,6 @@ else
 end
 nsamples = size(modulating_signal,2);
 
-modulating_signal = squeeze(modulating_signal);
-modulated_signal = squeeze(modulated_signal);
+phase_diff = squeeze(modulating_signal - modulated_signal);
 
-phase_diff = modulating_signal - modulated_signal;
-
-plv =  abs(sum(exp(1i.*phase_diff),ax) ./ nsamples)';
+plv =  abs(sum(exp(1i.*phase_diff),ax) ./ nsamples);
