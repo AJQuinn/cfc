@@ -19,7 +19,7 @@ function obj = cfc_simulate(S)
 % TODO: Gamma amplitude not properly normalised??
 
 obj.time_vect = [0:1/S.sample_rate:S.seconds];
-obj.sample_rate = S.sample_rate;
+obj.sr = S.sample_rate;
 if isfield(S, 'switching_freq')
     obj.switching_freq = S.switching_freq;
 end
