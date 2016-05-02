@@ -12,7 +12,7 @@ if nargin < 4
     % phase delay can be corrected with a simple linear time-shift.
     % Two pass uses filtfilt which runs the filter twice to remove any
     % phase lag
-    method = 'onepass';
+    method = 'twopass';
 end
 
 if nargin < 3
@@ -48,11 +48,11 @@ else
     
     if strcmp(method,'twopass')
         [filt_data] = filtfilt(D,1,data);
-        filt_data = filt_data(padding:end-padding);
+        filt_data = filt_data(:,padding:end-padding-1,:);
     elseif strcmp(method,'onepass')
         [filt_data] = filter(D,1,data);
         pd = round(phasedelay(D,1));
-        filt_data = filt_data(padding+pd(2):(end-padding-1)+pd(2));
+        filt_data = filt_data(:,padding+pd(2):(end-padding-1)+pd(2),:);
     end
     
 end
