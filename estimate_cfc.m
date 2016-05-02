@@ -40,7 +40,8 @@ function cfc_results = estimate_cfc( signal, cfg )
 %     window_size: length in seconds for sliding window
 %     step: step size between windows in seconds
 %     ret_cfc_signals: return the phase and amplitude signals used in cfc estimation. true|false
-
+%     edge_width: width of window in ms to ignore post filtering, useful to
+%                 remove edge artefacts with trialwise data
 
 %% Housekeeping
 
@@ -56,6 +57,10 @@ end
 
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', nchannels)
+end
+
+if ~isfield(cfg, 'edge_width')
+    cfg.edge_width = 0;
 end
 
 if ~isfield(cfg,'pad')
@@ -111,7 +116,9 @@ cfc_signals = cfc_util_basesignals( signal, cfg.sr, ...
     hi_bounds, ...
     lo_bounds, ...
     time_vect, ...
-    cfg.true_timecourse );
+    cfg.true_timecourse,...
+    [],[],...
+    cfg.edge_width );
 
 if nwindows > 1
     cfc_signals  = cfc_util_swsignals(cfc_signals,window_size,window_step);
