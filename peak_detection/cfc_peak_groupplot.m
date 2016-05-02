@@ -1,4 +1,4 @@
-function cfc_peak_grouplot( varargin )
+function cfc_peak_groupplot( varargin )
 %% Function to plot the distribution of peaks across a group
 %
 % input is a cell array containing quinnpeaks output structs for one
@@ -38,7 +38,8 @@ function cfc_peak_grouplot( varargin )
         group_peaks = varargin{cond_idx};
 
         nppts = length(group_peaks);
-        nbins = fix(sqrt(nppts));
+        nbins = 15;
+        %nbins = fix(sqrt(nppts));
         if nbins < 5; nbins = 5; end;
 
         freq_vect = group_peaks{1}.freq_vect;
@@ -52,7 +53,8 @@ function cfc_peak_grouplot( varargin )
         %% Start plotting
         % Average spectrum and individuals
 
-        plot(main_axis,freq_vect,mean(group_psd,1),colour_cycle{cond_idx});
+        %plot(main_axis,freq_vect,mean(group_psd,1),colour_cycle{cond_idx},'linewidth',2);
+        plot(main_axis,freq_vect,mean(group_psd,1),'k','linewidth',2);
         hold(main_axis,'on');
         grid(main_axis,'on');
 
@@ -63,7 +65,7 @@ function cfc_peak_grouplot( varargin )
              npeaks = 1;
         end
 
-        for peak_idx = 1:npeaks
+        for peak_idx = npeaks:-1:1
 
             % Get top peak from each participant
             peak_freqs = arrayfun( @(i) group_peaks{i}.peak_frequencies(group_peaks{i}.peaks_by_amplitude(peak_idx)), 1:nppts);
@@ -73,13 +75,19 @@ function cfc_peak_grouplot( varargin )
 
             % horizontal histogram
             [n1,xout1] = hist(peak_freqs,nbins);
-            bar(horz_axis,xout1,n1,1,colour_cycle{col_idx});
+            %bar(horz_axis,xout1,n1,1,colour_cycle{col_idx});
+            blah = interp1(xout1,n1,group_peaks{peak_idx}.freq_vect,'v5cubic');
+            blah(isnan(blah)) = 0;
+            plot(horz_axis,group_peaks{peak_idx}.freq_vect,blah,colour_cycle{col_idx},'linewidth',3)
             hold(horz_axis,'on');
             grid(horz_axis,'on');
 
             % vertical histogram
             [n1, xout1] = hist(peak_amps,nbins);
-
+            blah = interp1(xout1,n1,1:max(mean(group_psd,1)),'v5cubic');
+            blah(isnan(blah)) = 0;
+            plot(vert_axis,blah,1:max(mean(group_psd,1)),colour_cycle{col_idx},'linewidth',3)
+            %barh(vert_axis,xout1,n1,1,colour_cycle{col_idx});
             hold(vert_axis,'on');
             grid(vert_axis,'on');
 
@@ -115,15 +123,20 @@ function cfc_peak_grouplot( varargin )
     xlim(main_axis,[freq_vect(1) freq_vect(end)]);
     set(main_axis,'YTickLabel',[]);
     set(main_axis,'XTickLabel',[]);
+    set(main_axis,'FontSize',24);
 
     % Horizontal axis formatting
     xlabel(horz_axis,'Frequency (Hz)');
     xlim(horz_axis,[freq_vect(1) freq_vect(end)]);
-    ylabel(horz_axis,'Frequency');
+    %ylabel(horz_axis,'N Participants');
+    set(horz_axis,'FontSize',18);
+    ylim(horz_axis,[0 5]);
 
     % Vertical axis formatting
     ylim(vert_axis,amp_range);
     ylabel(vert_axis,'Amplitude');
-    xlabel(vert_axis,'Frequency');
+    xlabel(vert_axis,'N Participants');
+    set(vert_axis,'FontSize',18);
+    xlim(vert_axis,[0 5])
 
 end
