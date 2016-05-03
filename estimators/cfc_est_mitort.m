@@ -16,7 +16,8 @@ else
 end
 
 mi = zeros(1,size(modulating_signal,2));
-nbin = 21
+nbin = 21;
+
 
 for itrial = 1:size(modulating_signal,2)
 
@@ -27,7 +28,9 @@ for itrial = 1:size(modulating_signal,2)
         mean_amp(idx) = mean(modulated_signal(inds,itrial));
     end
 
+    mean_amp(isnan(mean_amp)) = 0;
+
     % https://github.com/cineguerrilha/Neurodynamics/blob/master/16ch/Comodulation/ModIndex_v1.m
-    mi(itrial) = (log(nbin)-(-sum((mean_amp/sum(mean_amp)).*log((mean_amp/sum(mean_amp))))))/log(nbin);
+    mi(itrial) = (log(nbin)-(-sum((mean_amp/nansum(mean_amp,2)).*log((mean_amp/nansum(mean_amp,2))))))/log(nbin);
 
 end
