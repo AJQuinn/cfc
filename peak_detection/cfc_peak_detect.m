@@ -52,7 +52,7 @@ function [obj] = cfc_peak_detect( data, cfg )
         % We have time domain data, fft and smooth it
 
         % Smoothing window size for the SG filter
-        sg_win = round(length(data)/25);
+        sg_win = round(length(data)/250);
         if rem(sg_win,2) == 0
             sg_win = sg_win+1;
         end
@@ -182,6 +182,13 @@ function [obj] = cfc_peak_detect( data, cfg )
     % Store some key information at the top level
     obj.peak_amplitudes = arrayfun(@(i) obj.peak{i}.peak_amp, 1:pk_cnt);
     obj.peak_frequencies = arrayfun(@(i) obj.peak{i}.peak_freq, 1:pk_cnt);
+
+    % Return at least three peaks, use nans if there aren't enough.
+    % This is to help the group plotting later...
+    if length(obj.peak_amplitudes) < 3
+        obj.peak_amplitudes = cat(2,obj.peak_amplitudes,ones(1,3-length(obj.peak_amplitudes))*nan);
+        obj.peak_frequencies = cat(2,obj.peak_frequencies,ones(1,3-length(obj.peak_frequencies))*nan);
+    end
     [~,obj.peaks_by_amplitude] = sort(obj.peak_amplitudes,2,'descend');
 
     %% Print a fancy table
