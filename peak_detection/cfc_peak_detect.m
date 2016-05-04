@@ -73,7 +73,11 @@ function [obj] = cfc_peak_detect( data, cfg )
     elseif strcmp(cfg.input_domain,'frequency')
         % We have frequency domain data, extract the interesting part
 
+        obj.psd = data;
+        obj.freq_vect = cfg.freq_vect;
         obj = get_freq_of_interest(obj, cfg.freq_of_interest);
+
+        obj.smo_psd = obj.psd;
 
     else
         error('Please define input domain as EITHER time or frequency')
