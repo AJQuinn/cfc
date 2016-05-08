@@ -52,9 +52,73 @@ if strcmp(S.method,'aq')
 
         return
 
+elseif strcmp(S.method,'nonsinusoidal')
+
+    % Stolen from supplementary materials of:
+    % Kramer, Tort & Kopell (2008) Sharp edge artifacts and spurious
+    % coupling in EEG frequency comodulation measures.
+    % http://dx.doi.org/10.1016/j.jneumeth.2008.01.020
+
+    f=S.modulating_freq;
+    dt = 1/S.sample_rate;
+    x1 = -cos(pi*(0:dt*f:1));
+    x2 = cos(pi*(0:dt*f:1));
+    theta = [x1 x2];                    %Define the low frequency (6 Hz) signal.
+    state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+    obj.signal = [];
+    for k=1:length(theta):length(obj.time_vect)
+
+        if state_switching(k) == 1
+            fi = 50.0;
+            fii = 10;
+            r = ceil(rand()*5);                %Define the duration of the sharp edge.
+            x3i = ((0:r)/r);                      %Create the sharp edge.
+            x3ii = (cos(pi*(0:dt*fii:1))+1.0);%Define the taper of the sharp edge.
+            x3 = [x3i x3ii];                      %Create the tapered sharp edge.
+
+            pos = ceil(rand()*10)+fix(150/fii);        %Insert the sharp edge into the sinusoid.
+            seed = theta;
+            tmp = seed(pos:pos+length(x3)-1)+x3;
+            tmp = tmp / 2;
+            seed(pos:pos+length(x3)-1) = tmp;
+        else
+            r = rand*.25;
+            seed = (theta*(1+r)) - (-1 - -(1-r));
+        end
+        obj.signal = [obj.signal seed];
+    end
+
+    noise = cfc_util_scalesignal(randn(size(obj.signal,1),size(obj.signal,2)),...
+            S.noise_level,...
+            obj.signal);
+        obj.signal = obj.signal + noise;
+
+    obj.signal = obj.signal + noise;      %Add noise to the signal.
+    obj.signal = obj.signal(1:length(obj.time_vect));
+    obj.signal = ( obj.signal - mean(obj.signal) );
+    obj.state_switching = state_switching;
+    return
+
+elseif strcmp(S.method,'sawtooth')
+
+    obj.signal = S.modulating_amp * cos( 2*pi*S.modulating_freq*obj.time_vect + .01);
+    sawt = S.modulating_amp *  sawtooth( 2*pi*S.modulating_freq*obj.time_vect - .01);
+
+    obj.state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+    obj.signal(logical(obj.state_switching)) = sawt(logical(obj.state_switching));
+
+    noise = cfc_util_scalesignal(randn(size(obj.signal,1),size(obj.signal,2)),...
+            S.noise_level,...
+            obj.signal);
+    obj.signal = obj.signal + noise;
+
+    return
+
 elseif strcmp(S.method,'modal')
 
-        r = .9;
+        r = .99;
         wr = 2*pi*S.modulating_freq/S.sample_rate;
         a1 = [1 -2*r*cos(wr) (r^2)];
 
@@ -66,6 +130,8 @@ elseif strcmp(S.method,'modal')
                 modulating_ts(idx) = modulating_ts(idx) - squeeze(a1(ilag))*modulating_ts(idx-ilag+1);
             end
         end
+
+        modulating_ts = ( modulating_ts - mean(modulating_ts) ) / std(modulating_ts);
 
                 sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
                                           (2*pi*S.modulated_freq*obj.time_vect)) - ...
