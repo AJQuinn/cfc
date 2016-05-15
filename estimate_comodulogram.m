@@ -124,7 +124,9 @@ nesc = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
 plv = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
 mi = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
 mi_norm = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+mi_tort = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
 glm = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
+glmdv = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
 aec = nan(nwindows,n_lo_steps,n_hi_steps,ntrials);
 
 
@@ -179,12 +181,16 @@ for lo_idx = 1:n_lo_steps
                 plv(:,lo_idx,hi_idx,:) = cfc_est_plv(signals.theta_phase,signals.gamma_amp_phase);
             elseif strcmp(cfg.metrics{met_idx},'GLM')
                 glm(:,lo_idx,hi_idx,:) = cfc_est_glm(signals.theta_phase,signals.gamma_amp);
+            elseif strcmp(cfg.metrics{met_idx},'GLMDV')
+                glmdv(:,lo_idx,hi_idx,:) = cfc_est_glmdv(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 mi(:,lo_idx,hi_idx,:) = cfc_est_mi(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
                 mi_norm(:,lo_idx,hi_idx,:) = cfc_est_minorm(signals.theta_phase,signals.gamma_amp);
+            elseif strcmp(cfg.metrics{met_idx},'MI_TORT')
+                 mi_tort(:,lo_idx,hi_idx,:) = cfc_est_mitort(signals.theta_phase,signals.gamma_amp);
             else
-                fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
+                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
         end
     end
@@ -210,10 +216,14 @@ for met_idx = 1:length(cfg.metrics)
         cmg.plv = plv;
     elseif strcmp(cfg.metrics{met_idx},'GLM')
         cmg.glm = glm;
+    elseif strcmp(cfg.metrics{met_idx},'GLMDV')
+        cmg.glmdv = glmdv;
     elseif strcmp(cfg.metrics{met_idx},'MI')
         cmg.mi = mi;
     elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
         cmg.mi_norm = mi_norm;
+    elseif strcmp(cfg.metrics{met_idx},'MI_TORT')
+        cmg.mi_tort = mi_tort;
     end
 end
 

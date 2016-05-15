@@ -148,12 +148,18 @@ for met_idx = 1:length(cfg.metrics)
     elseif strcmp(cfg.metrics{met_idx},'GLM')
         glm = cfc_est_glm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.glm = glm;
+    elseif strcmp(cfg.metrics{met_idx},'GLMDV')
+        glmdv = cfc_est_glmdv(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        cfc_results.glmdv = glmdv;
     elseif strcmp(cfg.metrics{met_idx},'MI')
         mi = cfc_est_mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mi = mi;
     elseif strcmp(cfg.metrics{met_idx},'MIZ')
         mi_norm = cfc_est_minorm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mi_norm = mi_norm;
+    elseif strcmp(cfg.metrics{met_idx},'MITORT')
+        mitort = cfc_est_mitort(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        cfc_results.mitort = mitort;
     else
         fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
     end
