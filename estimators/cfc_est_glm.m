@@ -20,12 +20,14 @@ else
 end
 
 r2 = zeros(1,size(modulating_signal,2));
+fnorm = zeros(1,size(modulating_signal,2));
+
 for ep = 1:size(modulating_signal,2)
 
     X = cat(2,cos(modulating_signal(:,ep)), ...
               sin(modulating_signal(:,ep)), ...
               ones(size(modulating_signal,1),1));
-     
+
    [beta,dev,stats] = glmfit(X,modulated_signal(:,ep)',distr,'constant','off');
 
    glm = [];
@@ -38,5 +40,6 @@ for ep = 1:size(modulating_signal,2)
 
    r2(ep) = (ss_data - ss_resid) / ss_data;
 
-end
+   fnorm(ep) = sum( beta(1:2).^2 );
 
+end
