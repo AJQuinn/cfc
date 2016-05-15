@@ -31,9 +31,14 @@ data = [zeros(nchannels, padding), data, zeros(nchannels, padding)];
 
 %% Filter the data
 
-if isa(D,'digitalFilter')
+if strcmp(method,'eeglab')
+
+    filt_data = eegfilt_silent(data,filter_cfg.sample_rate,filter_cfg.centre_freq - (filter_cfg.pass_width/2),filter_cfg.centre_freq + (filter_cfg.pass_width/2));
+    filt_data = filt_data(padding:end-padding-1);
+
+elseif isa(D,'digitalFilter')
     % Filter using the object
-    
+
     if strcmp(method,'twopass')
         [filt_data] = filtfilt(D,data);
         filt_data = filt_data(padding:end-padding);
@@ -42,10 +47,10 @@ if isa(D,'digitalFilter')
         pd = round(phasedelay(D));
         filt_data = filt_data(padding+pd(2):(end-padding-1)+pd(2));
     end
-    
+
 else
     % Filter using the vector
-    
+
     if strcmp(method,'twopass')
         [filt_data] = filtfilt(D,1,data);
         filt_data = filt_data(:,padding:end-padding-1,:);
@@ -54,6 +59,6 @@ else
         pd = round(phasedelay(D,1));
         filt_data = filt_data(:,padding+pd(2):(end-padding-1)+pd(2),:);
     end
-    
+
 end
 
