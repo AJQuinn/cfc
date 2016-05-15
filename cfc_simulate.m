@@ -61,8 +61,8 @@ elseif strcmp(S.method,'nonsinusoidal')
 
     f=S.modulating_freq;
     dt = 1/S.sample_rate;
-    x1 = -cos(pi*(0:dt*f:1));
-    x2 = cos(pi*(0:dt*f:1));
+    x1 = -cos(2*pi*(0:dt*f:.5));
+    x2 = cos(2*pi*(0:dt*f:.5));
     theta = [x1 x2];                    %Define the low frequency (6 Hz) signal.
     state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
 
@@ -70,14 +70,13 @@ elseif strcmp(S.method,'nonsinusoidal')
     for k=1:length(theta):length(obj.time_vect)
 
         if state_switching(k) == 1
-            fi = 50.0;
-            fii = 10;
-            r = ceil(rand()*5);                %Define the duration of the sharp edge.
+            fii = f*.8;
+            r = ceil(rand()*(length(x1)/5));                %Define the duration of the sharp edge.
             x3i = ((0:r)/r);                      %Create the sharp edge.
-            x3ii = (cos(pi*(0:dt*fii:1))+1.0);%Define the taper of the sharp edge.
-            x3 = [x3i x3ii];                      %Create the tapered sharp edge.
+            x3ii = (cos(2*pi*(0:dt*fii:.5))+1.0);%Define the taper of the sharp edge.
+            x3 = [x3i x3ii] * .5;                      %Create the tapered sharp edge.
 
-            pos = ceil(rand()*10)+fix(150/fii);        %Insert the sharp edge into the sinusoid.
+            pos = ceil((rand()*10));%+length(x1));        %Insert the sharp edge into the sinusoid.
             seed = theta;
             tmp = seed(pos:pos+length(x3)-1)+x3;
             tmp = tmp / 2;
@@ -114,6 +113,78 @@ elseif strcmp(S.method,'sawtooth')
             obj.signal);
     obj.signal = obj.signal + noise;
 
+    return
+
+
+elseif strcmp(S.method,'square')
+
+    obj.signal = S.modulating_amp * cos( 2*pi*S.modulating_freq*obj.time_vect + .01);
+    sq = S.modulating_amp *  square( 2*pi*S.modulating_freq*obj.time_vect - .01);
+
+    obj.state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+    obj.signal(logical(obj.state_switching)) = sq(logical(obj.state_switching));
+
+    noise = cfc_util_scalesignal(randn(size(obj.signal,1),size(obj.signal,2)),...
+            S.noise_level,...
+            obj.signal);
+    obj.signal = obj.signal + noise;
+
+    return
+
+elseif strcmp(S.method,'timedil')
+
+    template_seconds = 1/S.modulating_freq;
+    template_vect = linspace(0,template_seconds,template_seconds*S.sample_rate);
+
+    delta = 1/S.sample_rate;
+    dil = .25
+    ddelta = (-dil/(S.modulating_freq*1.5)) * sin( 2*pi*S.modulating_freq*template_vect);
+
+    for idx = 1:length(template_vect)
+        t_vect(idx) = (delta*idx) + ddelta(idx);
+    end
+
+    dev = cos( 2*pi*S.modulating_freq*t_vect );
+    typ = cos( 2*pi*S.modulating_freq*template_vect );
+
+    obj.state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+    cont = true;
+    obj.signal = dev;
+    while cont == true
+        if obj.state_switching(length(obj.signal)) == 1
+            obj.signal = [obj.signal dev];
+        else
+            obj.signal = [obj.signal typ];
+        end
+        if length(obj.signal) + length(dev) > length(obj.time_vect);
+            cont = false;
+        end
+    end
+
+    noise = cfc_util_scalesignal(randn(size(obj.signal,1),size(obj.signal,2)),...
+            S.noise_level,...
+            obj.signal);
+    obj.signal = obj.signal + noise;
+
+    return
+
+elseif strcmp(S.method,'nonstat_mean')
+
+    obj.signal = S.modulating_amp * sin( 2*pi*S.modulating_freq*obj.time_vect );
+    state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+    mean_term = 1.5*max(sin(2*pi*1*obj.time_vect),0);
+    obj.signal(state_switching == 1) = obj.signal(state_switching == 1) + ...
+                                mean_term(state_switching == 1);
+
+    noise = cfc_util_scalesignal(randn(size(obj.signal,1),size(obj.signal,2)),...
+            S.noise_level,...
+            obj.signal);
+
+    obj.signal = obj.signal + noise;
+    obj.state_switching = state_switching;
     return
 
 elseif strcmp(S.method,'modal')
