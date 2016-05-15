@@ -115,7 +115,7 @@ end
 %% TODO: This is wasteful, there is a lot in memory and only the filtering is
 %time consuming. Eventually we want to be able to only save the filtered time
 %courses and compute the simple stuff when it is loaded back in
-edge_width_samp = sr * edge_width;
+edge_width_samp = fix(sr * edge_width);
 return_inds = (1+edge_width_samp):nsamples-edge_width_samp;
 
 signals = struct('theta',               theta(:,return_inds,:), ...
