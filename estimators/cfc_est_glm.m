@@ -1,4 +1,4 @@
-function [r2] = cfc_est_glm(modulating_signal,modulated_signal, distr)
+function [glm] = cfc_est_glm(modulating_signal,modulated_signal, distr)
 % Function for estimating the GLM phase amplitude coupling as defined in Penny et al 2008
 % Modulating signal is the theta phase and the modulated signal is the gamma amplitude
 %
@@ -38,8 +38,8 @@ for ep = 1:size(modulating_signal,2)
    ss_data = sum( modulated_signal(:,ep) .* modulated_signal(:,ep));
    ss_resid = sum ( stats.resid .* stats.resid );
 
-   r2(ep) = (ss_data - ss_resid) / ss_data;
+   glm.r2(ep) = (ss_data - ss_resid) / ss_data;
 
-   fnorm(ep) = sum( beta(1:2).^2 );
+   glm.fnorm(ep) = sum( beta(1:2).^2 );
 
 end
