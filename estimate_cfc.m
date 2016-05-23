@@ -211,13 +211,13 @@ if nperms > 0
         % Estimate surrogate CFC
         for met_idx = 1:length(cfg.metrics)
             if strcmp(cfg.metrics{met_idx},'ESC')
-                tmp = cfc_est_esc(surr_signals.theta,surr_signals.gamma_amp);
+                tmp = cfc_est_corr(surr_signals.theta,surr_signals.gamma_amp);
                 cfc_results.esc_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
-                tmp = ncfc_est_esc(surr_signals.theta_phase,surr_signals.gamma_amp);
+                tmp = cfc_est_corr(cos(surr_signals.theta_phase),surr_signals.gamma_amp);
                 cfc_results.nesc_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
-                tmp = cfc_est_aec(surr_signals.theta_amp,surr_signals.gamma_amp);
+                tmp = cfc_est_corr(surr_signals.theta_amp,surr_signals.gamma_amp);
                 cfc_results.aec_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
                 tmp = cfc_est_plv(surr_signals.theta_phase,surr_signals.gamma_amp_phase);
