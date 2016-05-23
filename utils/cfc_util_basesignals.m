@@ -1,5 +1,5 @@
 
-function [signals,gamma_cfg,theta_cfg] = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans,edge_width)
+function [signals,gamma_cfg,theta_cfg] = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans,edge_width,method)
 %% Create the ingredients for CFC metric estimation.
 %
 % signal is an array [channels x samples x realisations]. There may only be one
@@ -14,6 +14,10 @@ function [signals,gamma_cfg,theta_cfg] = cfc_util_basesignals(signal,sr,hi_bound
 [nchannels,nsamples,nrealisations] = size(signal);
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', char(nchannels))
+end
+
+if nargin < 10 || isempty(method)
+    method = 'twopass';
 end
 
 if nargin < 9 || isempty(edge_width)
@@ -65,7 +69,7 @@ for idx = 1:nrealisations
         theta_cfg.centre_freq = (lo_bounds(1)+lo_bounds(2))/2;
         theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
         theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
-        theta_cfg.method = 'twopass';
+        theta_cfg.method = method;
 
         theta(1,:,idx) = cfc_filt_fir(signal(1,:,idx),theta_cfg);
     else
@@ -77,7 +81,7 @@ for idx = 1:nrealisations
     gamma_cfg.centre_freq = (hi_bounds(1)+hi_bounds(2))/2;
     gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
     gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
-    gamma_cfg.method = 'twopass';
+    gamma_cfg.method = method;
 
     if nchannels == 1
         gamma(1,:,idx) = cfc_filt_fir(signal(1,:,idx),gamma_cfg);
