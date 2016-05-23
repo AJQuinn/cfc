@@ -7,12 +7,14 @@ function [filt_data,D] = cfc_filt_fir(data,filter_cfg,padding,method)
 %   pass_width:
 %   trans_width:
 
-if nargin < 4
+if nargin < 4 && ~isfield(filter_cfg,'method')
     % Onepass is the more computationally efficient options as, for a fir filter, the
     % phase delay can be corrected with a simple linear time-shift.
     % Two pass uses filtfilt which runs the filter twice to remove any
     % phase lag
     method = 'twopass';
+else
+    method = filter_cfg.method;
 end
 
 if nargin < 3
@@ -33,7 +35,10 @@ data = [zeros(nchannels, padding), data, zeros(nchannels, padding)];
 
 if strcmp(method,'eeglab')
 
-    filt_data = eegfilt_silent(data,filter_cfg.sample_rate,filter_cfg.centre_freq - (filter_cfg.pass_width/2),filter_cfg.centre_freq + (filter_cfg.pass_width/2));
+    filt_data = eegfilt_silent(data,filter_cfg.sample_rate,...
+                filter_cfg.centre_freq - (filter_cfg.pass_width/2),...
+                filter_cfg.centre_freq + (filter_cfg.pass_width/2),...
+                0,[],[],'fir1');
     filt_data = filt_data(padding:end-padding-1);
 
 elseif isa(D,'digitalFilter')
