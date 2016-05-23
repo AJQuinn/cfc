@@ -398,7 +398,7 @@ elseif strcmp(S.method,'modalnoisemodal')
 
         return
 
-elseif S.method == 'mw'
+elseif strcmp(S.method,'mw')
 
         % Generate coupled signals
         Ttheta=1/S.modulating_freq;
@@ -423,7 +423,7 @@ elseif S.method == 'mw'
 
         signal = obj.modulating_ts - obj.modulated_ts;
 
-elseif S.method == 'hippo'
+elseif strcmp(S.method, 'hippo')
 
         % Generate coupled signals
         Ttheta=1/S.modulating_freq;
@@ -445,7 +445,7 @@ elseif S.method == 'hippo'
 
         signal = obj.modulating_ts - obj.modulated_ts;
 
-elseif S.method == 'ab'
+elseif strcmp(S.method,'ab')
 
         % Generate coupled signals
         windows = 100;
