@@ -24,7 +24,34 @@ if isfield(S, 'switching_freq')
     obj.switching_freq = S.switching_freq;
 end
 
-if strcmp(S.method,'aq')
+if strcmp(S.method,'none')
+
+        modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
+        modulating_ts = S.modulating_amp*sin(2*pi*S.modulating_freq*obj.time_vect);
+
+        sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)) - ...
+                                     sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) - ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)));
+
+        state_switching = zeros(size(modulating_ts,1),size(modulating_ts,2));
+
+        noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
+            S.noise_level,...
+            modulating_ts);
+        obj.modulating_ts = modulating_ts + noise;
+        noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+            S.noise_level,...
+            modulated_ts);
+        obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
+
+        obj.signal = obj.modulated_ts + modulating_ts;
+
+        obj.state_switching = state_switching;
+        obj.time_vect = obj.time_vect;
+
+        return
+elseif strcmp(S.method,'aq')
 
         modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
         modulating_ts = S.modulating_amp*sin(2*pi*S.modulating_freq*obj.time_vect);
@@ -131,14 +158,13 @@ elseif strcmp(S.method,'square')
     obj.signal = obj.signal + noise;
 
     return
-
 elseif strcmp(S.method,'timedil')
 
     template_seconds = 1/S.modulating_freq;
     template_vect = linspace(0,template_seconds,template_seconds*S.sample_rate);
 
     delta = 1/S.sample_rate;
-    dil = .25
+    dil = .25;
     ddelta = (-dil/(S.modulating_freq*1.5)) * sin( 2*pi*S.modulating_freq*template_vect);
 
     for idx = 1:length(template_vect)
@@ -163,10 +189,56 @@ elseif strcmp(S.method,'timedil')
         end
     end
 
-    noise = cfc_util_scalesignal(randn(size(obj.signal,1),size(obj.signal,2)),...
+    obj.signal = padarray(obj.signal',size(obj.time_vect,2)-size(obj.signal,2),'post')';
+
+    noise = cfc_util_scalesignal(randn(size(obj.time_vect,1),size(obj.time_vect,2)),...
             S.noise_level,...
             obj.signal);
     obj.signal = obj.signal + noise;
+
+    return
+
+
+elseif strcmp(S.method,'asymtimedil')
+
+    template_seconds = 1/S.modulating_freq;
+    template_vect = linspace(0,template_seconds,template_seconds*S.sample_rate);
+
+    delta = 1/S.sample_rate;
+    dil = .25;
+    ddelta = (-dil/(S.modulating_freq*1.5)) * sin( 2*pi*S.modulating_freq*template_vect);
+
+    for idx = 1:length(template_vect)
+        t_vect(idx) = (delta*idx) + ddelta(idx);
+    end
+
+    dev = cos( 2*pi*S.modulating_freq*t_vect );
+    typ = cos( 2*pi*S.modulating_freq*template_vect );
+
+    dev = [ typ((fix(length(t_vect)/2)+1):end) dev(1:fix(length(t_vect)/2)) ];
+
+    obj.state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+    cont = true;
+    obj.signal = dev;
+    while cont == true
+        if obj.state_switching(length(obj.signal)) == 1
+            obj.signal = [obj.signal dev];
+        else
+            obj.signal = [obj.signal typ];
+        end
+        if length(obj.signal) + length(dev) > length(obj.time_vect);
+            cont = false;
+        end
+    end
+
+    obj.signal = padarray(obj.signal',size(obj.time_vect,2)-size(obj.signal,2),'post')';
+
+    noise = cfc_util_scalesignal(randn(size(obj.time_vect,1),size(obj.time_vect,2)),...
+            S.noise_level,...
+            obj.signal);
+    obj.signal = obj.signal + noise;
+
 
     return
 
@@ -189,7 +261,7 @@ elseif strcmp(S.method,'nonstat_mean')
 
 elseif strcmp(S.method,'modal')
 
-        r = .99;
+        r = .98;
         wr = 2*pi*S.modulating_freq/S.sample_rate;
         a1 = [1 -2*r*cos(wr) (r^2)];
 
@@ -222,6 +294,104 @@ elseif strcmp(S.method,'modal')
         obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
 
         obj.signal = obj.modulated_ts + modulating_ts;
+
+        obj.state_switching = state_switching;
+        obj.time_vect = obj.time_vect;
+
+        return
+
+elseif strcmp(S.method,'noisemodal')
+
+        r = .98;
+        wr = 2*pi*(S.modulating_freq*1.57)/S.sample_rate;
+        a1 = [1 -2*r*cos(wr) (r^2)];
+
+        time_vect = 0:1/S.sample_rate:S.seconds;
+        noise_ts = randn(1,length(time_vect));
+
+        for idx = 4:length(time_vect)
+            for ilag = 2:3
+                noise_ts(idx) = noise_ts(idx) - squeeze(a1(ilag))*noise_ts(idx-ilag+1);
+            end
+        end
+
+        noise_ts = ( noise_ts - mean(noise_ts) ) / std(noise_ts);
+        modulating_ts = S.modulating_amp*sin(2*pi*S.modulating_freq*obj.time_vect);
+
+                sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)) - ...
+                                     sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) - ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)));
+
+        state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+        noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
+            S.noise_level,...
+            modulating_ts);
+        obj.modulating_ts = modulating_ts + noise;
+        modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
+        noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+            S.noise_level,...
+            modulated_ts);
+        obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
+
+        obj.signal = obj.modulated_ts + noise_ts + modulating_ts;
+
+        obj.state_switching = state_switching;
+        obj.time_vect = obj.time_vect;
+
+        return
+
+elseif strcmp(S.method,'modalnoisemodal')
+
+        r = .98;
+        wr = 2*pi*(S.modulating_freq*2.23)/S.sample_rate;
+        a1 = [1 -2*r*cos(wr) (r^2)];
+
+        time_vect = 0:1/S.sample_rate:S.seconds;
+        noise_ts = randn(1,length(time_vect));
+
+        for idx = 4:length(time_vect)
+            for ilag = 2:3
+                noise_ts(idx) = noise_ts(idx) - squeeze(a1(ilag))*noise_ts(idx-ilag+1);
+            end
+        end
+
+        noise_ts = ( noise_ts - mean(noise_ts) ) / std(noise_ts);
+
+                r = .98;
+        wr = 2*pi*S.modulating_freq/S.sample_rate;
+        a1 = [1 -2*r*cos(wr) (r^2)];
+
+        time_vect = 0:1/S.sample_rate:S.seconds;
+        modulating_ts = randn(1,length(time_vect));
+
+        for idx = 4:length(time_vect)
+            for ilag = 2:3
+                modulating_ts(idx) = modulating_ts(idx) - squeeze(a1(ilag))*modulating_ts(idx-ilag+1);
+            end
+        end
+
+        modulating_ts = ( modulating_ts - mean(modulating_ts) ) / std(modulating_ts);
+
+                sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)) - ...
+                                     sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) - ...
+                                          (2*pi*S.modulated_freq*obj.time_vect)));
+
+        state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+        noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
+            S.noise_level,...
+            modulating_ts);
+        obj.modulating_ts = modulating_ts + noise;
+        modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
+        noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+            S.noise_level,...
+            modulated_ts);
+        obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
+
+        obj.signal = obj.modulated_ts + noise_ts + modulating_ts;
 
         obj.state_switching = state_switching;
         obj.time_vect = obj.time_vect;
