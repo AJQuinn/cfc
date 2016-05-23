@@ -42,6 +42,7 @@ function cfc_results = estimate_cfc( signal, cfg )
 %     ret_cfc_signals: return the phase and amplitude signals used in cfc estimation. true|false
 %     edge_width: width of window in ms to ignore post filtering, useful to
 %                 remove edge artefacts with trialwise data
+%     cfg.filter_method: method for applying filter (onepass|twopass|eeglab)
 
 %% Housekeeping
 
@@ -57,6 +58,10 @@ end
 
 if nchannels > 2
     error('%s channels were passed in, two is the maximum', nchannels)
+end
+
+if ~isfield(cfg,'filter_method');
+    cfg.filter_method = 'twopass';
 end
 
 if ~isfield(cfg, 'edge_width')
@@ -118,7 +123,8 @@ cfc_signals = cfc_util_basesignals( signal, cfg.sr, ...
     time_vect, ...
     cfg.true_timecourse,...
     [],[],...
-    cfg.edge_width );
+    cfg.edge_width,...
+    cfg.filter_method );
 
 if nwindows > 1
     cfc_signals  = cfc_util_swsignals(cfc_signals,window_size,window_step);

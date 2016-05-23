@@ -35,6 +35,7 @@ function cmg = estimate_comodulogram( signal, cfg )
 %     cfg.theta_interp: bool to indicate that cfc_util_thetawaveform should be used
 %     cfg.window_size: length in seconds for sliding window
 %     cfg.step: step size between windows in seconds
+%     cfg.filter_method: method for applying filter (onepass|twopass|eeglab)
 
 %% Housekeeping
 if ndims(signal) == 2
@@ -50,6 +51,10 @@ end
 
 if nargin < 2
     verbose = false;
+end
+
+if ~isfield(cfg,'filter_method');
+    cfg.filter_method = 'twopass';
 end
 
 if ~isfield(cfg,'theta_interp')
@@ -162,7 +167,7 @@ for lo_idx = 1:n_lo_steps
                                    [hi_freqs(1,hi_idx,lo_idx) hi_freqs(2,hi_idx,lo_idx)], ...
                                    lo,...
                                    time_vect, ...
-                                   cfg.true_timecourse);
+                                   cfg.true_timecourse,[],[],[],cfg.filter_method);
 
 
         if isfield(cfg,'window_size')
