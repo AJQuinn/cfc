@@ -276,11 +276,6 @@ elseif strcmp(S.method,'modal')
 
         modulating_ts = ( modulating_ts - mean(modulating_ts) ) / std(modulating_ts);
 
-                sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
-                                          (2*pi*S.modulated_freq*obj.time_vect)) - ...
-                                     sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) - ...
-                                          (2*pi*S.modulated_freq*obj.time_vect)));
-
         state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
 
         noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
@@ -291,8 +286,11 @@ elseif strcmp(S.method,'modal')
         noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
             S.noise_level,...
             modulated_ts);
-        obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
 
+        t = modulating_ts + 2;
+        t(t<0) = 0;
+        t = t./max(t);
+        obj.modulated_ts = (modulated_ts.*t);
         obj.signal = obj.modulated_ts + modulating_ts;
 
         obj.state_switching = state_switching;
@@ -374,11 +372,6 @@ elseif strcmp(S.method,'modalnoisemodal')
 
         modulating_ts = ( modulating_ts - mean(modulating_ts) ) / std(modulating_ts);
 
-                sb_double = S.modulated_amp*(sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) + ...
-                                          (2*pi*S.modulated_freq*obj.time_vect)) - ...
-                                     sin((2*pi*S.modulating_freq*obj.time_vect+S.phase_lag) - ...
-                                          (2*pi*S.modulated_freq*obj.time_vect)));
-
         state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
 
         noise = cfc_util_scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
@@ -389,8 +382,11 @@ elseif strcmp(S.method,'modalnoisemodal')
         noise = cfc_util_scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
             S.noise_level,...
             modulated_ts);
-        obj.modulated_ts = (modulated_ts + noise + sb_double.*state_switching);
 
+        t = modulating_ts + 2;
+        t(t<0) = 0;
+        t = t./max(t);
+        obj.modulated_ts = (modulated_ts.*t);
         obj.signal = obj.modulated_ts + noise_ts + modulating_ts;
 
         obj.state_switching = state_switching;
