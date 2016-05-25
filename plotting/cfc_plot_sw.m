@@ -45,7 +45,7 @@ for met_idx = 1:length(cfc_results.cfg.metrics)
         if isfield(cfc_results,'mi_null'); metric_nulls = cfc_results.mi_null;end
         if isfield(cfc_results,'mi_thresh');thresh = cfc_results.mi_thresh;end
     else
-        fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
+        %fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfc_results.cfg.metrics{met_idx});
     end
 
     % Sliding windows
