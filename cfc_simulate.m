@@ -205,7 +205,7 @@ elseif strcmp(S.method,'asymtimedil')
     template_vect = linspace(0,template_seconds,template_seconds*S.sample_rate);
 
     delta = 1/S.sample_rate;
-    dil = .25;
+    dil = .4;
     ddelta = (-dil/(S.modulating_freq*1.5)) * sin( 2*pi*S.modulating_freq*template_vect);
 
     for idx = 1:length(template_vect)
@@ -215,7 +215,7 @@ elseif strcmp(S.method,'asymtimedil')
     dev = cos( 2*pi*S.modulating_freq*t_vect );
     typ = cos( 2*pi*S.modulating_freq*template_vect );
 
-    dev = [ typ((fix(length(t_vect)/2)+1):end) dev(1:fix(length(t_vect)/2)) ];
+    dev = [ typ(1:fix(length(t_vect)/2)) dev((fix(length(t_vect)/2)+1):end) ];
 
     obj.state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
 
@@ -342,7 +342,7 @@ elseif strcmp(S.method,'noisemodal')
 
 elseif strcmp(S.method,'modalnoisemodal')
 
-        r = .98;
+        r = .92;
         wr = 2*pi*(S.modulating_freq*2.23)/S.sample_rate;
         a1 = [1 -2*r*cos(wr) (r^2)];
 
@@ -357,7 +357,7 @@ elseif strcmp(S.method,'modalnoisemodal')
 
         noise_ts = ( noise_ts - mean(noise_ts) ) / std(noise_ts);
 
-                r = .98;
+        r = .98;
         wr = 2*pi*S.modulating_freq/S.sample_rate;
         a1 = [1 -2*r*cos(wr) (r^2)];
 
