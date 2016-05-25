@@ -1,4 +1,4 @@
-function [mean_vector] = cfc_est_mi(modulating_signal,modulated_signal)
+function [mean_vector] = mi(modulating_signal,modulated_signal)
 %
 % Function estimating the mean vector as defined in Canolty et al 2006
 %

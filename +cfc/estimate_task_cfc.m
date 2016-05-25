@@ -133,10 +133,10 @@ for win_idx = 1:nwindows
             glm = cfc_est_glm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
             cfc_results.glm = glm;
         elseif strcmp(cfg.metrics{met_idx},'MI')
-            mi = cfc_est_mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+            mi = cfc.est.mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);
             cfc_results.mi = mi;
         elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
-            mi_norm = cfc_est_minorm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+            mi_norm = cfc.est.minorm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
             cfc_results.mi_norm = mi_norm;
         else
             fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});

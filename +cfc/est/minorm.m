@@ -1,4 +1,4 @@
-function [mean_vector] = cfc_est_minorm(modulating_signal,modulated_signal)
+function [mean_vector] = minorm(modulating_signal,modulated_signal)
 %
 % Function estimating the mean vector as defined in Canolty et al 2006. The MI
 % is returned as a z-value on a null distribution created by phase shifted

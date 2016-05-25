@@ -34,9 +34,9 @@ esc    = cfc_est_corr(pac_signals.theta,pac_signals.gamma_amp);
 nesc   = cfc_est_corr(cos(pac_signals.theta_phase),pac_signals.gamma_amp);
 plv    = cfc_est_plv(pac_signals.theta_phase,pac_signals.gamma_amp_phase);
 glm    = cfc_est_glm(pac_signals.theta_phase,pac_signals.gamma_amp);
-mi     = cfc_est_mi(pac_signals.theta_phase,pac_signals.gamma_amp);
+mi     = cfc.est.mi(pac_signals.theta_phase,pac_signals.gamma_amp);
 aec    = cfc_est_corr(pac_signals.theta_amp,pac_signals.gamma_amp);
-mitort = cfc_est_mitort(pac_signals.theta_phase,pac_signals.gamma_amp);
+mitort = cfc.est.mitort(pac_signals.theta_phase,pac_signals.gamma_amp);
 
 %% Estimate sliding window metrics
 
@@ -50,10 +50,10 @@ sw_esc  = cfc_est_corr(sw_signals.theta,sw_signals.gamma_amp);
 sw_nesc = cfc_est_corr(cos(sw_signals.theta_phase),sw_signals.gamma_amp);
 sw_plv  = cfc_est_plv(sw_signals.theta_phase,sw_signals.gamma_amp_phase);
 sw_glm  = cfc_est_glm(sw_signals.theta_phase,sw_signals.gamma_amp);
-sw_mi   = cfc_est_mi(sw_signals.theta_phase,sw_signals.gamma_amp);
-sw_minorm   = cfc_est_minorm(sw_signals.theta_phase,sw_signals.gamma_amp);
+sw_mi   = cfc.est.mi(sw_signals.theta_phase,sw_signals.gamma_amp);
+sw_minorm   = cfc.est.minorm(sw_signals.theta_phase,sw_signals.gamma_amp);
 sw_aec  = cfc_est_corr(sw_signals.theta_amp,sw_signals.gamma_amp);
-sw_mitort = cfc_est_mitort(sw_signals.theta_phase,sw_signals.gamma_amp);
+sw_mitort = cfc.est.mitort(sw_signals.theta_phase,sw_signals.gamma_amp);
 
 %% Estimate simple CFC
 

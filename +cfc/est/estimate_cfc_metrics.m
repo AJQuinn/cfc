@@ -13,7 +13,7 @@ results.aec= cfc_est_aec(signal.theta_amp, signal.gamma_amp);
 
 %% Estimate MI - using theta phase and gamma amplitude
 % Canolty 2006
-results.mi = cfc_est_mi(signal.theta_phase,signal.gamma_amp);
+results.mi = cfc.est.mi(signal.theta_phase,signal.gamma_amp);
 
 %% Estimate ESC - using theta signal and gamma amplitude
 % Bruns & Eckhorn 2004

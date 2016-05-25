@@ -191,11 +191,11 @@ for lo_idx = 1:n_lo_steps
                 tmp = cfc_est_glmdv(signals.theta_phase,signals.gamma_amp);
                 glmdv(:,lo_idx,hi_idx,:) = tmp.fnorm;
             elseif strcmp(cfg.metrics{met_idx},'MI')
-                mi(:,lo_idx,hi_idx,:) = cfc_est_mi(signals.theta_phase,signals.gamma_amp);
+                mi(:,lo_idx,hi_idx,:) = cfc.est.mi(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
-                mi_norm(:,lo_idx,hi_idx,:) = cfc_est_minorm(signals.theta_phase,signals.gamma_amp);
+                mi_norm(:,lo_idx,hi_idx,:) = cfc.est.minorm(signals.theta_phase,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'MI_TORT')
-                 mi_tort(:,lo_idx,hi_idx,:) = cfc_est_mitort(signals.theta_phase,signals.gamma_amp);
+                 mi_tort(:,lo_idx,hi_idx,:) = cfc.est.mitort(signals.theta_phase,signals.gamma_amp);
             else
                  fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
