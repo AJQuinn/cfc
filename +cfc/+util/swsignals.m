@@ -23,7 +23,7 @@ for i = 1:numel(fields)
         % Make sliding window version of variable
         data = signals.(fields{i});
 
-        sw_signals.(fields{i}) = make_sw(data,window_size,window_step);
+        sw_signals.(fields{i}) = cfc.util.make_sw(data,window_size,window_step);
 
     end
 end
