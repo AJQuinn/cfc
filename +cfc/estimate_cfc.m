@@ -175,7 +175,7 @@ end
 % Get the surrogate signals if requested
 if nperms > 0
     % We only need the surrogates for the modulating time-course
-    surrogates = generate_phase_surrogates(signal(1,:),nperms);
+    surrogates = cfc.stats.generate_phase_surrogates(signal(1,:),nperms);
 
     cfc_results.esc_null = nan(nperms,1);
     ncfc_results.esc_null = nan(nperms,1);
