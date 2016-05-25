@@ -77,7 +77,7 @@ cfc_cfg = struct('sr',      sample_rate,...
     'nperms',               250);
 
 cfc_results = estimate_cfc(signal.signal,cfc_cfg);
-%cfc_plot_sw(cfc_results)
+%cfc.plot.sw(cfc_results)
 
 %% Estimate CFC with sliding windows
 
@@ -91,7 +91,7 @@ cfc_cfg = struct('sr',      sample_rate,...
     'window_step',          sample_rate/4);
 
 cfc_results = estimate_cfc(signal.signal,cfc_cfg);
-cfc_plot_sw(cfc_results)
+cfc.plot.sw(cfc_results)
 
 %% Estimate CFC with sliding windows
 
@@ -106,7 +106,7 @@ cfc_cfg = struct('sr',      sample_rate,...
     'window_step',          sample_rate/4);
 
 cfc_results = estimate_cfc(signal.signal,cfc_cfg);
-cfc_plot_sw(cfc_results)
+cfc.plot.sw(cfc_results)
 
 %% Estimate a comodulogram
 cmg_cfg = struct('sr',      sample_rate,...
@@ -119,7 +119,7 @@ cmg_cfg = struct('sr',      sample_rate,...
     'metrics',             {{'MI'}});%,'MI_NORM','PLV','ESC'}});
 
 cmg = estimate_comodulogram(signal.signal(:,1:512*20),cmg_cfg);
-cfc_plot_cmg(cmg)
+cfc.plot.cmg(cmg)
 
 %% Estimate a sliding window comodulogram
 

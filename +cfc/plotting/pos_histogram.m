@@ -1,8 +1,8 @@
 function [ H ] =  pos_histogram( position_data, step, fhandle, axhandle )
 % function pos_histogram( position_data )
 %
-% mercylessly stolen from: 
-% http://stackoverflow.com/questions/6777609/fast-2dimensional-histograming-in-matlab 
+% mercylessly stolen from:
+% http://stackoverflow.com/questions/6777609/fast-2dimensional-histograming-in-matlab
 
 if nargin < 4 or isempty(axhandle)
     axhandle = false

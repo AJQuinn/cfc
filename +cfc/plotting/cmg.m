@@ -1,4 +1,4 @@
-function cfc_plot_cmg(cmg,metric_name,spectrum,freq_vect,log_high,col_levels)
+function cfc.plot.cmg(cmg,metric_name,spectrum,freq_vect,log_high,col_levels)
 
 if nargin < 2 || isempty(metric_name)
     if isfield(cmg,'mi_norm')
