@@ -1,4 +1,4 @@
-function cfc.plot.sw( cfc_results, metric, outpath )
+function sw( cfc_results, metric, outpath )
 
 if nargin < 3 || isempty( outpath )
     outpath = nan;

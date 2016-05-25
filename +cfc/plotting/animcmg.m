@@ -1,4 +1,4 @@
-function cfc.plot.animcmg( obj, outpath )
+function animcmg( obj, outpath )
 % Make a movie from a sliding window comodulogram
 
 
