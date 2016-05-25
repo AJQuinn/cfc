@@ -1,4 +1,4 @@
-function [filt_data,D] = cfc_filt_fir(data,filter_cfg,padding,method)
+function [filt_data,D] = fir(data,filter_cfg,padding,method)
 %
 % filter_cfg: struct containing
 %   order:
@@ -24,9 +24,9 @@ end
 [nchannels,nsamples,nrealisations] = size(data);
 
 %% Make filter
-filter_cfg = cfc_filt_checkcfg( filter_cfg );
+filter_cfg = cfc.filt.checkcfg( filter_cfg );
 
-[D,~,~,~] = cfc_filt_generate(filter_cfg);
+[D,~,~,~] = cfc.filt.generate(filter_cfg);
 
 %% Pad the data
 data = [zeros(nchannels, padding), data, zeros(nchannels, padding)];

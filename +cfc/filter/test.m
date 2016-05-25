@@ -17,7 +17,7 @@ theta_cfg.trans_width = 5;
 theta_cfg.method = 'twopass';
 
 % check responses
-cfc_filt_explore(theta_cfg);
+cfc.filt.explore(theta_cfg);
 
 
 %% Run at several different trans bands
@@ -35,7 +35,7 @@ tmp_cfg = theta_cfg;
 for idx = 1:length(tb)
     tmp_cfg.trans_width = tb(idx);
 
-    [theta,D{idx}] = cfc_filt_fir(X,tmp_cfg);
+    [theta,D{idx}] = cfc.filt.fir(X,tmp_cfg);
 
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))
@@ -63,7 +63,7 @@ tb = [8 10 12 14 16];
 for idx = 1:length(tb)
     tmp_cfg.centre_freq = tb(idx);
 
-    [theta,D{idx}] = cfc_filt_fir(X,tmp_cfg);
+    [theta,D{idx}] = cfc.filt.fir(X,tmp_cfg);
 
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))
@@ -92,7 +92,7 @@ tb = [6 8 10 12 14 16];
 for idx = 1:length(tb)
     tmp_cfg.centre_freq = tb(idx);
 
-    [theta,D{idx}] = cfc_filt_fir(X,tmp_cfg);
+    [theta,D{idx}] = cfc.filt.fir(X,tmp_cfg);
 
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))
@@ -140,7 +140,7 @@ for idx = 1:length(tb)
     gamma_cfg.trans_width = tb(idx) + 3;
 
 
-    [theta,D{idx}] = cfc_filt_fir(X,gamma_cfg);
+    [theta,D{idx}] = cfc.filt.fir(X,gamma_cfg);
 
     subplot(211)
     plot(time_vect(1:sample_rate/2),theta(1:sample_rate/2))

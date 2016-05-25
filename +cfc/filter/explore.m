@@ -1,4 +1,4 @@
-function [] = cfc_filt_explore(obj)
+function [] = explore(obj)
 %
 %
 % Input object
@@ -28,7 +28,7 @@ if ~isfield(obj,'order')
     obj.filter_order = 512;
 end
 
-obj = cfc_filt_checkcfg( obj );
+obj = cfc.filt.checkcfg( obj );
 
 S.obj = obj;
 
@@ -44,7 +44,7 @@ S.fh = figure('units','pixels',...
 
 % Design intial filter
 if strcmp(obj.method,'designfilt')
-  [~,h,phi,w] = cfc_filt_generate(512,obj.sample_rate,obj.centre_freq,...
+  [~,h,phi,w] = cfc.filt.generate(512,obj.sample_rate,obj.centre_freq,...
                             obj.pass_width,obj.trans_width);
 elseif strcmp(obj.method,'eeglab')
   [~,filtwts] = eegfilt_silent(randn(1,10240),obj.sample_rate,...
@@ -129,7 +129,7 @@ set(H,'Value',value);
 
 % Design new filter
 if strcmp(S.obj.method,'designfilt')
-[~,h,phi,w] = cfc_filt_generate(512,S.obj.sample_rate,get(H,'value'),...
+[~,h,phi,w] = cfc.filt.generate(512,S.obj.sample_rate,get(H,'value'),...
                             S.obj.pass_width,S.obj.trans_width);
 elseif strcmp(S.obj.method,'eeglab')
   [~,filtwts] = eegfilt_silent(randn(1,10240),S.obj.sample_rate, ...
