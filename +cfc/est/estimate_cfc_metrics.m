@@ -5,7 +5,7 @@ results = [];
 
 %% Estimate the PLV - using theta phase and gamma amplitude
 % Lachaux 1999
-results.plv = cfc_est_plv(signal.theta_phase, signal.gamma_amp_phase);
+results.plv = cfc.est.plv(signal.theta_phase, signal.gamma_amp_phase);
 
 %% Estimate AEC - using theta amplitude and gamma amplitude 
 % Bruns & Eckhorn 2004
@@ -25,7 +25,7 @@ results.nesc = ncfc_est_esc(signal.theta_phase, signal.gamma_amp);
 
 %% Estimate GLM -  using theta phase and gamma amplitude
 % Penny 2007
-results.glm = cfc_est_glm(signal.theta_phase, signal.gamma_amp);
+results.glm = cfc.est.glm(signal.theta_phase, signal.gamma_amp);
 
 %% Estimate Voytek - using theta phase and theta band filtered gamma amplitude
 % Voytek 

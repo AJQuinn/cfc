@@ -118,19 +118,19 @@ for win_idx = 1:nwindows
     % Estimate observed CFC
     for met_idx = 1:length(cfg.metrics)
         if strcmp(cfg.metrics{met_idx},'ESC')
-            esc = cfc_est_corr(cfc_signals.theta,cfc_signals.gamma_amp);
+            esc = cfc.est.corr(cfc_signals.theta,cfc_signals.gamma_amp);
             cfc_results.esc = esc;
         elseif strcmp(cfg.metrics{met_idx},'NESC')
-            nesc = ncfc_est_corr(cos(cfc_signals.theta_phase),cfc_signals.gamma_amp);
+            nesc = ncfc.est.corr(cos(cfc_signals.theta_phase),cfc_signals.gamma_amp);
             cfc_results.nesc = nesc;
         elseif strcmp(cfg.metrics{met_idx},'AEC')
-            aec = cfc_est_corr(cfc_signals.theta_amp,cfc_signals.gamma_amp);
+            aec = cfc.est.corr(cfc_signals.theta_amp,cfc_signals.gamma_amp);
             cfc_results.aec = aec;
         elseif strcmp(cfg.metrics{met_idx},'PLV')
-            plv = cfc_est_plv(cfc_signals.theta_phase,cfc_signals.gamma_amp_phase);
+            plv = cfc.est.plv(cfc_signals.theta_phase,cfc_signals.gamma_amp_phase);
             cfc_results.plv = plv;
         elseif strcmp(cfg.metrics{met_idx},'GLM')
-            glm = cfc_est_glm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+            glm = cfc.est.glm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
             cfc_results.glm = glm;
         elseif strcmp(cfg.metrics{met_idx},'MI')
             mi = cfc.est.mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);

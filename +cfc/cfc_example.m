@@ -30,12 +30,12 @@ pac_signals = cfc_util_basesignals(signal.signal,sample_rate,...
                                signal.state_switching);
 
 %% Estimate some metrics
-esc    = cfc_est_corr(pac_signals.theta,pac_signals.gamma_amp);
-nesc   = cfc_est_corr(cos(pac_signals.theta_phase),pac_signals.gamma_amp);
-plv    = cfc_est_plv(pac_signals.theta_phase,pac_signals.gamma_amp_phase);
-glm    = cfc_est_glm(pac_signals.theta_phase,pac_signals.gamma_amp);
+esc    = cfc.est.corr(pac_signals.theta,pac_signals.gamma_amp);
+nesc   = cfc.est.corr(cos(pac_signals.theta_phase),pac_signals.gamma_amp);
+plv    = cfc.est.plv(pac_signals.theta_phase,pac_signals.gamma_amp_phase);
+glm    = cfc.est.glm(pac_signals.theta_phase,pac_signals.gamma_amp);
 mi     = cfc.est.mi(pac_signals.theta_phase,pac_signals.gamma_amp);
-aec    = cfc_est_corr(pac_signals.theta_amp,pac_signals.gamma_amp);
+aec    = cfc.est.corr(pac_signals.theta_amp,pac_signals.gamma_amp);
 mitort = cfc.est.mitort(pac_signals.theta_phase,pac_signals.gamma_amp);
 
 %% Estimate sliding window metrics
@@ -46,13 +46,13 @@ step = fix(sample_rate/4); % in samples
 
 sw_signals = cfc_util_swsignals(pac_signals,window_size,step);
 
-sw_esc  = cfc_est_corr(sw_signals.theta,sw_signals.gamma_amp);
-sw_nesc = cfc_est_corr(cos(sw_signals.theta_phase),sw_signals.gamma_amp);
-sw_plv  = cfc_est_plv(sw_signals.theta_phase,sw_signals.gamma_amp_phase);
-sw_glm  = cfc_est_glm(sw_signals.theta_phase,sw_signals.gamma_amp);
+sw_esc  = cfc.est.corr(sw_signals.theta,sw_signals.gamma_amp);
+sw_nesc = cfc.est.corr(cos(sw_signals.theta_phase),sw_signals.gamma_amp);
+sw_plv  = cfc.est.plv(sw_signals.theta_phase,sw_signals.gamma_amp_phase);
+sw_glm  = cfc.est.glm(sw_signals.theta_phase,sw_signals.gamma_amp);
 sw_mi   = cfc.est.mi(sw_signals.theta_phase,sw_signals.gamma_amp);
 sw_minorm   = cfc.est.minorm(sw_signals.theta_phase,sw_signals.gamma_amp);
-sw_aec  = cfc_est_corr(sw_signals.theta_amp,sw_signals.gamma_amp);
+sw_aec  = cfc.est.corr(sw_signals.theta_amp,sw_signals.gamma_amp);
 sw_mitort = cfc.est.mitort(sw_signals.theta_phase,sw_signals.gamma_amp);
 
 %% Estimate simple CFC

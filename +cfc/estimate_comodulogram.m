@@ -177,18 +177,18 @@ for lo_idx = 1:n_lo_steps
        % Estimate CFC
         for met_idx = 1:length(cfg.metrics)
             if strcmp(cfg.metrics{met_idx},'ESC')
-                esc(:,lo_idx,hi_idx,:) = cfc_est_corr(signals.theta,signals.gamma_amp);
+                esc(:,lo_idx,hi_idx,:) = cfc.est.corr(signals.theta,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
-                nesc(:,lo_idx,hi_idx,:) = ncfc_est_corr(cos(signals.theta_phase),signals.gamma_amp);
+                nesc(:,lo_idx,hi_idx,:) = ncfc.est.corr(cos(signals.theta_phase),signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
-                aec(:,lo_idx,hi_idx,:) = cfc_est_corr(signals.theta_amp,signals.gamma_amp);
+                aec(:,lo_idx,hi_idx,:) = cfc.est.corr(signals.theta_amp,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
-                plv(:,lo_idx,hi_idx,:) = cfc_est_plv(signals.theta_phase,signals.gamma_amp_phase);
+                plv(:,lo_idx,hi_idx,:) = cfc.est.plv(signals.theta_phase,signals.gamma_amp_phase);
             elseif strcmp(cfg.metrics{met_idx},'GLM')
-                tmp = cfc_est_glm(signals.theta_phase,signals.gamma_amp);
+                tmp = cfc.est.glm(signals.theta_phase,signals.gamma_amp);
                 glm(:,lo_idx,hi_idx,:) = tmp.fnorm;
             elseif strcmp(cfg.metrics{met_idx},'GLMDV')
-                tmp = cfc_est_glmdv(signals.theta_phase,signals.gamma_amp);
+                tmp = cfc.est.glmdv(signals.theta_phase,signals.gamma_amp);
                 glmdv(:,lo_idx,hi_idx,:) = tmp.fnorm;
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 mi(:,lo_idx,hi_idx,:) = cfc.est.mi(signals.theta_phase,signals.gamma_amp);

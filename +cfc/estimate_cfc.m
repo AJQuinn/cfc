@@ -140,22 +140,22 @@ end
 % Estimate observed CFC
 for met_idx = 1:length(cfg.metrics)
     if strcmp(cfg.metrics{met_idx},'ESC')
-        esc = cfc_est_corr(cfc_signals.theta,cfc_signals.gamma_amp);
+        esc = cfc.est.corr(cfc_signals.theta,cfc_signals.gamma_amp);
         cfc_results.esc = esc;
     elseif strcmp(cfg.metrics{met_idx},'NESC')
-        nesc = cfc_est_corr(cos(cfc_signals.theta_phase),cfc_signals.gamma_amp);
+        nesc = cfc.est.corr(cos(cfc_signals.theta_phase),cfc_signals.gamma_amp);
         cfc_results.nesc = nesc;
     elseif strcmp(cfg.metrics{met_idx},'AEC')
-        aec = cfc_est_corr(cfc_signals.theta_amp,cfc_signals.gamma_amp);
+        aec = cfc.est.corr(cfc_signals.theta_amp,cfc_signals.gamma_amp);
         cfc_results.aec = aec;
     elseif strcmp(cfg.metrics{met_idx},'PLV')
-        plv = cfc_est_plv(cfc_signals.theta_phase,cfc_signals.gamma_amp_phase);
+        plv = cfc.est.plv(cfc_signals.theta_phase,cfc_signals.gamma_amp_phase);
         cfc_results.plv = plv;
     elseif strcmp(cfg.metrics{met_idx},'GLM')
-        glm = cfc_est_glm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        glm = cfc.est.glm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.glm = glm;
     elseif strcmp(cfg.metrics{met_idx},'GLMDV')
-        glmdv = cfc_est_glmdv(cfc_signals.theta_phase,cfc_signals.gamma_amp);
+        glmdv = cfc.est.glmdv(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.glmdv = glmdv;
     elseif strcmp(cfg.metrics{met_idx},'MI')
         mi = cfc.est.mi(cfc_signals.theta_phase,cfc_signals.gamma_amp);
@@ -217,19 +217,19 @@ if nperms > 0
         % Estimate surrogate CFC
         for met_idx = 1:length(cfg.metrics)
             if strcmp(cfg.metrics{met_idx},'ESC')
-                tmp = cfc_est_corr(surr_signals.theta,surr_signals.gamma_amp);
+                tmp = cfc.est.corr(surr_signals.theta,surr_signals.gamma_amp);
                 cfc_results.esc_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
-                tmp = cfc_est_corr(cos(surr_signals.theta_phase),surr_signals.gamma_amp);
+                tmp = cfc.est.corr(cos(surr_signals.theta_phase),surr_signals.gamma_amp);
                 cfc_results.nesc_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
-                tmp = cfc_est_corr(surr_signals.theta_amp,surr_signals.gamma_amp);
+                tmp = cfc.est.corr(surr_signals.theta_amp,surr_signals.gamma_amp);
                 cfc_results.aec_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
-                tmp = cfc_est_plv(surr_signals.theta_phase,surr_signals.gamma_amp_phase);
+                tmp = cfc.est.plv(surr_signals.theta_phase,surr_signals.gamma_amp_phase);
                 cfc_results.plv_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'GLM')
-                tmp = cfc_est_glm(surr_signals.theta_phase,surr_signals.gamma_amp);
+                tmp = cfc.est.glm(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.glm_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 tmp = cfc.est.mi(surr_signals.theta_phase,surr_signals.gamma_amp);
