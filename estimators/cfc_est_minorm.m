@@ -20,6 +20,8 @@ else
     [nsamples,nrealisations] = size(modulating_signal);
 end
 
+%modulating_signal = modulating_signal - mean(modulating_signal);
+
 % Combine into complex form
 Z = modulated_signal .* exp(1i * modulating_signal);
 
