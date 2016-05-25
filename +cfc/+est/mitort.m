@@ -1,4 +1,4 @@
-function [mi] = .mitort(modulating_signal,modulated_signal)
+function [mi] = mitort(modulating_signal,modulated_signal)
 % Function for estimating the modulation index in Tort et al 2008 PNAS
 % Modulating signal is the theta phase time series and modulated_signal is the gamma amplitude
 %
