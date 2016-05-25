@@ -83,7 +83,7 @@ ylim(yvals);
 
 %% Phase and power distributions
 subplot(343);hold on;grid on;
-[counts,bins] = hist(signals.theta_phase,20);
+[counts,bins] = hist(signals.theta_phase - mean(signals.theta_phase),20);
 hist(signals.theta_phase,20);
 plot([-pi pi],[mean(counts) mean(counts)],'k--','linewidth',2);
 xlabel('Modulating Phase');
@@ -121,6 +121,7 @@ for idx = 1:20
     inds = bins(idx) < signals.theta_phase & bins(idx+1) > signals.theta_phase;
     counts(idx) = mean(signals.gamma_amp(inds));
 end
+counts = counts ./ sum(counts);
 x_centres = (bins(1:end-1) + bins(2:end)) ./ 2;
 bar(x_centres,counts,pi/2);
 xlim([-pi pi]);
