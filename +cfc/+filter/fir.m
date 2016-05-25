@@ -24,9 +24,9 @@ end
 [nchannels,nsamples,nrealisations] = size(data);
 
 %% Make filter
-filter_cfg = cfc.filt.checkcfg( filter_cfg );
+filter_cfg = cfc.filter.checkcfg( filter_cfg );
 
-[D,~,~,~] = cfc.filt.generate(filter_cfg);
+[D,~,~,~] = cfc.filter.generate(filter_cfg);
 
 %% Pad the data
 data = [zeros(nchannels, padding), data, zeros(nchannels, padding)];
@@ -35,7 +35,7 @@ data = [zeros(nchannels, padding), data, zeros(nchannels, padding)];
 
 if strcmp(method,'eeglab')
 
-    filt_data = cfc.filter.eeglab.eegfilt_silent(data,filter_cfg.sample_rate,...
+    filt_data = cfc.filterer.eeglab.eegfilt_silent(data,filter_cfg.sample_rate,...
                 filter_cfg.centre_freq - (filter_cfg.pass_width/2),...
                 filter_cfg.centre_freq + (filter_cfg.pass_width/2),...
                 0,[],[],'fir1');

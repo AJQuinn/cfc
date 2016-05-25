@@ -1,5 +1,5 @@
 function filt_cfg = checkcfg( filt_cfg )
-%function filt_cfg = cfc.filt.checkcfg( filt_cfg )
+%function filt_cfg = cfc.filter.checkcfg( filt_cfg )
 %
 % Sanity check filter parameters, raise warnings if something silly might
 % happen. Add default values if they aren't provided

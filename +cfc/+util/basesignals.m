@@ -70,7 +70,7 @@ for idx = 1:nrealisations
         theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
         theta_cfg.method = method;
 
-        theta(1,:,idx) = cfc.filt.fir(signal(1,:,idx),theta_cfg);
+        theta(1,:,idx) = cfc.filter.fir(signal(1,:,idx),theta_cfg);
     else
         theta = [];
     end
@@ -83,9 +83,9 @@ for idx = 1:nrealisations
     gamma_cfg.method = method;
 
     if nchannels == 1
-        gamma(1,:,idx) = cfc.filt.fir(signal(1,:,idx),gamma_cfg);
+        gamma(1,:,idx) = cfc.filter.fir(signal(1,:,idx),gamma_cfg);
     elseif nchannels == 2
-        gamma(1,:,idx) = cfc.filt.fir(signal(2,:,idx),gamma_cfg);
+        gamma(1,:,idx) = cfc.filter.fir(signal(2,:,idx),gamma_cfg);
     end
 
     %% Compute signals
@@ -108,7 +108,7 @@ for idx = 1:nrealisations
 
     % Compute theta-filtered gamma amplitude
     if length(lo_bounds) == 2
-        gamma_amp_theta(1,:,idx) = cfc.filt.fir(gamma_amp(1,:,idx),theta_cfg);
+        gamma_amp_theta(1,:,idx) = cfc.filter.fir(gamma_amp(1,:,idx),theta_cfg);
     else
         gamma_amp_theta(1,:,idx) = cfc.util.thetawaveform(signal(1,:,idx),lo_bounds,sr);
     end
