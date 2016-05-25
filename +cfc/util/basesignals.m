@@ -1,5 +1,4 @@
-
-function [signals,gamma_cfg,theta_cfg] = cfc_util_basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans,edge_width,method)
+function [signals,gamma_cfg,theta_cfg] = basesignals(signal,sr,hi_bounds,lo_bounds,time_vect,true_timecourse,hi_trans,lo_trans,edge_width,method)
 %% Create the ingredients for CFC metric estimation.
 %
 % signal is an array [channels x samples x realisations]. There may only be one
@@ -98,7 +97,7 @@ for idx = 1:nrealisations
     % Compute phase time series
     if length(lo_bounds) == 1
         % We only have one theta frequency, extract phase manually
-        theta_phase(1,:,idx) = cfc_util_thetawaveform(signal(1,:,idx),lo_bounds,sr);
+        theta_phase(1,:,idx) = cfc.util.thetawaveform(signal(1,:,idx),lo_bounds,sr);
     else
         % We have filter bounds, extract phase with hilbert
         theta_phase(1,:,idx) = angle(hilbert(theta(1,:,idx)));
@@ -111,7 +110,7 @@ for idx = 1:nrealisations
     if length(lo_bounds) == 2
         gamma_amp_theta(1,:,idx) = cfc.filt.fir(gamma_amp(1,:,idx),theta_cfg);
     else
-        gamma_amp_theta(1,:,idx) = cfc_util_thetawaveform(signal(1,:,idx),lo_bounds,sr);
+        gamma_amp_theta(1,:,idx) = cfc.util.thetawaveform(signal(1,:,idx),lo_bounds,sr);
     end
 
 end

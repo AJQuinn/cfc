@@ -1,5 +1,5 @@
 function out = make_sw( data, window_size, window_step )
-%function out = make_sw( data, window_size, window_step )
+%function out = cfc.util.make_sw( data, window_size, window_step )
 %
 % split a vector into a samples by windows matrix. window_size and window_step
 % are given in samples.

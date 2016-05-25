@@ -1,3 +1,3 @@
-function [dat] = cfc_util_normdata(dat)
+function [dat] = normdata(dat)
 
     dat = (dat - min(dat)) / ( max(dat) - min(dat) );

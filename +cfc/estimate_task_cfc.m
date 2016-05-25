@@ -99,7 +99,7 @@ cfc_results.signal = signal;
 %% Main body
 
 % Get the observed signals
-cfc_signals = cfc_util_basesignals( signal, cfg.sr, ...
+cfc_signals = cfc.util.basesignals( signal, cfg.sr, ...
     hi_bounds, ...
     lo_bounds, ...
     time_vect, ...
@@ -111,7 +111,7 @@ if cfg.ret_cfc_signals == true
 end
 
 % Stack data for analysis
-cfc_signals = cfc_util_stacktrials(cfc_signals,cfg.window_size,'stack');
+cfc_signals = cfc.util.stacktrials(cfc_signals,cfg.window_size,'stack');
 
 for win_idx = 1:nwindows
 

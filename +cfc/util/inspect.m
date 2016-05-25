@@ -1,5 +1,5 @@
-function cfc_util_inspectsig( signals, freq_max, freq_scale )
-%%function cfc_util_inspectsig( signals )
+function inspect( signals, freq_max, freq_scale )
+%%function cfc.util.inspect( signals )
 %
 % This function will compute a range of CFC relevant metrics from a dataset
 % which has been prepared with cfc_util_basesignal and produce a summary plot.
@@ -31,7 +31,7 @@ winlen = signals.time_vect(end) - signals.time_vect(1);
 % epoch to avoid edges
 stacked = 0;
 if ndims ( signals.signal ) == 3
-    signals = cfc_util_stacktrials(signals,signals.window_len *1000,'stack');
+    signals = cfc.util.stacktrials(signals,signals.window_len *1000,'stack');
     stacked = 1;
 end
 
@@ -145,7 +145,7 @@ title('Canolty MI')
 
 % Undo stacking if we have stacked
 if stacked == 1
-    signals = cfc_util_stacktrials(signals,signals.window_len*1000,'unstack');
+    signals = cfc.util.stacktrials(signals,signals.window_len*1000,'unstack');
 end
 
 %%

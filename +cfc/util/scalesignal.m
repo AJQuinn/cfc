@@ -1,4 +1,4 @@
-function [signal,resig_db,accuracy] = cfc_util_scalesignal(signal, diff_db, ref_signal);
+function [signal,resig_db,accuracy] = scalesignal(signal, diff_db, ref_signal);
 
     % Get original signal power
     sig_db = 20 * log10( sqrt ( sum ( power(signal,2) ) ) );

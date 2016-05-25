@@ -1,4 +1,4 @@
-function [ out ] = cfc_util_stacktrials( signals, window_size, mode )
+function [ out ] = stacktrials( signals, window_size, mode )
 %% Switches a cfc_signals struct between [channels x samples x trials] and
 % [channels x window_size*trials x nwindows]. Useful for task evoked CFC estimation
 %

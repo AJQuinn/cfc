@@ -1,4 +1,4 @@
-function [ out ] = cfc_util_getslice( signals, start, stop )
+function [ out ] = getslice( signals, start, stop )
 %% Extract one window from a cfc_signals struct
 %
 % signals: struct

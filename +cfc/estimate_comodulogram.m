@@ -32,7 +32,7 @@ function cmg = estimate_comodulogram( signal, cfg )
 % and optionally:
 %     cfg.true_timecourse: 1d signal indicating where pac exists
 %     cfg.zero_pad: the number of samples to pad the time series when filtering
-%     cfg.theta_interp: bool to indicate that cfc_util_thetawaveform should be used
+%     cfg.theta_interp: bool to indicate that cfc.util.thetawaveform should be used
 %     cfg.window_size: length in seconds for sliding window
 %     cfg.step: step size between windows in seconds
 %     cfg.filter_method: method for applying filter (onepass|twopass|eeglab)
@@ -162,7 +162,7 @@ for lo_idx = 1:n_lo_steps
             lo = [lo_freqs(1,lo_idx), lo_freqs(2,lo_idx)];
         end
 
-        signals = cfc_util_basesignals(signal, ...
+        signals = cfc.util.basesignals(signal, ...
                                    cfg.sr, ...
                                    [hi_freqs(1,hi_idx,lo_idx) hi_freqs(2,hi_idx,lo_idx)], ...
                                    lo,...
@@ -171,7 +171,7 @@ for lo_idx = 1:n_lo_steps
 
 
         if isfield(cfg,'window_size')
-            [ signals ] = cfc_util_swsignals(signals,window_size,step);
+            [ signals ] = cfc.util.swsignals(signals,window_size,step);
         end
 
        % Estimate CFC
