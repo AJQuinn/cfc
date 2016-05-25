@@ -1,4 +1,4 @@
-function cfc_peak_groupplot( varargin )
+function cfc.peak.groupplot( varargin )
 %% Function to plot the distribution of peaks across a group
 %
 % input is a cell array containing quinnpeaks output structs for one

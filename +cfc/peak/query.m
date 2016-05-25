@@ -1,5 +1,5 @@
-function [out] = cfc_peak_query(indata, cfg)
-%% cfc_peak_detect
+function [out] = cfc.peak.query(indata, cfg)
+%% cfc.peak.detect
 % Function using Savitsky-Golay smoothing filter to detect peaks in the
 % spectrum of a given time series
 %

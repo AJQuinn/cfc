@@ -1,9 +1,9 @@
-function cfc_peak_plot(obj, outpath, max_freq)
+function cfc.peak.plot(obj, outpath, max_freq)
 %%
 % Create a plot from the output struct from sgolay_peaks
 %
 % obj: peaks struct
-%   the output from a call to cfc_peak_detect
+%   the output from a call to cfc.peak.detect
 % outpath: string
 %   a filepath to save out a copy of the figure
 % maxfreq: double
