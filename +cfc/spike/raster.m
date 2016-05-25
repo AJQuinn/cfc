@@ -1,5 +1,5 @@
-function raster = cfc_spikes_raster(spike_times, spike_allocs, sample_rate, time_range)
-%function out = cfc_spikes_raster(spike_times, spike_allocs, sample_rate, time_range)
+function raster = raster(spike_times, spike_allocs, sample_rate, time_range)
+%function out = cfc.spike.raster(spike_times, spike_allocs, sample_rate, time_range)
 %
 % Plot up a raster plot for a given time range
 %
