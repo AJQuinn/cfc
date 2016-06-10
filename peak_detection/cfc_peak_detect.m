@@ -22,6 +22,10 @@ function [obj] = cfc_peak_detect( data, cfg )
 % detrend: str [optional]
 %       Optional detrending of spectrum. Choose from '1/f','linear' or 'polyfit'
 
+    if ~isfield(cfg,'freq_method')
+        cfg.freq_method = 'pwelch';
+    end
+
     if ~isfield(cfg, 'fft_len')
         cfg.fft_len = [];
     end
@@ -58,8 +62,17 @@ function [obj] = cfc_peak_detect( data, cfg )
         end
 
         % Peform frequency transform
-        obj.psd = fftshift(abs(fft(data,cfg.fft_len,2)).^2);
-        obj.freq_vect = linspace(-cfg.sample_rate/2,cfg.sample_rate/2,size(obj.psd,2));
+        if strcmp(cfg.freq_method,'fft')
+            obj.psd = fftshift(abs(fft(data,cfg.fft_len,2)).^2);
+            obj.freq_vect = linspace(-cfg.sample_rate/2,cfg.sample_rate/2,size(obj.psd,2));
+        elseif strcmp(cfg.freq_method,'pwelch')
+            for idx = 1:size(data,1)
+                [obj.psd(idx,:),obj.freq_vect] = pwelch(data,cfg.sample_rate,[],[],cfg.sample_rate);
+            end
+            obj.freq_vect = obj.freq_vect';
+        else
+            error('Frequency transform method not recognised, use fft or pwelch');
+        end
 
         if size(data,1) > 1
             obj.psd = mean(obj.psd,1);
@@ -68,7 +81,11 @@ function [obj] = cfc_peak_detect( data, cfg )
         obj = get_freq_of_interest(obj, cfg.freq_of_interest);
 
         % Smooth spectrum
-        obj.smo_psd = sgolayfilt(obj.psd, cfg.smoothing_order, sg_win);
+        if strcmp(cfg.freq_method,'fft')
+            obj.smo_psd = sgolayfilt(obj.psd, cfg.smoothing_order, sg_win);
+        else
+            obj.smo_psd = obj.psd;
+        end
 
     elseif strcmp(cfg.input_domain,'frequency')
         % We have frequency domain data, extract the interesting part
@@ -117,7 +134,7 @@ function [obj] = cfc_peak_detect( data, cfg )
     % Find peaks using file-exchange script as matlab's one sucks
     % algorithm from: http://www.mathworks.com/matlabcentral/fileexchange/25500-peakfinder
     % Peaks must be larger than the median differetial step in the spectrum
-    [locs,pks] = peakfinder(obj.smo_psd,median(diff(obj.smo_psd)));
+    [locs,pks] = peakfinder(obj.smo_psd,median(abs(diff(obj.smo_psd))));
     % Remove peaks within 5 samples of the start or end
     pks(locs < 5 | locs > size(obj.freq_vect,2)-5) = [];
     locs(locs < 5 | locs > size(obj.freq_vect,2)-5) = [];
