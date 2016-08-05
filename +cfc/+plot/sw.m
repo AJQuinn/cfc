@@ -36,7 +36,7 @@ for met_idx = 1:length(cfc_results.cfg.metrics)
         if isfield(cfc_results,'plv_thresh');thresh = cfc_results.plv_thresh;end
     elseif strcmp(cfc_results.cfg.metrics{met_idx},'GLM')
         metric_name = 'GLM';
-        metric = cfc_results.glm;
+        metric = cfc_results.glm.r2;
         if isfield(cfc_results,'glm_null'); metric_nulls = cfc_results.glm_null;end
         if isfield(cfc_results,'glm_thresh');thresh = cfc_results.glm_thresh;end
     elseif strcmp(cfc_results.cfg.metrics{met_idx},'MI')
