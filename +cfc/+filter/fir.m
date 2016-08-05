@@ -17,7 +17,7 @@ else
     method = filter_cfg.method;
 end
 
-if nargin < 3
+if nargin < 3 || isempty(padding)
     padding = round(filter_cfg.sample_rate)*2;
 end
 

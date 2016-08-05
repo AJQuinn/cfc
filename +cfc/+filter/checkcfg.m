@@ -10,6 +10,16 @@ if ~isfield(filt_cfg,'trans_width')
     filt_cfg.trans_width = filt_cfg.pass_width + 10;
 end
 
+%% Set filter order
+% default value is 3 or 7 times the centre frequency for low/high freqs
+if ~isfield(filt_cfg,'order')
+    if filt_cfg.centre_freq > 20
+        filt_cfg.order = fix(1/filt_cfg.centre_freq * filt_cfg.sample_rate) * 7;
+    else
+        filt_cfg.order = fix(1/filt_cfg.centre_freq * filt_cfg.sample_rate) * 3;
+    end
+end
+
 %% Check we aren't too close to nyquist
 nyquist = filt_cfg.sample_rate/2;
 if isfield(filt_cfg,'centre_freq')
