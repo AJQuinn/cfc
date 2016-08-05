@@ -19,33 +19,39 @@ for met_idx = 1:length(cfc_results.cfg.metrics)
         metric = cfc_results.esc;
         if isfield(cfc_results,'esc_null'); metric_nulls = cfc_results.esc_null;end
         if isfield(cfc_results,'esc_thresh');thresh = cfc_results.esc_thresh;end
-    elseif strcmp(cfc_results.cfg.metrics{met_idx},'NESC')
+    elseif strcmpi(cfc_results.cfg.metrics{met_idx},'NESC')
         metric_name = 'NESC';
         metric = cfc_results.nesc;
         if isfield(cfc_results,'nesc_null'); metric_nulls = cfc_results.nesc_null;end
         if isfield(cfc_results,'nesc_thresh');thresh = cfc_results.nesc_thresh;end
-    elseif strcmp(cfc_results.cfg.metrics{met_idx},'AEC')
+    elseif strcmpi(cfc_results.cfg.metrics{met_idx},'AEC')
         metric_name = 'AEC';
         metric = cfc_results.aec;
         if isfield(cfc_results,'aec_null'); metric_nulls = cfc_results.aec_null;end
         if isfield(cfc_results,'aec_thresh');thresh = cfc_results.aec_thresh;end
-    elseif strcmp(cfc_results.cfg.metrics{met_idx},'PLV')
+    elseif strcmpi(cfc_results.cfg.metrics{met_idx},'PLV')
         metric_name = 'PLV';
         metric = cfc_results.plv;
         if isfield(cfc_results,'plv_null'); metric_nulls = cfc_results.plv_null;end
         if isfield(cfc_results,'plv_thresh');thresh = cfc_results.plv_thresh;end
-    elseif strcmp(cfc_results.cfg.metrics{met_idx},'GLM')
+    elseif strcmpi(cfc_results.cfg.metrics{met_idx},'GLM')
         metric_name = 'GLM';
         metric = cfc_results.glm.r2;
         if isfield(cfc_results,'glm_null'); metric_nulls = cfc_results.glm_null;end
         if isfield(cfc_results,'glm_thresh');thresh = cfc_results.glm_thresh;end
-    elseif strcmp(cfc_results.cfg.metrics{met_idx},'MI')
+    elseif strcmpi(cfc_results.cfg.metrics{met_idx},'MITORT')
+        metric_name = 'MITORT';
+        metric = cfc_results.mitort;
+        if isfield(cfc_results,'mi_null'); metric_nulls = cfc_results.mi_null;end
+        if isfield(cfc_results,'mi_thresh');thresh = cfc_results.mi_thresh;end
+    elseif strcmpi(cfc_results.cfg.metrics{met_idx},'MI')
         metric_name = 'MI';
         metric = cfc_results.mi;
         if isfield(cfc_results,'mi_null'); metric_nulls = cfc_results.mi_null;end
         if isfield(cfc_results,'mi_thresh');thresh = cfc_results.mi_thresh;end
     else
-        %fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfc_results.cfg.metrics{met_idx});
+        fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfc_results.cfg.metrics{met_idx});
+        continue
     end
 
     % Sliding windows
@@ -56,11 +62,18 @@ for met_idx = 1:length(cfc_results.cfg.metrics)
         subplot(111)
     end
 
+    if length(time) ~= length(metric)
+        time = 1:length(metric);
+        xlab = 'windows';
+    else
+        xlab = 'Time (seconds)';
+    end
+
     plot(time,metric)
     hold on
     title(sprintf('Cross frequency coupling between %dHz and %dHz',...
                         cfc_results.cfg.lo_freq, cfc_results.cfg.hi_freq));
-    xlabel('Time (seconds)')
+    xlabel(xlab)
     ylabel(metric_name)
 
     if ~isnan(thresh)
