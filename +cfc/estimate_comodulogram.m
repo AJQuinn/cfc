@@ -36,6 +36,8 @@ function cmg = estimate_comodulogram( signal, cfg )
 %     cfg.window_size: length in seconds for sliding window
 %     cfg.step: step size between windows in seconds
 %     cfg.filter_method: method for applying filter (onepass|twopass|eeglab)
+%     cfg.full_estimate: 1-don't skip value where lo_freq>hi_freq,
+%                        0:default, do skip
 
 %% Housekeeping
 if ndims(signal) == 2
@@ -71,6 +73,10 @@ end
 
 if ~isfield(cfg,'true_timecourse')
     cfg.true_timecourse = zeros(size(signal,1),size(signal,2));
+end
+
+if ~isfield(cfg,'full_estimate')
+    cfg.full_estimate = 0;
 end
 
 % Generate time vector
@@ -148,8 +154,14 @@ for lo_idx = 1:n_lo_steps
             lo_freqs(1,lo_idx),lo_freqs(2,lo_idx),hi_freqs(1,hi_idx,lo_idx),hi_freqs(2,hi_idx,lo_idx));
         fprintf(msg);
 
-        if hi_freqs(1,hi_idx,lo_idx) <= lo_freqs(2,lo_idx)
+        if hi_freqs(1,hi_idx,lo_idx) <= lo_freqs(2,lo_idx) && ...
+           cfg.full_estimate == 0
             % Skip estimation if the hi and lo bands overlap
+            continue
+        end
+
+        if lo_freqs(2,lo_idx) <= 0 ||  hi_freqs(1,hi_idx,lo_idx) <= 4
+            % skip estimation is any low frequency is below zero
             continue
         end
 
