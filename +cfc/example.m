@@ -19,7 +19,7 @@ S = struct('seconds',           40, ...
            'noise_level',       -10,...
            'switching_freq',    .025,...
            'method',            'aq');
-signal = cfc.cfc_simulate(S);
+signal = cfc.simulate(S);
 
 
 %% Split into pac signals
@@ -64,7 +64,7 @@ cfc_cfg = struct('sr',      sample_rate,...
     'hi_bandwidth',         20,...
     'metrics',               {{'MI','PLV'}});
 
-cfc_results = estimate_cfc(signal.signal,cfc_cfg);
+cfc_results = cfc.estimate_cfc(signal.signal,cfc_cfg);
 
 %% Estimate CFC with permutations
 
@@ -76,7 +76,7 @@ cfc_cfg = struct('sr',      sample_rate,...
     'metrics',               {{'MI','PLV'}},...
     'nperms',               250);
 
-cfc_results = estimate_cfc(signal.signal,cfc_cfg);
+cfc_results = cfc.estimate_cfc(signal.signal,cfc_cfg);
 %cfc.plot.sw(cfc_results)
 
 %% Estimate CFC with sliding windows
@@ -90,7 +90,7 @@ cfc_cfg = struct('sr',      sample_rate,...
     'window_size',          sample_rate,...
     'window_step',          sample_rate/4);
 
-cfc_results = estimate_cfc(signal.signal,cfc_cfg);
+cfc_results = cfc.estimate_cfc(signal.signal,cfc_cfg);
 cfc.plot.sw(cfc_results)
 
 %% Estimate CFC with sliding windows
@@ -105,7 +105,7 @@ cfc_cfg = struct('sr',      sample_rate,...
     'window_size',          sample_rate,...
     'window_step',          sample_rate/4);
 
-cfc_results = estimate_cfc(signal.signal,cfc_cfg);
+cfc_results = cfc.estimate_cfc(signal.signal,cfc_cfg);
 cfc.plot.sw(cfc_results)
 
 %% Estimate a comodulogram
@@ -118,7 +118,7 @@ cmg_cfg = struct('sr',      sample_rate,...
     'hi_step',             10,...
     'metrics',             {{'MI'}});%,'MI_NORM','PLV','ESC'}});
 
-cmg = estimate_comodulogram(signal.signal(:,1:512*20),cmg_cfg);
+cmg = cfc.estimate_comodulogram(signal.signal(:,1:512*20),cmg_cfg);
 cfc.plot.cmg(cmg)
 
 %% Estimate a sliding window comodulogram
@@ -135,7 +135,7 @@ cmg_cfg = struct('sr',      sample_rate,...
     'hi_step',              2,...
     'metrics',              {{'MI','PLV'}});
 
-sw_cmg = estimate_comodulogram(signal.signal(:,1:1536),cmg_cfg);
+sw_cmg = cfc.estimate_comodulogram(signal.signal(:,1:1536),cmg_cfg);
 
 
 %% Epoched Data
@@ -151,7 +151,7 @@ S = struct('seconds',           400, ...
            'noise_level',       -2,...
            'switching_freq',    4,...
            'method',            'mw');
-signal = cfc_simulate(S);
+signal = cfc.simulate(S);
 signal = cfc.util.swsignals(signal,fix(sample_rate)*4,fix(sample_rate)*4);
 %%
 signal = cfc.util.basesignals(signal.signal,sample_rate,...
@@ -164,10 +164,10 @@ signal = cfc.util.basesignals(signal.signal,sample_rate,...
 signal = cfc.util.swsignals(signal,fix(sample_rate)*4,fix(sample_rate)*4);
 
 % should go from [1,2500,99] to [1,
-trial_signals = cfc_utils_stacktrials(signal,...
+trial_signals = cfc.utils.stacktrials(signal,...
                                       fix(sample_rate)/2,'stack');
 
-test_signals = cfc_utils_stacktrials(trial_signals,...
+test_signals = cfc.utils.stacktrials(trial_signals,...
                                       fix(sample_rate)/2,'unstack');
 
 %%
@@ -178,7 +178,7 @@ cfg = struct('sr',          sample_rate,...
              'hi_bandwidth',20,...
              'metrics',      {{'MI'}},...
              'window_size', fix(sample_rate/8));
-cfc_results = estimate_task_cfc(signal.signal,cfg);
+cfc_results = cfc.estimate_task_cfc(signal.signal,cfg);
 
 
 %% Epochwise comodulogram NOT WORKING
@@ -192,5 +192,4 @@ cmg_cfg = struct('sr',      sample_rate,...
     'hi_step',             5,...
     'metrics',             {{'MI','MI_NORM'}});
 
-cmg = estimate_comodulogram(signal.signal,cmg_cfg);
-
+cmg = cfc.estimate_comodulogram(signal.signal,cmg_cfg);
