@@ -42,12 +42,7 @@ if nargin < 5 || isempty(time_vect)
     time_vect = (0:1/sr:(nsamples-1) * (1/sr));
 end
 
-if nsamples < sr*4
-    % Should probably expose this at the top
-    order = 128;
-else
-    order = 256;
-end
+order = []; % perhaps expose this at top
 
 %% preallocated
 theta = zeros(nchannels,nsamples,nrealisations);
