@@ -259,7 +259,80 @@ elseif strcmp(S.method,'nonstat_mean')
     obj.state_switching = state_switching;
     return
 
+elseif strcmp(S.method,'asymmodal')
+
+        rng(27);
+
+        r = .98;
+        wr = 2*pi*S.modulating_freq/S.sample_rate;
+        a1 = [1 -2*r*cos(wr) (r^2)];
+
+        time_vect = 0:1/S.sample_rate:S.seconds;
+        modulating_ts = randn(1,length(time_vect));
+
+        for idx = 4:length(time_vect)
+            for ilag = 2:3
+                modulating_ts(idx) = modulating_ts(idx) - squeeze(a1(ilag))*modulating_ts(idx-ilag+1);
+            end
+        end
+
+        modulating_ts = ( modulating_ts - mean(modulating_ts) ) / std(modulating_ts);
+
+        state_switching = ( square(sin(2*pi*S.switching_freq*obj.time_vect))+1 )/ 2;
+
+        amp = abs(hilbert(modulating_ts));
+        ph = angle(hilbert(modulating_ts)*exp(-j*pi/2));
+        di = diff(ph);
+        di = di < -1;
+
+        inds = find(di);
+        ph2 = zeros(size(modulating_ts));
+        for idx = 1:length(inds)-1
+
+            start = inds(idx)+1;
+            stop = inds(idx+1)+1;
+            wavelen = stop-start;
+
+            % Create asymmetrical modulation
+            %mod = ( 1*linspace(1,.5,wavelen).^3 ).* ...
+            %      1.*( abs(linspace(-1,1,wavelen).^1.5) ).* ...
+            %      3.*sin(linspace(0,pi*2*1,wavelen));
+            mod = ( 1*linspace(1,.5,wavelen).^2 ).* ...
+                    1.*( abs(linspace(-1,1,wavelen).^1.7) ).* ...
+                    4.*sin(linspace(0,pi*2*1,wavelen));
+
+            % Modulate the phase dynamics
+            ph2(start:stop-1) = -ph(start:stop-1) + mod;
+
+        end
+        modulating_ts = -sgolayfilt((amp.*(cos(ph2)))',2,21)';
+
+        noise = cfc.util.scalesignal(randn(size(modulating_ts,1),size(modulating_ts,2)),...
+            S.noise_level,...
+            modulating_ts);
+        obj.modulating_ts = modulating_ts + noise;
+        modulated_ts = S.modulated_amp.*sin(2*pi*S.modulated_freq*obj.time_vect);
+
+        t = modulating_ts + 2;
+        t(t<0) = 0;
+        t = t./max(t);
+        obj.modulated_ts = (modulated_ts.*t);
+        obj.signal = obj.modulated_ts + modulating_ts;
+
+        noise = cfc.util.scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+            S.noise_level,...
+            obj.signal);
+
+        obj.signal = obj.signal + noise;
+
+        obj.state_switching = state_switching;
+        obj.time_vect = obj.time_vect;
+
+        return
+
 elseif strcmp(S.method,'modal')
+
+        rng(27);
 
         r = .98;
         wr = 2*pi*S.modulating_freq/S.sample_rate;
@@ -282,16 +355,18 @@ elseif strcmp(S.method,'modal')
             S.noise_level,...
             modulating_ts);
         obj.modulating_ts = modulating_ts + noise;
-        modulated_ts = sin(2*pi*S.modulated_freq*obj.time_vect);
-        noise = cfc.util.scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
-            S.noise_level,...
-            modulated_ts);
+        modulated_ts = S.modulated_amp.*sin(2*pi*S.modulated_freq*obj.time_vect);
+
 
         t = modulating_ts + 2;
         t(t<0) = 0;
         t = t./max(t);
         obj.modulated_ts = (modulated_ts.*t);
-        obj.signal = obj.modulated_ts + modulating_ts;
+
+        noise = cfc.util.scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
+            S.noise_level,...
+            modulating_ts);
+        obj.signal = obj.modulated_ts + modulating_ts + noise;
 
         obj.state_switching = state_switching;
         obj.time_vect = obj.time_vect;
