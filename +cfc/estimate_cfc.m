@@ -163,7 +163,7 @@ for met_idx = 1:length(cfg.metrics)
     elseif strcmp(cfg.metrics{met_idx},'MIZ')
         mi_norm = cfc.est.minorm(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mi_norm = mi_norm;
-    elseif strcmp(cfg.metrics{met_idx},'MITORT')
+    elseif strcmp(cfg.metrics{met_idx},'MI_TORT')
         mitort = cfc.est.mitort(cfc_signals.theta_phase,cfc_signals.gamma_amp);
         cfc_results.mitort = mitort;
     else
