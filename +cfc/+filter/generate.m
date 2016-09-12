@@ -34,7 +34,7 @@ elseif length(varargin) == 5
 else
     warning('Wrong number of arguments passed, check cfc.filter.generate usage');
 end
-        
+
 
 pass = [centre_freq-(pass_width/2) centre_freq+(pass_width/2)];
 trans = [centre_freq-(trans_width/2) centre_freq+(trans_width/2)];
@@ -62,16 +62,16 @@ if strcmp(method, 'window')
         'PassbandFrequency2', pass(2),...
         'StopbandFrequency2', trans(2),...
         'SampleRate', sample_rate);
-    
+
     % Get frequency response
     [h,~] = freqz(D);
-    
+
     % Get phase response
     [phi,w] = phasez(D);
-    
+
 else
     %% Design a filter with Parks & McClelland
-    
+
     f = [0, trans(1)....
         pass(1),...
         pass(2),...
@@ -80,10 +80,10 @@ else
     f = f / ( sample_rate / 2); % normalised frequency
     a = [0 0.0 1.0 1.0 0.0 0];
     D = firpm(order,f,a);
-    
+
     % get frequency response
     [h,~] = freqz(D,1,512);
-    
+
     % get phase response
     [phi,w] = phasez(D,1,512);
 end
