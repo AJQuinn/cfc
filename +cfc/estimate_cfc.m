@@ -84,7 +84,7 @@ end
 if isfield(cfg,'signal')
     [nsamples,~] = size(signal);
 end
-time_vect = (0:1/cfg.sr:(nsamples-1) * (1/cfg.sr)) - cfg.pretrig;
+time_vect = linspace(0,nsamples/cfg.sr,nsamples) - cfg.pretrig;
 
 % Generate frequency bounds
 lo_bounds = [cfg.lo_freq - cfg.lo_bandwidth/2, cfg.lo_freq + cfg.lo_bandwidth/2];
@@ -97,7 +97,9 @@ if isfield(cfg,'window_size') && isfield(cfg,'window_step')
     window_step = floor( cfg.window_step / ( 1000 / cfg.sr ) );
 
     % Find number of windows
-    nwindows = floor ( (nsamples - window_size) / window_step);
+    %nwindows = floor ( (nsamples - window_size) / window_step)
+    nwindows = floor ( (nsamples) / window_step)
+    
 else
     nwindows = 1;
 end
@@ -176,6 +178,7 @@ end
 if nperms > 0
     % We only need the surrogates for the modulating time-course
     surrogates = cfc.stats.generate_phase_surrogates(signal(1,:),nperms);
+    surrogates = surrogates(:,1:end-1);
 
     cfc_results.esc_null = nan(nperms,1);
     ncfc_results.esc_null = nan(nperms,1);
@@ -183,6 +186,7 @@ if nperms > 0
     cfc_results.mi_null = nan(nperms,1);
     cfc_results.glm_null = nan(nperms,1);
     cfc_results.plv_null = nan(nperms,1);
+    cfc_results.mitort_null = nan(nperms,1);
 
     % I need to compute the maximum statistic across sliding windows for each
     % permutatation. It will therefore be simpler to compute every window for each
@@ -230,13 +234,16 @@ if nperms > 0
                 cfc_results.plv_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'GLM')
                 tmp = cfc.est.glm(surr_signals.theta_phase,surr_signals.gamma_amp);
-                cfc_results.glm_null(idx) = max(tmp);
+                cfc_results.glm_null(idx) = max(tmp.r2);
             elseif strcmp(cfg.metrics{met_idx},'MI')
                 tmp = cfc.est.mi(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_null(idx) = max(tmp);
             elseif strcmp(cfg.metrics{met_idx},'MI_NORM')
                 tmp = cfc.est.minorm(surr_signals.theta_phase,surr_signals.gamma_amp);
                 cfc_results.mi_norm_null(idx) = max(tmp);
+            elseif strcmp(cfg.metrics{met_idx},'MI_TORT')
+                tmp = cfc.est.mitort(surr_signals.theta_phase,surr_signals.gamma_amp);
+                cfc_results.mitort_null(idx) = max(tmp);
             else
                 fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM and MI',cfg.metrics{met_idx});
             end
@@ -266,7 +273,7 @@ if nperms > 0
             cfc_results.plv_thresh(2) = prctile(cfc_results.plv_null,99);
             cfc_results.plv_thresh(3) = prctile(cfc_results.plv_null,99.9);
         elseif strcmp(cfg.metrics{met_idx},'GLM')
-            cfc_results.glm_z = ( cfc_results.glm - mean(cfc_results.glm_null) ) / std(cfc_results.glm_null);
+            cfc_results.glm_z = ( cfc_results.glm.r2 - mean(cfc_results.glm_null) ) / std(cfc_results.glm_null);
             cfc_results.glm_thresh(1) = prctile(cfc_results.glm_null,95);
             cfc_results.glm_thresh(2) = prctile(cfc_results.glm_null,99);
             cfc_results.glm_thresh(3) = prctile(cfc_results.glm_null,99.9);
@@ -280,6 +287,11 @@ if nperms > 0
             cfc_results.mi_norm_thresh(1) = prctile(cfc_results.mi_norm_null,95);
             cfc_results.mi_norm_thresh(2) = prctile(cfc_results.mi_norm_null,99);
             cfc_results.mi_norm_thresh(3) = prctile(cfc_results.mi_norm_null,99.9);
+        elseif strcmp(cfg.metrics{met_idx},'MI_TORT')
+            cfc_results.mitort_z = ( cfc_results.mitort - mean(cfc_results.mitort_null) ) / std(cfc_results.mitort_null);
+            cfc_results.mitort_thresh(1) = prctile(cfc_results.mitort_null,95);
+            cfc_results.mitort_thresh(2) = prctile(cfc_results.mitort_null,99);
+            cfc_results.mitort_thresh(3) = prctile(cfc_results.mitort_null,99.9);
         else
             fprintf('CFC Metric %s not recognised!\nPlease choose from:\nESC, NESC, AEC, PLV, GLM, MI and MI_NORM',cfg.metrics{met_idx});
         end
