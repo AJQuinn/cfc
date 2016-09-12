@@ -21,7 +21,8 @@ end
 if nargin <= 2
 
     %% Just plot the cmg without any fancy spectrum sidebars
-    col_levels = linspace(min(min(metric)),max(max(metric)),24);
+    %col_levels = linspace(min(min(metric)),max(max(metric)),24);
+    col_levels = linspace(max(max(metric))/3,max(max(metric)),24);
     %col_levels = 0:.25/24:.25;
     figure;
     contourf(squeeze(mean(cmg.lo_freqs,1)),...
@@ -29,7 +30,7 @@ if nargin <= 2
         squeeze(metric)',24,...
         'linestyle','none');
     caxis([col_levels(1) col_levels(end)]);
-    colormap('hot');
+    colormap(flipud(colormap('hot')));
     xlabel('Modulating Frequency (Hz)');
     ylabel('Modulated Frequency (Hz)');
     colorbar();
