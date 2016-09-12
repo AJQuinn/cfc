@@ -323,7 +323,7 @@ elseif strcmp(S.method,'asymmodal')
             S.noise_level,...
             obj.signal);
 
-        obj.signal = obj.signal + noise;
+        obj.signal = zscore(obj.signal + noise);
 
         obj.state_switching = state_switching;
         obj.time_vect = obj.time_vect;
@@ -366,7 +366,7 @@ elseif strcmp(S.method,'modal')
         noise = cfc.util.scalesignal(randn(size(modulated_ts,1),size(modulated_ts,2)),...
             S.noise_level,...
             modulating_ts);
-        obj.signal = obj.modulated_ts + modulating_ts + noise;
+        obj.signal = zscore(obj.modulated_ts + modulating_ts + noise);
 
         obj.state_switching = state_switching;
         obj.time_vect = obj.time_vect;
