@@ -67,7 +67,7 @@ for idx = 1:nrealisations
 
         theta(1,:,idx) = cfc.filter.fir(signal(1,:,idx),theta_cfg);
     else
-        theta = [];
+        theta = lo_bounds;
     end
 
     gamma_cfg.order = order;
@@ -104,8 +104,6 @@ for idx = 1:nrealisations
     % Compute theta-filtered gamma amplitude
     if length(lo_bounds) == 2
         gamma_amp_theta(1,:,idx) = cfc.filter.fir(gamma_amp(1,:,idx),theta_cfg);
-    else
-        gamma_amp_theta(1,:,idx) = cfc.util.thetawaveform(signal(1,:,idx),lo_bounds,sr);
     end
 
 end
