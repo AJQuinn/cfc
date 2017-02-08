@@ -35,7 +35,7 @@ if ndims ( signals.signal ) == 3
     stacked = 1;
 end
 
-figure('position',[100 100 1024, 512]);
+figure('position',[100 100 1536, 768]);
 
 %% Plot full data power spectrum
 subplot(3,4,[1 2 5 6]);hold on;grid on;
@@ -83,8 +83,12 @@ ylim(yvals);
 
 %% Phase and power distributions
 subplot(343);hold on;grid on;
-[counts,bins] = hist(signals.theta_phase - mean(signals.theta_phase),20);
-hist(signals.theta_phase,20);
+[~,bins] = hist(signals.theta_phase,20);
+[counts,bins] = hist(signals.theta_phase - mean(signals.theta_phase),bins);
+counts = counts ./ sum(counts);
+x_centres = bins;%(bins(1:end-1) + bins(2:end)) ./ 2;
+bar(x_centres,counts,pi/2);
+%hist(signals.theta_phase,20);
 plot([-pi pi],[mean(counts) mean(counts)],'k--','linewidth',2);
 xlabel('Modulating Phase');
 xlim([-pi pi]);
@@ -106,11 +110,19 @@ title('Modulating phase in z-plane')
 
 %% Amp on unit circle
 subplot(3,4,8);grid on;hold on;
-plot(sin(signals.gamma_amp),cos(signals.gamma_amp))
-plot([0 mean(sin(signals.gamma_amp))],[0 mean(cos(signals.gamma_amp))],'r','linewidth',5)
-xlabel('Real (cos)');xlim([-1.2 1.2])
-ylabel('Imag (sin)');ylim([-1.2 1.2])
-title('Modulated amplitude in z-plane')
+% plot(sin(signals.gamma_amp),cos(signals.gamma_amp))
+% plot([0 mean(sin(signals.gamma_amp))],[0 mean(cos(signals.gamma_amp))],'r','linewidth',5)
+% xlabel('Real (cos)');xlim([-1.2 1.2])
+% ylabel('Imag (sin)');ylim([-1.2 1.2])
+% title('Modulated amplitude in z-plane')
+
+canolty = signals.gamma_amp .* exp(1i * signals.theta_phase);
+plot(real(canolty),imag(canolty))
+plot([0 mean(real(canolty))],[0 mean(imag(canolty))],'r','linewidth',3)
+xlabel('Real');
+ylabel('Imag');
+title('Canolty MI')
+xlim([-1 1]);ylim([-1 1]);
 
 
 %% Gamma amp by theta phase
@@ -127,6 +139,7 @@ bar(x_centres,counts,pi/2);
 xlim([-pi pi]);
 rng = max(counts) - min(counts);
 ylim([min(counts) - (rng/2) max(counts) + (rng/2)]);
+plot([-pi pi],[mean(counts) mean(counts)],'k--','linewidth',2);
 xlabel('Modulating Phase');
 ylabel('Modulated Power');
 title('Phase-Amplitude Distribution');
@@ -140,6 +153,7 @@ plot([0 mean(real(canolty))],[0 mean(imag(canolty))],'r','linewidth',3)
 xlabel('Real');
 ylabel('Imag');
 title('Canolty MI')
+xlim([-.3 .3]);ylim([-.3 .3]);
 
 %% Make more detailed phase plot
 
