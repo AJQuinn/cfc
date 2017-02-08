@@ -5,7 +5,7 @@ function out = make_sw( data, window_size, window_step )
 % are given in samples.
 
     [nchannels,nsamples] = size(data); % there should only be one channel here
-    nwindows = fix ( (nsamples - window_size) / window_step);
+    nwindows = fix ( (nsamples) / window_step);
 
     out = zeros(nchannels,window_size,nwindows);
 
