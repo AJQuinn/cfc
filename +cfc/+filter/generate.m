@@ -43,7 +43,7 @@ trans = [centre_freq-(trans_width/2) centre_freq+(trans_width/2)];
 
 if trans(1) <= 0
     %warning('Lower filter transition band is too close to zero!');
-    trans(1) = 0;
+    trans(1) = 0.01;
 end
 
 if trans(2) >= sample_rate/2
