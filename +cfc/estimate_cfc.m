@@ -46,7 +46,7 @@ function cfc_results = estimate_cfc( signal, cfg )
 
 %% Housekeeping
 
-if ndims(signal) == 2
+if ismatrix(signal)
     [nchannels,nsamples] = size(signal);
 else
     [nchannels,nsamples,~] = size(signal);
@@ -98,7 +98,7 @@ if isfield(cfg,'window_size') && isfield(cfg,'window_step')
 
     % Find number of windows
     %nwindows = floor ( (nsamples - window_size) / window_step)
-    nwindows = floor ( (nsamples) / window_step)
+    nwindows = floor ( (nsamples) / window_step);
     
 else
     nwindows = 1;
