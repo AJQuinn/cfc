@@ -52,9 +52,23 @@ if trans(2) >= sample_rate/2
 end
 
 % TODO: expose this option?
-method = 'parks';
+method = 'lsq';
 
-if strcmp(method, 'window')
+if strcmp(method,'window')
+
+    %order = fix(order/5);
+
+    f = [pass(1) pass(2)];
+    f = f / ( sample_rate / 2);
+    D = fir1(order,f);
+
+    % get frequency response
+    [h,~] = freqz(D,1,512);
+
+    % get phase response
+    [phi,w] = phasez(D,1,512);
+
+elseif strcmp(method, 'window2')
     %% Design a filter with windowing method
     D = designfilt('bandpassfir', 'FilterOrder', order, ...
         'StopbandFrequency1', trans(1),...
@@ -69,7 +83,7 @@ if strcmp(method, 'window')
     % Get phase response
     [phi,w] = phasez(D);
 
-else
+elseif strcmp(method, 'parks')
     %% Design a filter with Parks & McClelland
 
     f = [0, trans(1)....
@@ -80,6 +94,24 @@ else
     f = f / ( sample_rate / 2); % normalised frequency
     a = [0 0.0 1.0 1.0 0.0 0];
     D = firpm(order,f,a);
+
+    % get frequency response
+    [h,~] = freqz(D,1,512);
+
+    % get phase response
+    [phi,w] = phasez(D,1,512);
+
+elseif strcmp(method, 'lsq')
+    %% Design a filter with Parks & McClelland
+
+    f = [0, trans(1)....
+        pass(1),...
+        pass(2),...
+        trans(2),...
+        sample_rate / 2];
+    f = f / ( sample_rate / 2); % normalised frequency
+    a = [0 0.0 1.0 1.0 0.0 0];
+    D = firls(order,f,a);
 
     % get frequency response
     [h,~] = freqz(D,1,512);
