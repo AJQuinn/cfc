@@ -40,7 +40,7 @@ else
 
     if nargin < 6 || isempty(col_levels)
         % Set colour levels based on the data
-        col_levels = 0:max(max(metric))/24:max(max(metric));
+        col_levels = linspace(max(max(metric))/9,max(max(metric)),24);
         %col_levels = 0:.25/36:.25;
     end
 
@@ -90,7 +90,7 @@ else
         squeeze(metric)',18,...
         'linestyle','none');
     caxis([col_levels(1) col_levels(end)]);
-    colormap('hot');
+    colormap(flipud(colormap('hot')));
     colorbar('position',[.92,.3,.03,.6]);
     set(gca,'XTickLabel','');set(gca,'YTickLabel','')
     set(gca,'Color',[0.8 0.8 0.8]);
