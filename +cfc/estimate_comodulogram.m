@@ -191,7 +191,7 @@ for lo_idx = 1:n_lo_steps
             if strcmp(cfg.metrics{met_idx},'ESC')
                 esc(:,lo_idx,hi_idx,:) = cfc.est.corr(signals.theta,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'NESC')
-                nesc(:,lo_idx,hi_idx,:) = ncfc.est.corr(cos(signals.theta_phase),signals.gamma_amp);
+                nesc(:,lo_idx,hi_idx,:) = cfc.est.corr(cos(signals.theta_phase),signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'AEC')
                 aec(:,lo_idx,hi_idx,:) = cfc.est.corr(signals.theta_amp,signals.gamma_amp);
             elseif strcmp(cfg.metrics{met_idx},'PLV')
