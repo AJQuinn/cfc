@@ -116,13 +116,11 @@ hi_freqs = ones(2,n_hi_steps,n_lo_steps) .* repmat(cfg.hi_bounds(1):cfg.hi_step:
 
 if strcmp(cfg.hi_bandwidth,'adaptive')
     for idx = 1:n_lo_steps
-        hi_bandwidth = lo_freqs(1,idx)+2;
-        hi_freqs(1,:,idx) = hi_freqs(1,:,idx) - ones(1,n_hi_steps,1)*hi_bandwidth;
-        hi_freqs(2,:,idx) = hi_freqs(2,:,idx) + ones(1,n_hi_steps,1)*hi_bandwidth;
+        hi_bandwidth = lo_freqs(1,idx)+4;
+        hi_freqs(1,:,idx) = hi_freqs(1,:,idx) - ones(1,n_hi_steps,1)*(hi_bandwidth/2);
+        hi_freqs(2,:,idx) = hi_freqs(2,:,idx) + ones(1,n_hi_steps,1)*(hi_bandwidth/2);
     end
 else
-    size(hi_freqs)
-    size(ones(n_hi_steps,n_lo_steps)*cfg.hi_bandwidth/2)
      hi_freqs(1,:,:) = hi_freqs(1,:,:) - ones(1,n_hi_steps,n_lo_steps)*cfg.hi_bandwidth/2;
      hi_freqs(2,:,:) = hi_freqs(2,:,:) + ones(1,n_hi_steps,n_lo_steps)*cfg.hi_bandwidth/2;
 
