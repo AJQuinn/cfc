@@ -27,12 +27,14 @@ if nargin <= 2
     figure;
     contourf(squeeze(mean(cmg.lo_freqs,1)),...
         squeeze(mean(cmg.hi_freqs(:,:,1),1)),...
-        squeeze(metric)',24,...
+        squeeze(metric)',36,...
         'linestyle','none');
     caxis([col_levels(1) col_levels(end)]);
     colormap(flipud(colormap('hot')));
     xlabel('Modulating Frequency (Hz)');
     ylabel('Modulated Frequency (Hz)');
+    set(gca,'Color',[0.8 0.8 0.8]);
+
     colorbar();
 else
 
@@ -91,7 +93,8 @@ else
     colormap('hot');
     colorbar('position',[.92,.3,.03,.6]);
     set(gca,'XTickLabel','');set(gca,'YTickLabel','')
-
+    set(gca,'Color',[0.8 0.8 0.8]);
+    grid on
 end
 
 set(gca,'FontSize',24)
