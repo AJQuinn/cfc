@@ -1,4 +1,5 @@
 function [ sw_signals ] = swsignals(signals,window_size,window_step)
+%function [ sw_signals ] = cfc.util.swsignals(signals,window_size,window_step)
 %
 % Function for splitting the data within a cfc signals struct into separate
 % sliding windows based on a window length and step size (must be set in
