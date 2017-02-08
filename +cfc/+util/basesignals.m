@@ -39,7 +39,7 @@ if nargin < 6 || isempty(true_timecourse)
 end
 
 if nargin < 5 || isempty(time_vect)
-    time_vect = (0:1/sr:(nsamples-1) * (1/sr));
+    time_vect = linspace(0,nsamples/sr,nsamples);
 end
 
 order = []; % perhaps expose this at top
@@ -64,6 +64,11 @@ for idx = 1:nrealisations
         theta_cfg.pass_width = lo_bounds(2)-lo_bounds(1);
         theta_cfg.trans_width = lo_trans(2) - lo_trans(1);
         theta_cfg.method = method;
+        theta_cfg.order = fix(1/lo_bounds(1) * sr) * 5;
+        if theta_cfg.order < 256
+            %need a high order for very low freqs
+            theta_cfg.order = 256;
+        end
 
         theta(1,:,idx) = cfc.filter.fir(signal(1,:,idx),theta_cfg);
     else
@@ -76,6 +81,7 @@ for idx = 1:nrealisations
     gamma_cfg.pass_width = hi_bounds(2)-hi_bounds(1);
     gamma_cfg.trans_width = hi_trans(2) - hi_trans(1);
     gamma_cfg.method = method;
+    gamma_cfg.order = 128;%fix(1/hi_bounds(1) * sr) * 10;
 
     if nchannels == 1
         gamma(1,:,idx) = cfc.filter.fir(signal(1,:,idx),gamma_cfg);
