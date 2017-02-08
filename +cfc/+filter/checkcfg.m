@@ -14,10 +14,10 @@ end
 % default value is 3 or 7 times the centre frequency for low/high freqs
 if ~isfield(filt_cfg,'order') || isempty(filt_cfg.order)
     lo_freq = filt_cfg.centre_freq - .5*filt_cfg.pass_width;
-    if lo_freq > 10
+    if lo_freq > 20
         filt_cfg.order = fix(1/lo_freq * filt_cfg.sample_rate) * 10;
     else
-        filt_cfg.order = fix(1/lo_freq * filt_cfg.sample_rate) * 3;
+        filt_cfg.order = fix(1/lo_freq * filt_cfg.sample_rate) * 5;
     end
 end
 
