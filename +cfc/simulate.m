@@ -71,6 +71,95 @@ elseif strcmp(S.method,'basic')
         % modulate signal
         obj.modulated_ts = (obj.modulated_ts.*am);
 
+elseif strcmp(S.method,'Abreu2010')
+        % An analytical formulation of a nonlinear near-bed wave
+        %
+        % The degree of nonlinearity is specified by S.nonlin_deg which is strictly [-1 < x < 1]
+        %
+        % Analytical approximate wave form for asymmetric waves - Abreu et al 2010
+        % http://doi.org/10.1016/j.coastaleng.2010.02.005
+        % Equation 7.
+
+        if ~isfield(S,'nonlin_deg')
+            error('Please make sure S.nonlin_deg is defined to use this simulation')
+        end
+
+        if abs(S.nonlin_deg) >= 1
+           warning(sprintf('Please ensure that S.nonlin_deg is [-1 < x < 1], current setting is S.nonlin_deg = %d',S.nonlin_deg))
+        end
+
+        if ~isfield(S,'nonlin_phi');
+            S.nonlin_phi = -pi/2;
+        end
+
+        % create nonlinear low frequency signal
+        factor = sqrt(1-S.nonlin_deg.^2);
+        num = sin(2*pi*S.modulating_freq*obj.time_vect) + ( S.nonlin_deg*sin(S.nonlin_phi) / (1+sqrt(1-S.nonlin_deg^2)) );
+        denom = 1- S.nonlin_deg*cos(2*pi*S.modulating_freq.*obj.time_vect + S.nonlin_phi);
+        obj.modulating_ts = S.modulating_amp.*factor.*( num ./ denom );
+
+        % create simple high frequency signal
+        obj.modulated_ts = S.modulated_amp*sin(2*pi*S.modulated_freq*obj.time_vect);
+
+        state_switching = ( 1 + square(sin(2*pi*S.switching_freq*obj.time_vect)) ) / 2;
+
+        % Create modulation
+        am = sin(2*pi*S.modulating_freq*obj.time_vect + S.phase_lag) + 1;
+        am(am < 0) = 0;
+        obj.am = am;
+        am = ( am ./ max(am) ) .* state_switching;
+        am(state_switching == 0) = 1;
+
+        % modulate signal
+        obj.modulated_ts = (obj.modulated_ts.*am);
+
+elseif strcmp(S.method,'Abreu2010am')
+        % An analytical formulation of a nonlinear near-bed wave
+        %
+        % The degree of nonlinearity is specified by S.nonlin_deg which is strictly [-1 < x < 1]
+        %
+        % The direction of skewness is determined by nonlin_phi, pi/2 is a
+        % central.
+        %
+        % Analytical approximate wave form for asymmetric waves - Abreu et al 2010
+        % http://doi.org/10.1016/j.coastaleng.2010.02.005
+        % Equation 7.
+
+        if ~isfield(S,'nonlin_deg')
+            error('Please make sure S.nonlin_deg is defined to use this simulation')
+        end
+
+        if abs(S.nonlin_deg) >= 1
+           warning(sprintf('Please ensure that S.nonlin_deg is [-1 < x < 1], current setting is S.nonlin_deg = %d',S.nonlin_deg))
+        end
+
+        if ~isfield(S,'nonlin_phi');
+            S.nonlin_phi = -pi/2;
+        end
+
+        obj.modulating_ts = S.modulating_amp*sin(2*pi*S.modulating_freq*obj.time_vect);
+
+        % create simple high frequency signal
+        obj.modulated_ts = S.modulated_amp*sin(2*pi*S.modulated_freq*obj.time_vect);
+
+        state_switching = ( 1 + square(sin(2*pi*S.switching_freq*obj.time_vect)) ) / 2;
+
+        % Create modulation
+        % create nonlinear amplitude modulation signal
+        factor = sqrt(1-S.nonlin_deg.^2);
+        num = sin(2*pi*S.modulating_freq*obj.time_vect) + ( S.nonlin_deg*sin(S.nonlin_phi) / (1+sqrt(1-S.nonlin_deg^2)) );
+        denom = 1- S.nonlin_deg*cos(2*pi*S.modulating_freq.*obj.time_vect + S.nonlin_phi);
+        am = -factor.*( num ./ denom );
+
+        am = am + abs(min(am)).*S.modulated_amp;
+        am(am < 0) = 0;
+        obj.am = am;
+        am = ( am ./ max(am) ) .* state_switching;
+        am(state_switching == 0) = 1;
+
+        % modulate signal
+        obj.modulated_ts = (obj.modulated_ts.*am);
+
 elseif strcmp(S.method,'sinsq')
         % phase-amplitude coupling between an asymmetrical (peak-to-trough) low
         % and a symmetrical high signal
@@ -123,6 +212,7 @@ elseif strcmp(S.method,'sinsq_asym')
         ang = angle(hilbert(sin(2*pi*S.modulating_freq*obj.time_vect + pi)));
         obj.modulating_ts(ang > 0) = modulating_ts1(ang>0);
         obj.modulating_ts(ang < 0) = modulating_ts2(ang<0);
+        obj.modulating_ts = S.modulating_amp*obj.modulating_ts;
 
         state_switching = ( 1 + square(sin(2*pi*S.switching_freq*obj.time_vect)) ) / 2;
 
@@ -608,9 +698,9 @@ end
 %% Add noise scaled to the modulating time-series and return
 obj.noise = cfc.util.scalesignal(randn(size(obj.modulated_ts,1),size(obj.modulated_ts,2)),...
                              S.noise_level,...
-                             obj.modulated_ts);
+                             obj.modulated_ts+zscore(obj.modulating_ts));
 
-obj.signal = obj.modulated_ts + obj.modulating_ts + obj.noise;
+obj.signal = obj.modulated_ts + zscore(obj.modulating_ts) + obj.noise;
 
 obj.state_switching = state_switching;
 
